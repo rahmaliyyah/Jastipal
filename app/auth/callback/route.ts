@@ -10,30 +10,29 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Cek apakah user sudah ada di tabel users
       const { data: existingUser } = await supabase
         .from('users')
-        .select('id')
+        .select('id, role')
         .eq('id', data.user.id)
         .single()
 
-      // Kalau belum ada, insert dulu (user baru via Google)
+      // User baru via Google → belum ada di tabel
       if (!existingUser) {
         await supabase.from('users').insert({
           id: data.user.id,
-          full_name: data.user.user_metadata.full_name ?? 'User',
-          role: 'user' // default role, bisa diubah nanti
+          full_name: data.user.user_metadata.full_name ?? data.user.email ?? 'User',
+          role: null,
         })
+        return NextResponse.redirect(`${origin}/onboarding`)
       }
 
-      // Redirect sesuai role
-      const { data: userData } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
+      // User lama tapi belum pilih role
+      if (!existingUser.role) {
+        return NextResponse.redirect(`${origin}/onboarding`)
+      }
 
-      if (userData?.role === 'jastiper') {
+      // User lama sudah punya role
+      if (existingUser.role === 'jastiper') {
         return NextResponse.redirect(`${origin}/jastiper/requests`)
       }
       return NextResponse.redirect(`${origin}/browse`)
