@@ -25,7 +25,7 @@ export default function OnboardingPage() {
     if (insertError) { setError('Gagal menyimpan, coba lagi.'); setLoading(false); return }
 
     if (role === 'jastiper') { router.push('/jastiper/requests') }
-    else { router.push('/browse') }
+    else { router.push('/dashboard') }
   }
 
   return (

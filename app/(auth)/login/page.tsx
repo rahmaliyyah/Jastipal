@@ -22,7 +22,7 @@ export default function LoginPage() {
       .from('users').select('role').eq('id', data.user.id).single()
     if (!userData?.role) { router.push('/onboarding'); return }
     if (userData.role === 'jastiper') { router.push('/jastiper/requests') }
-    else { router.push('/browse') }
+    else { router.push('/dashboard') }
   }
 
   async function handleGoogleLogin() {

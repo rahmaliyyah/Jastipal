@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       if (existingUser.role === 'jastiper') {
         return NextResponse.redirect(`${origin}/jastiper/requests`)
       }
-      return NextResponse.redirect(`${origin}/browse`)
+      return NextResponse.redirect(`${origin}/dashboard`)
     }
   }
 
