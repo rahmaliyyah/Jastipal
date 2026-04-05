@@ -13,16 +13,31 @@ export default function LoginPage() {
   async function handleLogin() {
     setLoading(true)
     setError('')
+
     const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password,
     })
-    if (loginError) { setError('Email atau password salah'); setLoading(false); return }
+
+    if (loginError) {
+      setError('Email atau password salah')
+      setLoading(false)
+      return
+    }
+
+    // ambil data user untuk cek role
     const { data: userData } = await supabase
-      .from('users').select('role').eq('id', data.user.id).single()
-    if (!userData?.role) { router.push('/onboarding'); return }
-    if (userData.role === 'jastiper') { router.push('/jastiper/requests') }
-    else { router.push('/dashboard') }
+      .from('users')
+      .select('is_admin')
+      .eq('id', data.user.id)
+      .single()
+
+    // redirect sesuai role
+    if (userData?.is_admin) {
+      router.push('/admin')
+    } else {
+      router.push('/dashboard')
+    }
   }
 
   async function handleGoogleLogin() {
