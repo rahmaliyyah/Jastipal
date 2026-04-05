@@ -13,22 +13,39 @@ export default function RegisterPage() {
   async function handleRegister() {
     setLoading(true)
     setError('')
+
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
     })
-    if (signUpError) { setError(signUpError.message); setLoading(false); return }
+
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+      return
+    }
+
     if (data.user) {
-      await supabase.from('users').insert({
+      const { error: insertError } = await supabase.from('users').insert({
         id: data.user.id,
         full_name: form.full_name,
-        role: null,
+        email: form.email,
+        is_jastiper: false,
+        is_admin: false,
       })
+
+      if (insertError) {
+        setError('Gagal membuat profil, coba lagi.')
+        setLoading(false)
+        return
+      }
     }
-    router.push('/onboarding')
+
+    // semua user baru langsung ke dashboard sebagai buyer
+    router.push('/dashboard')
   }
 
-  async function handleGoogleLogin() {
+  async function handleGoogleRegister() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` }
@@ -87,7 +104,7 @@ export default function RegisterPage() {
         </div>
 
         <button
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleRegister}
           className="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
         >
           <svg width="16" height="16" viewBox="0 0 24 24">
