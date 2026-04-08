@@ -1,38 +1,52 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ email: '', password: '' })
 
+  useEffect(() => {
+    // tampilkan pesan jika user difreeze
+    if (searchParams.get('error') === 'frozen') {
+      setError('Akun kamu telah dinonaktifkan. Hubungi admin untuk informasi lebih lanjut.')
+    }
+  }, [searchParams])
+
   async function handleLogin() {
     setLoading(true)
     setError('')
 
-    const { data, error: loginError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password,
     })
 
-    if (loginError) {
-      setError('Email atau password salah')
+    if (signInError) {
+      setError('Email atau password salah.')
       setLoading(false)
       return
     }
 
-    // ambil data user untuk cek role
+    // cek is_frozen dan is_admin
     const { data: userData } = await supabase
       .from('users')
-      .select('is_admin')
+      .select('is_admin, is_frozen')
       .eq('id', data.user.id)
       .single()
 
-    // redirect sesuai role
+    if (userData?.is_frozen) {
+      await supabase.auth.signOut()
+      setError('Akun kamu telah dinonaktifkan. Hubungi admin untuk informasi lebih lanjut.')
+      setLoading(false)
+      return
+    }
+
     if (userData?.is_admin) {
       router.push('/admin')
     } else {
@@ -51,9 +65,13 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
       <div className="bg-white dark:bg-gray-900 p-8 rounded-xl border border-gray-300 dark:border-gray-700 w-full max-w-sm shadow-sm">
         <h1 className="text-xl font-semibold mb-1 text-gray-900 dark:text-white">Masuk</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Selamat datang kembali</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Selamat datang kembali di Jastipal</p>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 mb-4">
+            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+          </div>
+        )}
 
         <div className="mb-4">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Email</label>
