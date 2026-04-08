@@ -6,6 +6,10 @@ import { useRouter } from 'next/navigation'
 type JastiperProfile = {
   kyc_status: 'pending' | 'approved' | 'rejected'
   kyc_rejection_reason: string | null
+  bio: string | null
+  service_fee_pct: number | null
+  base_country: string | null
+  whatsapp_number: string | null
 }
 
 export default function ProfilePage() {
@@ -45,7 +49,7 @@ export default function ProfilePage() {
 
       const { data: jpData } = await supabase
         .from('jastiper_profiles')
-        .select('kyc_status, kyc_rejection_reason')
+        .select('kyc_status, kyc_rejection_reason, bio, service_fee_pct, base_country, whatsapp_number')
         .eq('user_id', user.id)
         .single()
 
@@ -85,7 +89,6 @@ export default function ProfilePage() {
   function renderJastiperSection() {
     if (!profileLoaded) return null
 
-    // belum pernah daftar
     if (!jastiperProfile) {
       return (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
@@ -103,7 +106,6 @@ export default function ProfilePage() {
       )
     }
 
-    // pending
     if (jastiperProfile.kyc_status === 'pending') {
       return (
         <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
@@ -118,7 +120,6 @@ export default function ProfilePage() {
       )
     }
 
-    // rejected
     if (jastiperProfile.kyc_status === 'rejected') {
       return (
         <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6">
@@ -141,16 +142,17 @@ export default function ProfilePage() {
       )
     }
 
-    // approved
     return (
       <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-6">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-2 h-2 rounded-full bg-green-400"></div>
           <h2 className="text-base font-semibold text-green-800 dark:text-green-300">Verified Jastiper ✓</h2>
         </div>
-        <p className="text-sm text-green-700 dark:text-green-400">
-          Kamu sudah terdaftar sebagai jastiper. Kamu bisa membuat listing dan menerima order dari buyer.
-        </p>
+        <div className="text-sm text-green-700 dark:text-green-400 space-y-1">
+          <p>Kamu sudah terdaftar sebagai jastiper.</p>
+          {jastiperProfile.base_country && <p>Domisili: {jastiperProfile.base_country}</p>}
+          {jastiperProfile.service_fee_pct && <p>Service fee: {jastiperProfile.service_fee_pct}%</p>}
+        </div>
       </div>
     )
   }
@@ -162,7 +164,6 @@ export default function ProfilePage() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola informasi akun kamu</p>
       </div>
 
-      {/* Data Pribadi */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Data Pribadi</h2>
 
@@ -170,7 +171,7 @@ export default function ProfilePage() {
           {avatarUrl ? (
             <img src={avatarUrl} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-lg font-medium text-blue-600 dark:text-blue-300">
+            <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-lg font-medium text-blue-600 dark:text-blue-300 uppercase">
               {initials}
             </div>
           )}
@@ -188,7 +189,11 @@ export default function ProfilePage() {
         </div>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        {success && <p className="text-green-500 text-sm mb-4">Profil berhasil disimpan!</p>}
+        {success && (
+          <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3 mb-4">
+            <p className="text-green-600 dark:text-green-400 text-sm">Profil berhasil disimpan!</p>
+          </div>
+        )}
 
         <div className="mb-4">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Nama lengkap</label>
@@ -219,7 +224,6 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Section Jastiper */}
       {renderJastiperSection()}
     </div>
   )
