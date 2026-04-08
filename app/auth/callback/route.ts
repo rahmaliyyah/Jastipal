@@ -19,9 +19,15 @@ export async function GET(request: Request) {
   // cek apakah user sudah ada di public.users
   const { data: existingUser } = await supabase
     .from('users')
-    .select('id, is_admin')
+    .select('id, is_admin, is_frozen')
     .eq('id', data.user.id)
     .single()
+
+  // user difreeze → langsung logout dan redirect ke login dengan pesan
+  if (existingUser?.is_frozen) {
+    await supabase.auth.signOut()
+    return NextResponse.redirect(`${origin}/login?error=frozen`)
+  }
 
   // user baru via Google → insert sebagai buyer
   if (!existingUser) {
@@ -29,8 +35,10 @@ export async function GET(request: Request) {
       id: data.user.id,
       full_name: data.user.user_metadata.full_name ?? data.user.email ?? 'User',
       email: data.user.email,
+      auth_provider: 'google',
       is_jastiper: false,
       is_admin: false,
+      is_frozen: false,
     })
     return NextResponse.redirect(`${origin}/dashboard`)
   }
