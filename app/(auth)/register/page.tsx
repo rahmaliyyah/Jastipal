@@ -30,8 +30,10 @@ export default function RegisterPage() {
         id: data.user.id,
         full_name: form.full_name,
         email: form.email,
+        auth_provider: 'email',
         is_jastiper: false,
         is_admin: false,
+        is_frozen: false,
       })
 
       if (insertError) {
@@ -41,7 +43,6 @@ export default function RegisterPage() {
       }
     }
 
-    // semua user baru langsung ke dashboard sebagai buyer
     router.push('/dashboard')
   }
 
