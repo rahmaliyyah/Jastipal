@@ -26,7 +26,8 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
-      const { error: insertError } = await supabase.from('users').insert({
+      // pakai upsert karena trigger handle_new_user mungkin sudah insert duluan
+      const { error: upsertError } = await supabase.from('users').upsert({
         id: data.user.id,
         full_name: form.full_name,
         email: form.email,
@@ -34,9 +35,9 @@ export default function RegisterPage() {
         is_jastiper: false,
         is_admin: false,
         is_frozen: false,
-      })
+      }, { onConflict: 'id' })
 
-      if (insertError) {
+      if (upsertError) {
         setError('Gagal membuat profil, coba lagi.')
         setLoading(false)
         return
