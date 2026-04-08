@@ -29,9 +29,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=frozen`)
   }
 
-  // user baru via Google → insert sebagai buyer
+  // user baru via Google → upsert sebagai buyer
   if (!existingUser) {
-    await supabase.from('users').insert({
+    await supabase.from('users').upsert({
       id: data.user.id,
       full_name: data.user.user_metadata.full_name ?? data.user.email ?? 'User',
       email: data.user.email,
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
       is_jastiper: false,
       is_admin: false,
       is_frozen: false,
-    })
+    }, { onConflict: 'id' })
     return NextResponse.redirect(`${origin}/dashboard`)
   }
 
