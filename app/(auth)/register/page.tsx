@@ -1,22 +1,25 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 
 export default function RegisterPage() {
-  const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPopup, setShowPopup] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
   const [form, setForm] = useState({ full_name: '', email: '', password: '' })
 
   async function handleRegister() {
     setLoading(true)
     setError('')
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
+      options: {
+        data: { full_name: form.full_name }
+      }
     })
 
     if (signUpError) {
@@ -25,26 +28,10 @@ export default function RegisterPage() {
       return
     }
 
-    if (data.user) {
-      // pakai upsert karena trigger handle_new_user mungkin sudah insert duluan
-      const { error: upsertError } = await supabase.from('users').upsert({
-        id: data.user.id,
-        full_name: form.full_name,
-        email: form.email,
-        auth_provider: 'email',
-        is_jastiper: false,
-        is_admin: false,
-        is_frozen: false,
-      }, { onConflict: 'id' })
-
-      if (upsertError) {
-        setError('Gagal membuat profil, coba lagi.')
-        setLoading(false)
-        return
-      }
-    }
-
-    router.push('/dashboard')
+    // tampilkan popup verifikasi email
+    setRegisteredEmail(form.email)
+    setShowPopup(true)
+    setLoading(false)
   }
 
   async function handleGoogleRegister() {
@@ -56,6 +43,41 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
+
+      {/* Popup verifikasi email */}
+      {showPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 w-full max-w-sm shadow-xl text-center">
+            {/* icon */}
+            <div className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-950 flex items-center justify-center mx-auto mb-4">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Cek email kamu!
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+              Kami telah mengirim link verifikasi ke
+            </p>
+            <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-6">
+              {registeredEmail}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
+              Klik link di email tersebut untuk mengaktifkan akun kamu. Cek folder spam jika tidak muncul dalam beberapa menit.
+            </p>
+            <a
+              href="/login"
+              className="block w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 transition-all text-center"
+            >
+              Ke halaman masuk
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Form register */}
       <div className="bg-white dark:bg-gray-900 p-8 rounded-xl border border-gray-300 dark:border-gray-700 w-full max-w-sm shadow-sm">
         <h1 className="text-xl font-semibold mb-1 text-gray-900 dark:text-white">Daftar akun</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Bergabung dengan Jastipal</p>
