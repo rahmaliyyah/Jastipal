@@ -31,34 +31,34 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = ['/login', '/register'].includes(pathname)
   const isAuthCallback = pathname.startsWith('/auth/callback')
 
-  // belum login → ke login (kecuali halaman publik dan callback)
+  // belum login → ke login
   if (!user && !isPublicRoute && !isAuthCallback) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // sudah login → jangan bisa akses halaman publik
-  if (user && isPublicRoute) {
+  if (user) {
     const { data: userData } = await supabase
       .from('users')
-      .select('is_admin')
+      .select('is_admin, is_frozen')
       .eq('id', user.id)
       .single()
 
-    if (userData?.is_admin) {
-      return NextResponse.redirect(new URL('/admin', request.url))
+    // user difreeze → paksa logout dan redirect ke login
+    if (userData?.is_frozen) {
+      await supabase.auth.signOut()
+      return NextResponse.redirect(new URL('/login?error=frozen', request.url))
     }
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
 
-  // halaman admin → hanya is_admin = true yang boleh masuk
-  if (pathname.startsWith('/admin')) {
-    const { data: userData } = await supabase
-      .from('users')
-      .select('is_admin')
-      .eq('id', user!.id)
-      .single()
+    // sudah login → jangan bisa akses halaman publik
+    if (isPublicRoute) {
+      if (userData?.is_admin) {
+        return NextResponse.redirect(new URL('/admin', request.url))
+      }
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
 
-    if (!userData?.is_admin) {
+    // halaman admin → hanya is_admin = true
+    if (pathname.startsWith('/admin') && !userData?.is_admin) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
