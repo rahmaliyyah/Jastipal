@@ -12,6 +12,7 @@ type KycApplicant = {
   kyc_idcard_url: string | null
   kyc_selfie_url: string | null
   kyc_status: 'pending' | 'approved' | 'rejected'
+  kyc_rejection_reason: string | null
   users: {
     full_name: string
     email: string
@@ -32,42 +33,23 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending')
   const [previewImg, setPreviewImg] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchApplicants()
-  }, [tab])
+  useEffect(() => { fetchApplicants() }, [tab])
 
   async function fetchApplicants() {
     setLoading(true)
-    const { data } = await supabase
-      .from('jastiper_profiles')
-      .select('user_id, bio, service_fee_pct, base_country, whatsapp_number, kyc_idcard_url, kyc_selfie_url, kyc_status, users(full_name, email, avatar_url)')
-      .eq('kyc_status', tab)
-      .order('kyc_status')
-
-    setApplicants((data as any) ?? [])
+    const res = await fetch(`/api/admin/kyc?status=${tab}`)
+    const json = await res.json()
+    setApplicants(json.data ?? [])
     setLoading(false)
   }
 
   async function handleApprove(applicant: KycApplicant) {
     setActionLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-
-    await supabase.from('jastiper_profiles').update({
-      kyc_status: 'approved',
-      kyc_reviewed_at: new Date().toISOString(),
-      kyc_reviewed_by: user?.id,
-      kyc_rejection_reason: null,
-    }).eq('user_id', applicant.user_id)
-
-    await supabase.from('users').update({ is_jastiper: true }).eq('id', applicant.user_id)
-
-    await supabase.from('admin_actions').insert({
-      admin_id: user?.id,
-      target_user_id: applicant.user_id,
-      action_type: 'approve_jastiper',
-      reason: 'KYC dokumen valid',
+    await fetch('/api/admin/kyc', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_user_id: applicant.user_id, action: 'approve' }),
     })
-
     setActionSuccess(`${applicant.users.full_name} berhasil disetujui sebagai jastiper`)
     setSelected(null)
     setActionLoading(false)
@@ -77,22 +59,11 @@ export default function AdminDashboard() {
   async function handleReject(applicant: KycApplicant) {
     if (!rejectReason.trim()) return
     setActionLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-
-    await supabase.from('jastiper_profiles').update({
-      kyc_status: 'rejected',
-      kyc_reviewed_at: new Date().toISOString(),
-      kyc_reviewed_by: user?.id,
-      kyc_rejection_reason: rejectReason,
-    }).eq('user_id', applicant.user_id)
-
-    await supabase.from('admin_actions').insert({
-      admin_id: user?.id,
-      target_user_id: applicant.user_id,
-      action_type: 'reject_jastiper',
-      reason: rejectReason,
+    await fetch('/api/admin/kyc', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_user_id: applicant.user_id, action: 'reject', rejection_reason: rejectReason }),
     })
-
     setActionSuccess(`Pengajuan ${applicant.users.full_name} ditolak`)
     setSelected(null)
     setRejectReason('')
@@ -100,17 +71,12 @@ export default function AdminDashboard() {
     fetchApplicants()
   }
 
-  const tabCounts = { pending: 0, approved: 0, rejected: 0 }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
 
       {/* Image preview modal */}
       {previewImg && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-          onClick={() => setPreviewImg(null)}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setPreviewImg(null)}>
           <img src={previewImg} alt="preview" className="max-w-full max-h-[90vh] rounded-xl object-contain" />
         </div>
       )}
@@ -125,9 +91,7 @@ export default function AdminDashboard() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
-
             <div className="p-6 space-y-5">
-              {/* User info */}
               <div className="flex items-center gap-3">
                 {selected.users.avatar_url ? (
                   <img src={selected.users.avatar_url} className="w-12 h-12 rounded-full object-cover" />
@@ -142,7 +106,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Info jastiper */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Domisili</p>
@@ -152,7 +115,7 @@ export default function AdminDashboard() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Service Fee</p>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{selected.service_fee_pct ? `${selected.service_fee_pct}%` : '-'}</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 col-span-2">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">WhatsApp</p>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{selected.whatsapp_number ?? '-'}</p>
                 </div>
@@ -165,15 +128,11 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* Dokumen KYC */}
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Dokumen KYC</p>
                 <div className="grid grid-cols-2 gap-3">
                   {selected.kyc_idcard_url ? (
-                    <div
-                      className="cursor-pointer rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-all"
-                      onClick={() => setPreviewImg(selected.kyc_idcard_url)}
-                    >
+                    <div className="cursor-pointer rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-all" onClick={() => setPreviewImg(selected.kyc_idcard_url)}>
                       <img src={selected.kyc_idcard_url} alt="KTP" className="w-full h-28 object-cover" />
                       <p className="text-xs text-center text-gray-500 py-1.5">KTP / Passport</p>
                     </div>
@@ -183,10 +142,7 @@ export default function AdminDashboard() {
                     </div>
                   )}
                   {selected.kyc_selfie_url ? (
-                    <div
-                      className="cursor-pointer rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-all"
-                      onClick={() => setPreviewImg(selected.kyc_selfie_url)}
-                    >
+                    <div className="cursor-pointer rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-all" onClick={() => setPreviewImg(selected.kyc_selfie_url)}>
                       <img src={selected.kyc_selfie_url} alt="Selfie" className="w-full h-28 object-cover" />
                       <p className="text-xs text-center text-gray-500 py-1.5">Selfie + KTP</p>
                     </div>
@@ -198,7 +154,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Action */}
               {selected.kyc_status === 'pending' && (
                 <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                   <div>
@@ -242,7 +197,7 @@ export default function AdminDashboard() {
               {selected.kyc_status === 'rejected' && (
                 <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3">
                   <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-1">Alasan penolakan:</p>
-                  <p className="text-sm text-red-700 dark:text-red-300">-</p>
+                  <p className="text-sm text-red-700 dark:text-red-300">{selected.kyc_rejection_reason ?? '-'}</p>
                 </div>
               )}
             </div>
@@ -267,8 +222,6 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-
-        {/* Success toast */}
         {actionSuccess && (
           <div className="mb-6 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 flex items-center justify-between">
             <p className="text-sm text-green-700 dark:text-green-300">{actionSuccess}</p>
@@ -278,13 +231,12 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
           {(['pending', 'approved', 'rejected'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 tab === t
                   ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
@@ -295,7 +247,6 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Content */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -304,7 +255,7 @@ export default function AdminDashboard() {
           <div className="text-center py-20">
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               </svg>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -332,7 +283,6 @@ export default function AdminDashboard() {
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{applicant.users.email}</p>
                   </div>
                 </div>
-
                 <div className="space-y-1.5 mb-4">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -343,7 +293,6 @@ export default function AdminDashboard() {
                     Fee {applicant.service_fee_pct ? `${applicant.service_fee_pct}%` : '-'}
                   </div>
                 </div>
-
                 <div className="flex items-center justify-between">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                     applicant.kyc_status === 'pending'
@@ -354,7 +303,7 @@ export default function AdminDashboard() {
                   }`}>
                     {applicant.kyc_status === 'pending' ? 'Menunggu' : applicant.kyc_status === 'approved' ? 'Disetujui' : 'Ditolak'}
                   </span>
-                  <span className="text-xs text-blue-500 hover:text-blue-600">Lihat detail →</span>
+                  <span className="text-xs text-blue-500">Lihat detail →</span>
                 </div>
               </div>
             ))}

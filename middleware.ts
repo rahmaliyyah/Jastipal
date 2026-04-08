@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
     request: { headers: request.headers },
   })
 
+  // client pakai anon key untuk auth session
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -25,7 +26,23 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // wajib dipanggil di middleware untuk refresh session
+  // client pakai service role key untuk bypass RLS saat baca is_admin/is_frozen
+  const supabaseAdmin = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value)
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+
   const { data: { user } } = await supabase.auth.getUser()
 
   const isPublicRoute = ['/login', '/register'].includes(pathname)
@@ -37,7 +54,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user) {
-    const { data: userData } = await supabase
+    // pakai service role untuk bypass RLS
+    const { data: userData } = await supabaseAdmin
       .from('users')
       .select('is_admin, is_frozen')
       .eq('id', user.id)
