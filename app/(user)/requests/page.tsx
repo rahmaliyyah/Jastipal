@@ -28,6 +28,8 @@ type Request = {
 const statusConfig = {
   open: { label: 'Menunggu Jastiper', color: 'bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300' },
   matched: { label: 'Tagihan Masuk', color: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300' },
+  paid: { label: 'Sudah Dibayar', color: 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300' },
+  selesai: { label: 'Selesai', color: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300' },
   cancelled: { label: 'Dibatalkan', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400' },
 }
 
@@ -54,7 +56,7 @@ export default function MyRequestsPage() {
   const [requests, setRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
-  const [tab, setTab] = useState<'open' | 'matched' | 'cancelled'>('open')
+  const [tab, setTab] = useState<'open' | 'matched' | 'paid' | 'selesai' | 'cancelled'>('open')
 
   useEffect(() => { fetchRequests() }, [tab])
 
@@ -63,12 +65,25 @@ export default function MyRequestsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
 
-    const { data } = await supabase
+    // tab selesai query request matched filter by order status delivered
+    // tab cancelled query request cancelled + matched with cancelled order
+    const queryStatus = (tab === 'selesai' || tab === 'paid') ? 'matched' : tab === 'cancelled' ? 'in:matched,cancelled' : tab
+
+    let query = supabase
       .from('requests')
-      .select('id, jastiper_id, product_name, product_url, quantity, max_budget_idr, fixed_price_idr, deadline, delivery_pref, status, payment_expired_at, notes, created_at, jastiper:jastiper_id(full_name, avatar_url), orders(id)')
+      .select('id, jastiper_id, product_name, product_url, quantity, max_budget_idr, fixed_price_idr, deadline, delivery_pref, status, payment_expired_at, notes, created_at, jastiper:jastiper_id(full_name, avatar_url)')
       .eq('buyer_id', user.id)
-      .eq('status', tab)
       .order('created_at', { ascending: false })
+
+    if (tab === 'selesai' || tab === 'paid') {
+      query = query.eq('status', 'matched')
+    } else if (tab === 'cancelled') {
+      query = query.in('status', ['matched', 'cancelled'])
+    } else {
+      query = query.eq('status', tab)
+    }
+
+    const { data } = await query
 
     if (!data || data.length === 0) { setRequests([]); setLoading(false); return }
 
@@ -84,15 +99,46 @@ export default function MyRequestsPage() {
       ;(jpData ?? []).forEach((jp: any) => { waMap[jp.user_id] = jp.whatsapp_number })
     }
 
-    const mapped = data.map((r: any) => ({
-      ...r,
-      order_id: r.orders?.[0]?.id ?? null,
-      jastiper: r.jastiper ? {
-        full_name: r.jastiper.full_name,
-        avatar_url: r.jastiper.avatar_url,
-        whatsapp_number: waMap[r.jastiper_id] ?? null,
-      } : null,
-    }))
+    // ambil order_id dan status order secara terpisah
+    const requestIds = data.map((r: any) => r.id)
+    let orderMap: Record<string, { id: string; status: string }> = {}
+
+    if (requestIds.length > 0) {
+      const { data: ordersData } = await supabase
+        .from('orders')
+        .select('id, request_id, status')
+        .in('request_id', requestIds)
+      ;(ordersData ?? []).forEach((o: any) => { orderMap[o.request_id] = { id: o.id, status: o.status } })
+    }
+
+    const mapped = data
+      .filter((r: any) => {
+        const orderStatus = orderMap[r.id]?.status
+        if (tab === 'matched') {
+          // hanya tampilkan yang ordernya waiting_payment
+          if (orderStatus !== 'waiting_payment') return false
+        }
+        if (tab === 'paid') {
+          // ordernya processing atau shipped
+          return orderStatus === 'processing' || orderStatus === 'shipped'
+        }
+        if (tab === 'selesai') {
+          return orderStatus === 'delivered'
+        }
+        if (tab === 'cancelled') {
+          return orderStatus === 'cancelled'
+        }
+        return true
+      })
+      .map((r: any) => ({
+        ...r,
+        order_id: orderMap[r.id]?.id ?? null,
+        jastiper: r.jastiper ? {
+          full_name: r.jastiper.full_name,
+          avatar_url: r.jastiper.avatar_url,
+          whatsapp_number: waMap[r.jastiper_id] ?? null,
+        } : null,
+      }))
 
     setRequests(mapped)
     setLoading(false)
@@ -126,17 +172,17 @@ export default function MyRequestsPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
-        {(['open', 'matched', 'cancelled'] as const).map(t => (
+        {(['open', 'matched', 'paid', 'selesai', 'cancelled'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
               tab === t
                 ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            {t === 'open' ? 'Menunggu' : t === 'matched' ? 'Tagihan Masuk' : 'Dibatalkan'}
+            {t === 'open' ? 'Menunggu' : t === 'matched' ? 'Tagihan' : t === 'paid' ? 'Diproses' : t === 'selesai' ? 'Selesai' : 'Batal'}
           </button>
         ))}
       </div>
@@ -154,7 +200,7 @@ export default function MyRequestsPage() {
             </svg>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            {tab === 'open' ? 'Belum ada request yang aktif' : tab === 'matched' ? 'Belum ada tagihan masuk' : 'Tidak ada request yang dibatalkan'}
+            {tab === 'open' ? 'Belum ada request yang aktif' : tab === 'matched' ? 'Belum ada tagihan masuk' : tab === 'paid' ? 'Belum ada request yang diproses' : tab === 'selesai' ? 'Belum ada request yang selesai' : 'Tidak ada request yang dibatalkan'}
           </p>
           {tab === 'open' && (
             <button
@@ -182,8 +228,8 @@ export default function MyRequestsPage() {
                     {req.product_url}
                   </a>
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${statusConfig[req.status].color}`}>
-                  {statusConfig[req.status].label}
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${statusConfig[tab === 'selesai' ? 'selesai' : tab === 'paid' ? 'paid' : tab === 'cancelled' && req.status === 'matched' ? 'cancelled' : req.status].color}`}>
+                  {statusConfig[tab === 'selesai' ? 'selesai' : tab === 'paid' ? 'paid' : tab === 'cancelled' && req.status === 'matched' ? 'cancelled' : req.status].label}
                 </span>
               </div>
 
@@ -207,12 +253,27 @@ export default function MyRequestsPage() {
                 </div>
               </div>
 
-              {/* Tagihan masuk */}
+              {/* Info jastiper + harga — tampil di semua tab matched */}
               {req.status === 'matched' && req.fixed_price_idr && (
-                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                <div className={`border rounded-lg p-4 mb-4 ${
+                  tab === 'matched'
+                    ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
+                    : tab === 'paid'
+                    ? 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800'
+                    : 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
+                }`}>
+                  {/* Header */}
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">Tagihan dari Jastiper</p>
-                    {req.payment_expired_at && (
+                    <p className={`text-sm font-semibold ${
+                      tab === 'matched' ? 'text-blue-800 dark:text-blue-200'
+                      : tab === 'paid' ? 'text-purple-800 dark:text-purple-200'
+                      : 'text-green-800 dark:text-green-200'
+                    }`}>
+                      {tab === 'matched' ? 'Tagihan dari Jastiper'
+                       : tab === 'paid' ? 'Sedang Diproses Jastiper'
+                       : 'Order Selesai'}
+                    </p>
+                    {tab === 'matched' && req.payment_expired_at && (
                       <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                         ⏱ {formatExpiry(req.payment_expired_at)}
                       </span>
@@ -221,17 +282,35 @@ export default function MyRequestsPage() {
 
                   {/* Info jastiper */}
                   {req.jastiper && (
-                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-blue-200 dark:border-blue-800">
+                    <div className={`flex items-center gap-3 mb-3 pb-3 border-b ${
+                      tab === 'matched' ? 'border-blue-200 dark:border-blue-800'
+                      : tab === 'paid' ? 'border-purple-200 dark:border-purple-800'
+                      : 'border-green-200 dark:border-green-800'
+                    }`}>
                       {req.jastiper.avatar_url ? (
                         <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover" />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center text-sm font-semibold text-blue-700 dark:text-blue-300 uppercase">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold uppercase ${
+                          tab === 'matched' ? 'bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300'
+                          : tab === 'paid' ? 'bg-purple-200 dark:bg-purple-800 text-purple-700 dark:text-purple-300'
+                          : 'bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300'
+                        }`}>
                           {req.jastiper.full_name?.[0] ?? '?'}
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-blue-800 dark:text-blue-200">{req.jastiper.full_name}</p>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">Jastiper yang mengambil request ini</p>
+                        <p className={`text-sm font-medium ${
+                          tab === 'matched' ? 'text-blue-800 dark:text-blue-200'
+                          : tab === 'paid' ? 'text-purple-800 dark:text-purple-200'
+                          : 'text-green-800 dark:text-green-200'
+                        }`}>{req.jastiper.full_name}</p>
+                        <p className={`text-xs ${
+                          tab === 'matched' ? 'text-blue-600 dark:text-blue-400'
+                          : tab === 'paid' ? 'text-purple-600 dark:text-purple-400'
+                          : 'text-green-600 dark:text-green-400'
+                        }`}>
+                          {tab === 'paid' ? 'Jastiper sedang memproses pesananmu' : 'Jastiper yang mengambil request ini'}
+                        </p>
                       </div>
                       {req.jastiper.whatsapp_number && (
                         <a
@@ -251,34 +330,59 @@ export default function MyRequestsPage() {
 
                   {/* Rincian harga */}
                   <div className="space-y-1.5 mb-3">
-                    <div className="flex justify-between items-start text-xs text-blue-700 dark:text-blue-300">
+                    <div className={`flex justify-between items-start text-xs ${
+                      tab === 'matched' ? 'text-blue-700 dark:text-blue-300'
+                      : tab === 'paid' ? 'text-purple-700 dark:text-purple-300'
+                      : 'text-green-700 dark:text-green-300'
+                    }`}>
                       <div>
                         <p>Harga fix (all-in)</p>
-                        <p className="text-blue-500 dark:text-blue-400 text-[11px] mt-0.5">
-                          Sudah termasuk harga barang, service fee jastiper & ongkir
-                        </p>
+                        <p className="text-[11px] mt-0.5 opacity-70">Sudah termasuk harga barang, service fee jastiper & ongkir</p>
                       </div>
                       <span className="font-medium shrink-0 ml-3">{formatRupiah(req.fixed_price_idr)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-blue-700 dark:text-blue-300">
+                    <div className={`flex justify-between text-xs ${
+                      tab === 'matched' ? 'text-blue-700 dark:text-blue-300'
+                      : tab === 'paid' ? 'text-purple-700 dark:text-purple-300'
+                      : 'text-green-700 dark:text-green-300'
+                    }`}>
                       <span>Platform fee Jastipal (5%)</span>
                       <span>{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-bold text-blue-800 dark:text-blue-200 pt-1.5 border-t border-blue-200 dark:border-blue-700">
-                      <span>Total yang harus dibayar</span>
+                    <div className={`flex justify-between text-sm font-bold pt-1.5 border-t ${
+                      tab === 'matched' ? 'text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700'
+                      : tab === 'paid' ? 'text-purple-800 dark:text-purple-200 border-purple-200 dark:border-purple-700'
+                      : 'text-green-800 dark:text-green-200 border-green-200 dark:border-green-700'
+                    }`}>
+                      <span>Total {tab === 'selesai' ? 'dibayar' : 'tagihan'}</span>
                       <span>{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-                  >
-                    Bayar Sekarang
-                  </button>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">
-                    Tidak membayar = order otomatis dibatalkan setelah waktu habis
-                  </p>
+                  {/* Tombol bayar hanya di tab matched */}
+                  {tab === 'matched' && (
+                    <button
+                      onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
+                      className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+                    >
+                      Bayar Sekarang
+                    </button>
+                  )}
+                  {tab === 'matched' && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">
+                      Tidak membayar = order otomatis dibatalkan setelah waktu habis
+                    </p>
+                  )}
+                  {tab === 'paid' && (
+                    <p className="text-xs text-purple-600 dark:text-purple-400 text-center">
+                      Jastiper akan mengupdate status saat barang siap dikirim
+                    </p>
+                  )}
+                  {tab === 'selesai' && (
+                    <p className="text-xs text-green-600 dark:text-green-400 text-center">
+                      Transaksi selesai — terima kasih telah menggunakan Jastipal!
+                    </p>
+                  )}
                 </div>
               )}
 
