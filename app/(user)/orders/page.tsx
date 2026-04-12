@@ -57,7 +57,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
   const [activeRole, setActiveRole] = useState<'buyer' | 'jastiper'>('buyer')
   const [userId, setUserId] = useState('')
-  const [tab, setTab] = useState<'active' | 'done'>('active')
+  const [tab, setTab] = useState<'waiting' | 'processing' | 'shipped' | 'delivered' | 'cancelled'>('waiting')
   const [selected, setSelected] = useState<Order | null>(null)
   const [trackingInput, setTrackingInput] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
@@ -87,9 +87,33 @@ export default function OrdersPage() {
   async function fetchOrders() {
     setLoading(true)
 
-    const activeStatuses = ['waiting_payment', 'processing', 'shipped']
-    const doneStatuses = ['delivered', 'cancelled']
-    const statuses = tab === 'active' ? activeStatuses : doneStatuses
+    const tabStatusMap: Record<string, string[]> = {
+      waiting:    activeRole === 'buyer' ? ['waiting_payment'] : ['waiting_payment', 'processing'],
+      processing: activeRole === 'buyer' ? ['processing', 'shipped'] : ['shipped'],
+      shipped:    activeRole === 'jastiper' ? ['shipped'] : ['processing', 'shipped'],
+      delivered:  ['delivered'],
+      cancelled:  ['cancelled'],
+    }
+
+    // buyer tab mapping
+    const buyerTabMap: Record<string, string[]> = {
+      waiting:    ['waiting_payment'],
+      processing: ['processing', 'shipped'],
+      delivered:  ['delivered'],
+      cancelled:  ['cancelled'],
+    }
+
+    // jastiper tab mapping
+    const jastiperTabMap: Record<string, string[]> = {
+      waiting:    ['waiting_payment', 'processing'],
+      processing: ['shipped'],
+      delivered:  ['delivered'],
+      cancelled:  ['cancelled'],
+    }
+
+    const statuses = activeRole === 'buyer'
+      ? (buyerTabMap[tab] ?? ['waiting_payment'])
+      : (jastiperTabMap[tab] ?? ['waiting_payment', 'processing'])
 
     const col = activeRole === 'buyer' ? 'buyer_id' : 'jastiper_id'
     const counterpartCol = activeRole === 'buyer' ? 'jastiper_id' : 'buyer_id'
@@ -330,18 +354,30 @@ export default function OrdersPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
-        {(['active', 'done'] as const).map(t => (
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6 flex-wrap">
+        {(activeRole === 'buyer'
+          ? ['waiting', 'processing', 'delivered', 'cancelled'] as const
+          : ['waiting', 'processing', 'delivered', 'cancelled'] as const
+        ).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
               tab === t
                 ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            {t === 'active' ? 'Aktif' : 'Selesai / Batal'}
+            {activeRole === 'buyer'
+              ? t === 'waiting' ? 'Menunggu Bayar'
+              : t === 'processing' ? 'Diproses'
+              : t === 'delivered' ? 'Selesai'
+              : 'Dibatalkan'
+              : t === 'waiting' ? 'Perlu Diproses'
+              : t === 'processing' ? 'Dikirim'
+              : t === 'delivered' ? 'Selesai'
+              : 'Dibatalkan'
+            }
           </button>
         ))}
       </div>
@@ -359,7 +395,10 @@ export default function OrdersPage() {
             </svg>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {tab === 'active' ? 'Tidak ada order aktif' : 'Belum ada order yang selesai atau dibatalkan'}
+            {tab === 'waiting' ? (activeRole === 'buyer' ? 'Tidak ada order menunggu pembayaran' : 'Tidak ada order yang perlu diproses')
+            : tab === 'processing' ? (activeRole === 'buyer' ? 'Tidak ada order yang sedang diproses' : 'Tidak ada order yang sedang dikirim')
+            : tab === 'delivered' ? 'Belum ada order yang selesai'
+            : 'Tidak ada order yang dibatalkan'}
           </p>
         </div>
       ) : (
