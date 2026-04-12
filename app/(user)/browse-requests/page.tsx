@@ -45,6 +45,7 @@ export default function BrowseRequestsPage() {
   const router = useRouter()
 
   const [requests, setRequests] = useState<Request[]>([])
+  const [allRequests, setAllRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Request | null>(null)
   const [fixedPrice, setFixedPrice] = useState('')
@@ -52,6 +53,10 @@ export default function BrowseRequestsPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [userId, setUserId] = useState('')
+  const [search, setSearch] = useState('')
+  const [filterDelivery, setFilterDelivery] = useState<'all' | 'courier' | 'meetup'>('all')
+  const [filterDeadline, setFilterDeadline] = useState<'all' | 'urgent' | 'week'>('all')
+  const [sortBy, setSortBy] = useState<'newest' | 'budget_high' | 'deadline_soon'>('newest')
 
   useEffect(() => {
     async function init() {
@@ -84,6 +89,7 @@ export default function BrowseRequestsPage() {
       .eq('status', 'open')
       .order('created_at', { ascending: false })
 
+    setAllRequests((data as any) ?? [])
     setRequests((data as any) ?? [])
     setLoading(false)
   }
@@ -261,9 +267,71 @@ export default function BrowseRequestsPage() {
       )}
 
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-5">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Browse Request</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih request yang ingin kamu handle</p>
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Cari nama produk, URL, atau catatan..."
+          className="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {search && (
+          <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {/* Delivery filter */}
+        <select
+          value={filterDelivery}
+          onChange={e => setFilterDelivery(e.target.value as any)}
+          className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 outline-none focus:border-gray-500"
+        >
+          <option value="all">Semua pengiriman</option>
+          <option value="courier">Courier</option>
+          <option value="meetup">Meetup</option>
+        </select>
+
+        {/* Deadline filter */}
+        <select
+          value={filterDeadline}
+          onChange={e => setFilterDeadline(e.target.value as any)}
+          className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 outline-none focus:border-gray-500"
+        >
+          <option value="all">Semua deadline</option>
+          <option value="urgent">Urgent (≤ 3 hari)</option>
+          <option value="week">Minggu ini</option>
+        </select>
+
+        {/* Sort */}
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as any)}
+          className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 outline-none focus:border-gray-500"
+        >
+          <option value="newest">Terbaru</option>
+          <option value="budget_high">Budget tertinggi</option>
+          <option value="deadline_soon">Deadline terdekat</option>
+        </select>
+
+        {/* Result count */}
+        <div className="flex items-center ml-auto">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {requests.length} request{requests.length !== allRequests.length ? ` dari ${allRequests.length}` : ''}
+          </p>
+        </div>
       </div>
 
       {/* Success toast */}
