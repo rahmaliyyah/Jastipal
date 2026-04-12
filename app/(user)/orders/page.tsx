@@ -29,6 +29,10 @@ type Order = {
     platform_fee_idr: number
     total_idr: number
   } | null
+  proof: {
+    receipt_url: string
+    store_photo_url: string | null
+  } | null
 }
 
 const statusConfig: Record<string, { label: string; color: string; step: number }> = {
@@ -149,10 +153,23 @@ export default function OrdersPage() {
       })
     }
 
+    // ambil proof terpisah
+    const orderIds = data.map((o: any) => o.id)
+    let proofMap: Record<string, any> = {}
+
+    if (orderIds.length > 0) {
+      const { data: proofData } = await supabase
+        .from('proof_of_purchase')
+        .select('order_id, receipt_url, store_photo_url')
+        .in('order_id', orderIds)
+      ;(proofData ?? []).forEach((p: any) => { proofMap[p.order_id] = p })
+    }
+
     const mapped = data.map((o: any) => ({
       ...o,
       counterpart: counterpartMap[o[counterpartCol]] ?? null,
       pricing: o.order_pricing?.[0] ?? null,
+      proof: proofMap[o.id] ?? null,
     }))
 
     setOrders(mapped)
@@ -254,42 +271,14 @@ export default function OrdersPage() {
     // jastiper actions
     if (activeRole === 'jastiper') {
       if (order.status === 'processing') {
-        if (order.delivery_pref === 'courier') {
-          return (
-            <div className="space-y-2">
-              <button
-                onClick={() => router.push(`/orders/${order.id}/proof`)}
-                className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-2.5 text-sm font-medium transition-all"
-              >
-                Upload Struk Pembelian
-              </button>
-              <button
-                onClick={() => setSelected(order)}
-                className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-              >
-                Input Nomor Resi & Kirim
-              </button>
-            </div>
-          )
-        } else {
-          // meetup
-          return (
-            <div className="space-y-2">
-              <button
-                onClick={() => router.push(`/orders/${order.id}/proof`)}
-                className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-2.5 text-sm font-medium transition-all"
-              >
-                Upload Struk Pembelian
-              </button>
-              <button
-                onClick={() => setSelected(order)}
-                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-              >
-                Konfirmasi Meetup Selesai
-              </button>
-            </div>
-          )
-        }
+        return (
+          <button
+            onClick={() => router.push(`/orders/${order.id}/proof`)}
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+          >
+            {order.delivery_pref === 'courier' ? 'Upload Struk & Input Nomor Resi' : 'Upload Struk & Konfirmasi Meetup'}
+          </button>
+        )
       }
     }
 
@@ -496,6 +485,33 @@ export default function OrdersPage() {
                     <p>🚚 Resi: <span className="font-medium text-gray-700 dark:text-gray-300">{order.tracking_number}</span></p>
                   )}
                 </div>
+
+                {/* Bukti pembelian — tampil ke buyer jika sudah ada */}
+                {activeRole === 'buyer' && order.proof && (
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4">
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Bukti Pembelian dari Jastiper</p>
+                    <div className="flex gap-2">
+                      <a
+                        href={order.proof.receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-center text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg py-2 text-blue-500 hover:text-blue-600 font-medium transition-all"
+                      >
+                        🧾 Lihat Struk
+                      </a>
+                      {order.proof.store_photo_url && (
+                        <a
+                          href={order.proof.store_photo_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-center text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg py-2 text-blue-500 hover:text-blue-600 font-medium transition-all"
+                        >
+                          📸 Foto Toko
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Actions */}
                 {renderActions(order)}
