@@ -11,7 +11,7 @@ export default function DashboardPage() {
   const [isJastiper, setIsJastiper] = useState(false)
   const [activeRole, setActiveRole] = useState<'buyer' | 'jastiper'>('buyer')
   const [openRequests, setOpenRequests] = useState(0)
-  const [matchedRequests, setMatchedRequests] = useState(0)
+  const [pendingPaymentCount, setPendingPaymentCount] = useState(0)
 
   useEffect(() => {
     async function getUser() {
@@ -30,20 +30,33 @@ export default function DashboardPage() {
         setActiveRole(data.active_role ?? 'buyer')
       }
 
+      // hitung request open
       const { count: openCount } = await supabase
         .from('requests')
         .select('*', { count: 'exact', head: true })
         .eq('buyer_id', user.id)
         .eq('status', 'open')
 
-      const { count: matchedCount } = await supabase
+      setOpenRequests(openCount ?? 0)
+
+      // hitung tagihan yang benar-benar waiting_payment
+      // ambil semua request matched milik buyer
+      const { data: matchedRequests } = await supabase
         .from('requests')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
         .eq('buyer_id', user.id)
         .eq('status', 'matched')
 
-      setOpenRequests(openCount ?? 0)
-      setMatchedRequests(matchedCount ?? 0)
+      if (matchedRequests && matchedRequests.length > 0) {
+        const requestIds = matchedRequests.map((r: any) => r.id)
+        const { count: waitingCount } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .in('request_id', requestIds)
+          .eq('status', 'waiting_payment')
+
+        setPendingPaymentCount(waitingCount ?? 0)
+      }
     }
     getUser()
   }, [])
@@ -62,7 +75,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Alert tagihan masuk */}
-      {matchedRequests > 0 && activeRole === 'buyer' && (
+      {pendingPaymentCount > 0 && activeRole === 'buyer' && (
         <div
           className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:border-blue-300 transition-all"
           onClick={() => router.push('/requests')}
@@ -74,7 +87,7 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">{matchedRequests} tagihan masuk</p>
+              <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">{pendingPaymentCount} tagihan menunggu pembayaran</p>
               <p className="text-xs text-blue-600 dark:text-blue-400">Bayar sebelum kadaluarsa</p>
             </div>
           </div>
@@ -115,9 +128,9 @@ export default function DashboardPage() {
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">Request Saya</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className="text-xs text-gray-500 dark:text-gray-400">{openRequests} aktif</p>
-                  {matchedRequests > 0 && (
+                  {pendingPaymentCount > 0 && (
                     <span className="text-xs bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium">
-                      {matchedRequests} tagihan
+                      {pendingPaymentCount} tagihan
                     </span>
                   )}
                 </div>
