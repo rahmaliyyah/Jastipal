@@ -144,9 +144,25 @@ export default function OrdersPage() {
       tracking_number: trackingInput,
     }).eq('id', order.id)
 
-    setSuccess('Status order berhasil diupdate ke Dikirim')
+    setSuccess('Nomor resi berhasil disimpan, status order diupdate ke Dikirim')
     setSelected(null)
     setTrackingInput('')
+    setActionLoading(false)
+    fetchOrders()
+  }
+
+  async function handleMeetupDone(order: Order) {
+    setActionLoading(true)
+
+    await supabase.from('orders').update({ status: 'delivered' }).eq('id', order.id)
+
+    await supabase.from('escrow_transactions').update({
+      status: 'released',
+      released_at: new Date().toISOString(),
+    }).eq('order_id', order.id)
+
+    setSuccess('Meetup selesai! Dana sudah dicairkan ke kamu.')
+    setSelected(null)
     setActionLoading(false)
     fetchOrders()
   }
@@ -214,14 +230,42 @@ export default function OrdersPage() {
     // jastiper actions
     if (activeRole === 'jastiper') {
       if (order.status === 'processing') {
-        return (
-          <button
-            onClick={() => setSelected(order)}
-            className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-          >
-            Input Nomor Resi
-          </button>
-        )
+        if (order.delivery_pref === 'courier') {
+          return (
+            <div className="space-y-2">
+              <button
+                onClick={() => router.push(`/orders/${order.id}/proof`)}
+                className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-2.5 text-sm font-medium transition-all"
+              >
+                Upload Struk Pembelian
+              </button>
+              <button
+                onClick={() => setSelected(order)}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+              >
+                Input Nomor Resi & Kirim
+              </button>
+            </div>
+          )
+        } else {
+          // meetup
+          return (
+            <div className="space-y-2">
+              <button
+                onClick={() => router.push(`/orders/${order.id}/proof`)}
+                className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-2.5 text-sm font-medium transition-all"
+              >
+                Upload Struk Pembelian
+              </button>
+              <button
+                onClick={() => setSelected(order)}
+                className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+              >
+                Konfirmasi Meetup Selesai
+              </button>
+            </div>
+          )
+        }
       }
     }
 
@@ -258,33 +302,7 @@ export default function OrdersPage() {
               </>
             )}
 
-            {/* Jastiper: input nomor resi */}
-            {activeRole === 'jastiper' && selected.status === 'processing' && (
-              <>
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-2">Input Nomor Resi</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Masukkan nomor resi pengiriman untuk order ini.
-                </p>
-                <input
-                  placeholder="Contoh: JNE123456789"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white mb-4"
-                  value={trackingInput}
-                  onChange={e => setTrackingInput(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <button onClick={() => { setSelected(null); setTrackingInput('') }} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
-                    Batal
-                  </button>
-                  <button
-                    onClick={() => handleShipped(selected)}
-                    disabled={actionLoading || !trackingInput.trim()}
-                    className="flex-1 bg-purple-500 hover:bg-purple-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all"
-                  >
-                    {actionLoading ? 'Menyimpan...' : 'Simpan & Kirim'}
-                  </button>
-                </div>
-              </>
-            )}
+
           </div>
         </div>
       )}
