@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 type Request = {
   id: string
   jastiper_id: string | null
+  order_id: string | null
   product_name: string
   product_url: string
   quantity: number
@@ -64,7 +65,7 @@ export default function MyRequestsPage() {
 
     const { data } = await supabase
       .from('requests')
-      .select('id, jastiper_id, product_name, product_url, quantity, max_budget_idr, fixed_price_idr, deadline, delivery_pref, status, payment_expired_at, notes, created_at, jastiper:jastiper_id(full_name, avatar_url)')
+      .select('id, jastiper_id, product_name, product_url, quantity, max_budget_idr, fixed_price_idr, deadline, delivery_pref, status, payment_expired_at, notes, created_at, jastiper:jastiper_id(full_name, avatar_url), orders(id)')
       .eq('buyer_id', user.id)
       .eq('status', tab)
       .order('created_at', { ascending: false })
@@ -85,6 +86,7 @@ export default function MyRequestsPage() {
 
     const mapped = data.map((r: any) => ({
       ...r,
+      order_id: r.orders?.[0]?.id ?? null,
       jastiper: r.jastiper ? {
         full_name: r.jastiper.full_name,
         avatar_url: r.jastiper.avatar_url,
@@ -269,7 +271,7 @@ export default function MyRequestsPage() {
                   </div>
 
                   <button
-                    onClick={() => router.push(`/orders`)}
+                    onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
                   >
                     Bayar Sekarang
