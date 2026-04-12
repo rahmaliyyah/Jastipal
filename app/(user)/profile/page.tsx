@@ -20,10 +20,13 @@ export default function ProfilePage() {
   const [userId, setUserId] = useState('')
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [switchLoading, setSwitchLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [initials, setInitials] = useState('')
+  const [isJastiper, setIsJastiper] = useState(false)
+  const [activeRole, setActiveRole] = useState<'buyer' | 'jastiper'>('buyer')
   const [jastiperProfile, setJastiperProfile] = useState<JastiperProfile | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [form, setForm] = useState({ full_name: '', phone: '' })
@@ -36,13 +39,15 @@ export default function ProfilePage() {
 
       const { data } = await supabase
         .from('users')
-        .select('full_name, phone, avatar_url')
+        .select('full_name, phone, avatar_url, is_jastiper, active_role')
         .eq('id', user.id)
         .single()
 
       if (data) {
         setForm({ full_name: data.full_name ?? '', phone: data.phone ?? '' })
         setAvatarUrl(data.avatar_url)
+        setIsJastiper(data.is_jastiper)
+        setActiveRole(data.active_role ?? 'buyer')
         const names = (data.full_name ?? '').split(' ')
         setInitials(names.length >= 2 ? names[0][0] + names[1][0] : names[0]?.[0] ?? '?')
       }
@@ -86,9 +91,17 @@ export default function ProfilePage() {
     setLoading(false)
   }
 
+  async function handleSwitchRole(to: 'buyer' | 'jastiper') {
+    setSwitchLoading(true)
+    await supabase.from('users').update({ active_role: to }).eq('id', userId)
+    setActiveRole(to)
+    setSwitchLoading(false)
+  }
+
   function renderJastiperSection() {
     if (!profileLoaded) return null
 
+    // belum pernah daftar
     if (!jastiperProfile) {
       return (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
@@ -106,6 +119,7 @@ export default function ProfilePage() {
       )
     }
 
+    // pending
     if (jastiperProfile.kyc_status === 'pending') {
       return (
         <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
@@ -120,6 +134,7 @@ export default function ProfilePage() {
       )
     }
 
+    // rejected
     if (jastiperProfile.kyc_status === 'rejected') {
       return (
         <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6">
@@ -142,16 +157,89 @@ export default function ProfilePage() {
       )
     }
 
+    // approved — tampilkan toggle mode
     return (
-      <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+        <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full bg-green-400"></div>
-          <h2 className="text-base font-semibold text-green-800 dark:text-green-300">Verified Jastiper ✓</h2>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Verified Jastiper ✓</h2>
         </div>
-        <div className="text-sm text-green-700 dark:text-green-400 space-y-1">
-          <p>Kamu sudah terdaftar sebagai jastiper.</p>
-          {jastiperProfile.base_country && <p>Domisili: {jastiperProfile.base_country}</p>}
-          {jastiperProfile.service_fee_pct && <p>Service fee: {jastiperProfile.service_fee_pct}%</p>}
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+          Kamu bisa beralih antara mode buyer dan jastiper kapan saja.
+        </p>
+
+        {/* Info jastiper */}
+        <div className="grid grid-cols-2 gap-2 mb-5">
+          {jastiperProfile.base_country && (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Domisili</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{jastiperProfile.base_country}</p>
+            </div>
+          )}
+          {jastiperProfile.service_fee_pct && (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Service Fee</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{jastiperProfile.service_fee_pct}%</p>
+            </div>
+          )}
+        </div>
+
+        {/* Toggle mode */}
+        <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          {/* Current mode indicator */}
+          <div className={`px-4 py-3 text-sm font-medium flex items-center gap-2 ${
+            activeRole === 'jastiper'
+              ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
+              : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+          }`}>
+            <div className={`w-2 h-2 rounded-full ${activeRole === 'jastiper' ? 'bg-blue-400' : 'bg-gray-400'}`}></div>
+            Mode aktif sekarang: <span className="font-semibold">{activeRole === 'jastiper' ? 'Jastiper' : 'Buyer'}</span>
+          </div>
+
+          {/* Switch button */}
+          <div className="p-4">
+            {activeRole === 'buyer' ? (
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                  Beralih ke mode jastiper untuk mulai menerima order dan membuat listing.
+                </p>
+                <button
+                  onClick={() => handleSwitchRole('jastiper')}
+                  disabled={switchLoading}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                >
+                  {switchLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                    </svg>
+                  )}
+                  {switchLoading ? 'Beralih...' : 'Aktifkan Mode Jastiper'}
+                </button>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                  Beralih ke mode buyer untuk berbelanja dan membuat request.
+                </p>
+                <button
+                  onClick={() => handleSwitchRole('buyer')}
+                  disabled={switchLoading}
+                  className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                >
+                  {switchLoading ? (
+                    <div className="w-4 h-4 border-2 border-gray-400/40 border-t-gray-400 rounded-full animate-spin"></div>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                  )}
+                  {switchLoading ? 'Beralih...' : 'Kembali ke Mode Buyer'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -164,6 +252,19 @@ export default function ProfilePage() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola informasi akun kamu</p>
       </div>
 
+      {/* Badge mode aktif */}
+      {isJastiper && profileLoaded && jastiperProfile?.kyc_status === 'approved' && (
+        <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium w-fit ${
+          activeRole === 'jastiper'
+            ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+        }`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${activeRole === 'jastiper' ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+          {activeRole === 'jastiper' ? '🧳 Mode Jastiper Aktif' : '🛍️ Mode Buyer Aktif'}
+        </div>
+      )}
+
+      {/* Data Pribadi */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Data Pribadi</h2>
 
