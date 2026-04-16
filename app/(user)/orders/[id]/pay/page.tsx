@@ -93,7 +93,8 @@ export default function PayOrderPage() {
       status: 'held',
     }).eq('order_id', orderId)
 
-    await supabase.from('orders').update({ status: 'processing' }).eq('id', orderId)
+    // order tetap waiting_payment sampai admin approve bukti transfer
+    // admin akan update ke processing setelah verifikasi
 
     router.push('/orders')
   }
@@ -235,11 +236,11 @@ export default function PayOrderPage() {
           disabled={submitting}
           className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
         >
-          {submitting ? 'Mengirim bukti...' : 'Konfirmasi Sudah Transfer'}
+          {submitting ? 'Mengirim bukti...' : 'Kirim Bukti Transfer'}
         </button>
 
         <p className="text-xs text-gray-400 dark:text-gray-500 text-center pb-6">
-          Setelah bukti diterima dan diverifikasi, order akan diproses oleh jastiper
+          Bukti transfer akan diverifikasi oleh admin. Order akan diproses setelah disetujui.
         </p>
       </div>
     </div>

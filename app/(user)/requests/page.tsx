@@ -7,6 +7,8 @@ type Request = {
   id: string
   jastiper_id: string | null
   order_id: string | null
+  payment_proof_url: string | null
+  cancellation_reason: string | null
   product_name: string
   product_url: string
   quantity: number
@@ -78,7 +80,7 @@ export default function MyRequestsPage() {
     if (tab === 'selesai' || tab === 'paid') {
       query = query.eq('status', 'matched')
     } else if (tab === 'cancelled') {
-      query = query.in('status', ['matched', 'cancelled'])
+      query = query.in('status', ['matched', 'cancelled', 'open'])
     } else {
       query = query.eq('status', tab)
     }
@@ -111,6 +113,34 @@ export default function MyRequestsPage() {
       ;(ordersData ?? []).forEach((o: any) => { orderMap[o.request_id] = { id: o.id, status: o.status } })
     }
 
+    // ambil payment_proof_url dan admin_note dari escrow
+    const orderIds = Object.values(orderMap).map(o => o.id).filter(Boolean)
+    let escrowProofMap: Record<string, string | null> = {}
+    let escrowNoteMap: Record<string, string | null> = {}
+
+    if (orderIds.length > 0) {
+      // fetch satu per satu untuk hindari RLS issue
+      for (const oid of orderIds) {
+        const { data: escrowData } = await supabase
+          .from('escrow_transactions')
+          .select('order_id, payment_proof_url, admin_note')
+          .eq('order_id', oid)
+          .single()
+        if (escrowData) {
+          escrowProofMap[escrowData.order_id] = escrowData.payment_proof_url
+          escrowNoteMap[escrowData.order_id] = escrowData.admin_note
+        }
+      }
+    }
+
+    // build orderId -> payment_proof_url map keyed by request_id
+    const reqPaymentProofMap: Record<string, string | null> = {}
+    const reqCancellationReasonMap: Record<string, string | null> = {}
+    Object.entries(orderMap).forEach(([reqId, o]) => {
+      reqPaymentProofMap[reqId] = escrowProofMap[o.id] ?? null
+      reqCancellationReasonMap[reqId] = escrowNoteMap[o.id] ?? null
+    })
+
     const mapped = data
       .filter((r: any) => {
         const orderStatus = orderMap[r.id]?.status
@@ -126,13 +156,19 @@ export default function MyRequestsPage() {
           return orderStatus === 'delivered'
         }
         if (tab === 'cancelled') {
-          return orderStatus === 'cancelled'
+          // request yang dibatalkan manual
+          if (r.status === 'cancelled') return true
+          // request matched tapi ordernya cancelled (ditolak admin atau expired)
+          if (r.status === 'matched' && orderStatus === 'cancelled') return true
+          return false
         }
         return true
       })
       .map((r: any) => ({
         ...r,
         order_id: orderMap[r.id]?.id ?? null,
+        payment_proof_url: reqPaymentProofMap[r.id] ?? null,
+        cancellation_reason: reqCancellationReasonMap[r.id] ?? null,
         jastiper: r.jastiper ? {
           full_name: r.jastiper.full_name,
           avatar_url: r.jastiper.avatar_url,
@@ -228,8 +264,14 @@ export default function MyRequestsPage() {
                     {req.product_url}
                   </a>
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${statusConfig[tab === 'selesai' ? 'selesai' : tab === 'paid' ? 'paid' : tab === 'cancelled' && req.status === 'matched' ? 'cancelled' : req.status].color}`}>
-                  {statusConfig[tab === 'selesai' ? 'selesai' : tab === 'paid' ? 'paid' : tab === 'cancelled' && req.status === 'matched' ? 'cancelled' : req.status].label}
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
+                  tab === 'matched' && req.payment_proof_url
+                    ? 'bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300'
+                    : statusConfig[tab === 'selesai' ? 'selesai' : tab === 'paid' ? 'paid' : tab === 'cancelled' && req.status === 'matched' ? 'cancelled' : req.status]?.color ?? ''
+                }`}>
+                  {tab === 'matched' && req.payment_proof_url
+                    ? 'Direview Admin'
+                    : statusConfig[tab === 'selesai' ? 'selesai' : tab === 'paid' ? 'paid' : tab === 'cancelled' && req.status === 'matched' ? 'cancelled' : req.status]?.label ?? ''}
                 </span>
               </div>
 
@@ -253,8 +295,36 @@ export default function MyRequestsPage() {
                 </div>
               </div>
 
-              {/* Info jastiper + harga — tampil di semua tab matched */}
-              {req.status === 'matched' && req.fixed_price_idr && (
+                      {/* Tab Batal: tampilkan info yang relevan */}
+              {tab === 'cancelled' && req.status === 'cancelled' && (
+                <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Request dibatalkan</p>
+                  <p className="text-xs text-gray-400 mt-1">Request ini dibatalkan sebelum ada jastiper yang mengambil.</p>
+                </div>
+              )}
+
+              {tab === 'cancelled' && req.status === 'matched' && req.jastiper && (
+                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4 space-y-3">
+                  <p className="text-sm font-semibold text-red-700 dark:text-red-300">Order Dibatalkan</p>
+                  <div className="flex items-center gap-2">
+                    {req.jastiper.avatar_url ? (
+                      <img src={req.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center text-xs font-semibold text-red-700 dark:text-red-300 uppercase">
+                        {req.jastiper.full_name?.[0] ?? '?'}
+                      </div>
+                    )}
+                    <p className="text-sm text-red-700 dark:text-red-300">{req.jastiper.full_name}</p>
+                  </div>
+                  <div className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                    <p>Harga yang disepakati: <span className="font-medium">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(req.fixed_price_idr ?? 0)}</span></p>
+                    {req.cancellation_reason && <p>Alasan: {req.cancellation_reason}</p>}
+                  </div>
+                </div>
+              )}
+
+              {/* Info jastiper + harga — tampil di semua tab matched kecuali cancelled */}
+              {tab !== 'cancelled' && req.status === 'matched' && req.fixed_price_idr && (
                 <div className={`border rounded-lg p-4 mb-4 ${
                   tab === 'matched'
                     ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
@@ -361,17 +431,24 @@ export default function MyRequestsPage() {
 
                   {/* Tombol bayar hanya di tab matched */}
                   {tab === 'matched' && (
-                    <button
-                      onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
-                      className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-                    >
-                      Bayar Sekarang
-                    </button>
-                  )}
-                  {tab === 'matched' && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">
-                      Tidak membayar = order otomatis dibatalkan setelah waktu habis
-                    </p>
+                    req.payment_proof_url ? (
+                      <div className="bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg px-4 py-3 text-center">
+                        <p className="text-sm font-medium text-orange-700 dark:text-orange-300">⏳ Bukti transfer sedang direview admin</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">Biasanya selesai dalam 1x24 jam</p>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
+                          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+                        >
+                          Bayar Sekarang
+                        </button>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 text-center mt-2">
+                          Tidak membayar = order otomatis dibatalkan setelah waktu habis
+                        </p>
+                      </>
+                    )
                   )}
                   {tab === 'paid' && (
                     <p className="text-xs text-purple-600 dark:text-purple-400 text-center">

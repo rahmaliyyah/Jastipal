@@ -33,6 +33,7 @@ type Order = {
     receipt_url: string
     store_photo_url: string | null
   } | null
+  payment_proof_url: string | null
 }
 
 const statusConfig: Record<string, { label: string; color: string; step: number }> = {
@@ -153,9 +154,18 @@ export default function OrdersPage() {
       })
     }
 
-    // ambil proof terpisah
+    // ambil proof dan escrow terpisah
     const orderIds = data.map((o: any) => o.id)
     let proofMap: Record<string, any> = {}
+    let escrowMap: Record<string, string | null> = {}
+
+    if (orderIds.length > 0) {
+      const { data: escrowData } = await supabase
+        .from('escrow_transactions')
+        .select('order_id, payment_proof_url')
+        .in('order_id', orderIds)
+      ;(escrowData ?? []).forEach((e: any) => { escrowMap[e.order_id] = e.payment_proof_url })
+    }
 
     if (orderIds.length > 0) {
       const { data: proofData } = await supabase
@@ -170,6 +180,7 @@ export default function OrdersPage() {
       counterpart: counterpartMap[o[counterpartCol]] ?? null,
       pricing: o.order_pricing?.[0] ?? null,
       proof: proofMap[o.id] ?? null,
+      payment_proof_url: escrowMap[o.id] ?? null,
     }))
 
     setOrders(mapped)
@@ -257,6 +268,14 @@ export default function OrdersPage() {
         )
       }
       if (order.status === 'waiting_payment') {
+        if (order.payment_proof_url) {
+          return (
+            <div className="bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg px-4 py-3 text-center">
+              <p className="text-sm font-medium text-orange-700 dark:text-orange-300">⏳ Bukti transfer sedang direview admin</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">Biasanya selesai dalam 1x24 jam</p>
+            </div>
+          )
+        }
         return (
           <button
             onClick={() => router.push(`/orders/${order.id}/pay`)}
@@ -404,8 +423,14 @@ export default function OrdersPage() {
                     <p className="font-medium text-gray-900 dark:text-white truncate">{order.product_name}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.created_at)} · {order.flow_type === 'flow_a' ? 'Request' : 'Listing'}</p>
                   </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${cfg?.color}`}>
-                    {cfg?.label}
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
+                    order.status === 'waiting_payment' && order.payment_proof_url
+                      ? 'bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300'
+                      : cfg?.color
+                  }`}>
+                    {order.status === 'waiting_payment' && order.payment_proof_url
+                      ? 'Bukti Direview Admin'
+                      : cfg?.label}
                   </span>
                 </div>
 
