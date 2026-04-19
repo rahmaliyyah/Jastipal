@@ -184,7 +184,7 @@ export default function DashboardPage() {
               </button>
 
               <button
-                onClick={() => router.push('/listings/new')}
+                onClick={() => router.push('/trips/new')}
                 className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
@@ -218,11 +218,11 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Listing Saya</h2>
-              <button onClick={() => router.push('/listings')} className="text-xs text-blue-500 hover:text-blue-600">Lihat semua →</button>
+              <button onClick={() => router.push('/trips')} className="text-xs text-blue-500 hover:text-blue-600">Lihat semua →</button>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center">
               <p className="text-gray-400 dark:text-gray-500 text-sm mb-3">Belum ada listing aktif</p>
-              <button onClick={() => router.push('/listings/new')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Buat listing baru</button>
+              <button onClick={() => router.push('/trips/new')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Buat listing baru</button>
             </div>
           </div>
         </div>
