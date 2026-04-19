@@ -38,6 +38,7 @@ export default function AddProductPage() {
     product_price_idr: '',
     service_fee_idr: '',
     shipping_fee_idr: '',
+    stock: '1',
   })
 
   const productPrice = parseFloat(form.product_price_idr) || 0
@@ -119,6 +120,7 @@ export default function AddProductPage() {
       service_fee_idr: serviceFee,
       shipping_fee_idr: shippingFee,
       total_price_idr: totalPrice,
+      stock: parseInt(form.stock) || 1,
       status: 'open',
     })
 
@@ -129,7 +131,7 @@ export default function AddProductPage() {
     }
 
     setSuccess('Produk berhasil ditambahkan!')
-    setForm({ product_name: '', product_url: '', product_price_idr: '', service_fee_idr: '', shipping_fee_idr: '' })
+    setForm({ product_name: '', product_url: '', product_price_idr: '', service_fee_idr: '', shipping_fee_idr: '', stock: '1' })
     setImageFile(null)
     setImagePreview(null)
     setLoading(false)
@@ -241,17 +243,32 @@ export default function AddProductPage() {
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-            Link produk <span className="text-gray-400 text-xs font-normal">(opsional)</span>
-          </label>
-          <input
-            type="url"
-            placeholder="https://..."
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            value={form.product_url}
-            onChange={e => setForm({ ...form, product_url: e.target.value })}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+              Link produk <span className="text-gray-400 text-xs font-normal">(opsional)</span>
+            </label>
+            <input
+              type="url"
+              placeholder="https://..."
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={form.product_url}
+              onChange={e => setForm({ ...form, product_url: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+              Stok <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="number"
+              min="1"
+              placeholder="1"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={form.stock}
+              onChange={e => setForm({ ...form, stock: e.target.value })}
+            />
+          </div>
         </div>
 
         {/* Harga */}

@@ -22,6 +22,7 @@ type Product = {
   service_fee_idr: number
   shipping_fee_idr: number
   total_price_idr: number
+  stock: number
   status: 'open' | 'closed'
 }
 
@@ -70,7 +71,7 @@ export default function TripDetailPage() {
   async function fetchProducts() {
     const { data } = await supabase
       .from('listings')
-      .select('id, product_name, product_url, image_url, product_price_idr, service_fee_idr, shipping_fee_idr, total_price_idr, status')
+      .select('id, product_name, product_url, image_url, product_price_idr, service_fee_idr, shipping_fee_idr, total_price_idr, stock, status')
       .eq('trip_id', tripId)
       .order('created_at', { ascending: false })
     setProducts(data ?? [])
@@ -230,6 +231,7 @@ export default function TripDetailPage() {
                       <p className="text-xs text-gray-400">Ongkir: {formatRupiah(product.shipping_fee_idr)}</p>
                     )}
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatRupiah(product.total_price_idr)}</p>
+                    <p className="text-xs text-gray-400">Stok: {product.stock ?? 1}</p>
                   </div>
                 </div>
               </div>
