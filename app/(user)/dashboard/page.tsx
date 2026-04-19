@@ -104,35 +104,52 @@ export default function DashboardPage() {
             <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Aksi Cepat</h2>
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => router.push('/requests/new')}
+                onClick={() => router.push('/browse-listings')}
                 className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl p-4 text-left hover:opacity-90 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-white/20 dark:bg-gray-900/20 flex items-center justify-center mb-3">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   </svg>
                 </div>
-                <p className="text-sm font-semibold">Buat Request</p>
-                <p className="text-xs opacity-70 mt-0.5">Minta jastiper belikan barang</p>
+                <p className="text-sm font-semibold">Browse Listing</p>
+                <p className="text-xs opacity-70 mt-0.5">Cari jastiper yang siap berangkat</p>
               </button>
 
               <button
-                onClick={() => router.push('/requests')}
+                onClick={() => router.push('/requests/new')}
                 className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
-                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/>
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Request Saya</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{openRequests} aktif</p>
-                  {pendingPaymentCount > 0 && (
-                    <span className="text-xs bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium">
-                      {pendingPaymentCount} tagihan
-                    </span>
-                  )}
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Buat Request</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Minta jastiper belikan barang</p>
+              </button>
+
+              <button
+                onClick={() => router.push('/requests')}
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all col-span-2"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
+                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Request Saya</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{openRequests} aktif</p>
+                      {pendingPaymentCount > 0 && (
+                        <span className="text-xs bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium">
+                          {pendingPaymentCount} tagihan
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </button>
             </div>
@@ -167,24 +184,45 @@ export default function DashboardPage() {
               </button>
 
               <button
-                onClick={() => router.push('/orders')}
+                onClick={() => router.push('/listings/new')}
                 className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Order Masuk</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Lihat order yang perlu diproses</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Buat Listing</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tawarkan jasa titipmu</p>
+              </button>
+
+              <button
+                onClick={() => router.push('/orders')}
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all col-span-2"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Order Masuk</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Lihat order yang perlu diproses</p>
+                  </div>
+                </div>
               </button>
             </div>
           </div>
 
           <div>
-            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Listing Saya</h2>
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-12 text-center">
-              <p className="text-gray-400 dark:text-gray-500 text-sm">Listing akan muncul di sini</p>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Listing Saya</h2>
+              <button onClick={() => router.push('/listings')} className="text-xs text-blue-500 hover:text-blue-600">Lihat semua →</button>
+            </div>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center">
+              <p className="text-gray-400 dark:text-gray-500 text-sm mb-3">Belum ada listing aktif</p>
+              <button onClick={() => router.push('/listings/new')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Buat listing baru</button>
             </div>
           </div>
         </div>
