@@ -12,6 +12,7 @@ export default function DashboardPage() {
   const [activeRole, setActiveRole] = useState<'buyer' | 'jastiper'>('buyer')
   const [openRequests, setOpenRequests] = useState(0)
   const [pendingPaymentCount, setPendingPaymentCount] = useState(0)
+  const [openTrips, setOpenTrips] = useState(0)
 
   useEffect(() => {
     async function getUser() {
@@ -38,6 +39,14 @@ export default function DashboardPage() {
         .eq('status', 'open')
 
       setOpenRequests(openCount ?? 0)
+
+      // hitung trip aktif jastiper
+      const { count: tripCount } = await supabase
+        .from('trips')
+        .select('*', { count: 'exact', head: true })
+        .eq('jastiper_id', user.id)
+        .eq('status', 'open')
+      setOpenTrips(tripCount ?? 0)
 
       // hitung tagihan yang benar-benar waiting_payment
       // ambil semua request matched milik buyer
@@ -192,8 +201,8 @@ export default function DashboardPage() {
                     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Buat Listing</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tawarkan jasa titipmu</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Buat Trip</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Upload trip & katalog produkmu</p>
               </button>
 
               <button
@@ -217,12 +226,29 @@ export default function DashboardPage() {
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Listing Saya</h2>
+              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Trip Saya</h2>
               <button onClick={() => router.push('/trips')} className="text-xs text-blue-500 hover:text-blue-600">Lihat semua →</button>
             </div>
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center">
-              <p className="text-gray-400 dark:text-gray-500 text-sm mb-3">Belum ada listing aktif</p>
-              <button onClick={() => router.push('/trips/new')} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Buat listing baru</button>
+            <div
+              onClick={() => router.push('/trips')}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-all"
+            >
+              {openTrips > 0 ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{openTrips}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">trip aktif</p>
+                  </div>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <p className="text-gray-400 dark:text-gray-500 text-sm mb-2">Belum ada trip aktif</p>
+                  <button onClick={(e) => { e.stopPropagation(); router.push('/trips/new') }} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Buat trip baru</button>
+                </div>
+              )}
             </div>
           </div>
         </div>

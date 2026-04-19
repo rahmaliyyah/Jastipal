@@ -109,18 +109,25 @@ export default function BrowseListingsPage() {
 
     const { data: tripsData } = await supabase
       .from('trips')
-      .select('id, jastiper_id, title, description, trip_country, arrival_date, image_url, status, created_at, jastiper:jastiper_id(full_name, avatar_url)')
+      .select('id, jastiper_id, title, description, trip_country, arrival_date, image_url, status, created_at')
       .eq('status', 'open')
       .neq('jastiper_id', uid)
       .order('created_at', { ascending: false })
 
     if (!tripsData || tripsData.length === 0) { setTrips([]); setAllTrips([]); setLoading(false); return }
 
-    // ambil whatsapp_number jastiper terpisah
+    // ambil info jastiper terpisah
     const jastiperIds = [...new Set(tripsData.map((t: any) => t.jastiper_id).filter(Boolean))]
+    let userMap: Record<string, { full_name: string; avatar_url: string | null }> = {}
     let waMap: Record<string, string | null> = {}
 
     if (jastiperIds.length > 0) {
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('id, full_name, avatar_url')
+        .in('id', jastiperIds)
+      ;(usersData ?? []).forEach((u: any) => { userMap[u.id] = { full_name: u.full_name, avatar_url: u.avatar_url } })
+
       const { data: jpData } = await supabase
         .from('jastiper_profiles')
         .select('user_id, whatsapp_number')
@@ -145,9 +152,9 @@ export default function BrowseListingsPage() {
     const mapped = tripsData
       .map((t: any) => ({
         ...t,
-        jastiper: t.jastiper ? {
-          full_name: t.jastiper.full_name,
-          avatar_url: t.jastiper.avatar_url,
+        jastiper: userMap[t.jastiper_id] ? {
+          full_name: userMap[t.jastiper_id].full_name,
+          avatar_url: userMap[t.jastiper_id].avatar_url,
           whatsapp_number: waMap[t.jastiper_id] ?? null,
         } : null,
         products: productsMap[t.id] ?? [],

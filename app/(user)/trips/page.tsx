@@ -39,6 +39,18 @@ export default function MyTripsPage() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+
+      const { data } = await supabase
+        .from('users')
+        .select('is_jastiper, active_role')
+        .eq('id', user.id)
+        .single()
+
+      if (!data?.is_jastiper || data.active_role !== 'jastiper') {
+        router.push('/dashboard')
+        return
+      }
+
       setUserId(user.id)
     }
     init()
