@@ -19,6 +19,7 @@ export default function NewTripPage() {
     description: '',
     trip_country: '',
     arrival_date: '',
+    arrival_city: '',
   })
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function NewTripPage() {
     if (!form.title.trim()) { setError('Judul trip wajib diisi'); return }
     if (!form.trip_country.trim()) { setError('Negara tujuan wajib diisi'); return }
     if (!form.arrival_date) { setError('Tanggal tiba wajib diisi'); return }
+    if (!form.arrival_city.trim()) { setError('Kota tiba wajib diisi'); return }
 
     setLoading(true)
     setError('')
@@ -84,6 +86,7 @@ export default function NewTripPage() {
         description: form.description || null,
         trip_country: form.trip_country,
         arrival_date: form.arrival_date,
+        arrival_city: form.arrival_city || null,
         image_url: imageUrl,
         status: 'open',
       })
@@ -201,6 +204,19 @@ export default function NewTripPage() {
             </div>
           </div>
         </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+              Kota tiba di Indonesia <span className="text-red-400">*</span>
+            </label>
+            <input
+              placeholder="Contoh: Malang, Jakarta, Surabaya"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={form.arrival_city}
+              onChange={e => setForm({ ...form, arrival_city: e.target.value })}
+            />
+            <p className="text-xs text-gray-400 mt-1">Kota ini digunakan untuk menghitung ongkir domestik ke buyer</p>
+          </div>
 
         <button
           onClick={handleSubmit}
