@@ -10,6 +10,7 @@ type Trip = {
   description: string | null
   trip_country: string
   arrival_date: string
+  arrival_city: string | null
   image_url: string | null
   status: string
   created_at: string
@@ -67,6 +68,8 @@ export default function BrowseListingsPage() {
   const [orderLoading, setOrderLoading] = useState(false)
   const [orderError, setOrderError] = useState('')
   const [orderSuccess, setOrderSuccess] = useState('')
+  const [buyerCity, setBuyerCity] = useState('')
+  const [shippingAddress, setShippingAddress] = useState('')
 
   useEffect(() => {
     async function init() {
@@ -109,7 +112,7 @@ export default function BrowseListingsPage() {
 
     const { data: tripsData } = await supabase
       .from('trips')
-      .select('id, jastiper_id, title, description, trip_country, arrival_date, image_url, status, created_at')
+      .select('id, jastiper_id, title, description, trip_country, arrival_date, arrival_city, image_url, status, created_at')
       .eq('status', 'open')
       .neq('jastiper_id', uid)
       .order('created_at', { ascending: false })
@@ -170,12 +173,19 @@ export default function BrowseListingsPage() {
 
   async function handleOrder() {
     if (!selectedProduct || !userId) return
+    if (!buyerCity.trim()) { setOrderError('Kota pengiriman wajib diisi'); return }
+    if (!shippingAddress.trim()) { setOrderError('Alamat pengiriman wajib diisi'); return }
     setOrderLoading(true)
     setOrderError('')
 
     const { product, trip } = selectedProduct
+    
+    // hitung ongkir domestik
+    const isSameCity = buyerCity.trim().toLowerCase() === (trip.arrival_city ?? '').toLowerCase()
+    const domesticShipping = isSameCity ? 25000 : 50000
+    
     const platformFee = Math.round(product.total_price_idr * 0.05)
-    const total = product.total_price_idr + platformFee
+    const total = product.total_price_idr + platformFee + domesticShipping
 
     const { data: orderData, error: orderErr } = await supabase
       .from('orders')
@@ -188,6 +198,7 @@ export default function BrowseListingsPage() {
         product_name: product.product_name,
         quantity: 1,
         delivery_pref: 'courier',
+        shipping_address: `${shippingAddress}, ${buyerCity}`,
         status: 'waiting_payment',
       })
       .select('id')
@@ -199,7 +210,7 @@ export default function BrowseListingsPage() {
       order_id: orderData.id,
       product_price_idr: product.product_price_idr,
       service_fee_idr: product.service_fee_idr,
-      shipping_fee_idr: product.shipping_fee_idr,
+      shipping_fee_idr: product.shipping_fee_idr + domesticShipping,
       platform_fee_idr: platformFee,
       estimated_customs_idr: 0,
       total_idr: total,
@@ -213,6 +224,8 @@ export default function BrowseListingsPage() {
 
     setOrderSuccess(`Order berhasil! Total: ${formatRupiah(total)}`)
     setSelectedProduct(null)
+    setBuyerCity('')
+    setShippingAddress('')
     setOrderLoading(false)
   }
 
@@ -262,33 +275,85 @@ export default function BrowseListingsPage() {
                 </div>
               )}
 
-              {/* Rincian harga */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-1.5">
-                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <span>Harga produk</span>
-                  <span>{formatRupiah(selectedProduct.product.product_price_idr)}</span>
+              {/* Input kota & alamat */}
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                    Kota pengiriman <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    placeholder="Contoh: Malang, Surabaya, Jakarta"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    value={buyerCity}
+                    onChange={e => setBuyerCity(e.target.value)}
+                  />
+                  {buyerCity && selectedProduct.trip.arrival_city && (
+                    <p className="text-xs mt-1 font-medium">
+                      {buyerCity.trim().toLowerCase() === selectedProduct.trip.arrival_city.toLowerCase()
+                        ? <span className="text-green-600 dark:text-green-400">✓ Sekota dengan jastiper — ongkir Rp 25.000</span>
+                        : <span className="text-orange-500">📦 Beda kota dengan jastiper ({selectedProduct.trip.arrival_city}) — ongkir Rp 50.000</span>
+                      }
+                    </p>
+                  )}
                 </div>
-                {selectedProduct.product.service_fee_idr > 0 && (
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Service fee</span>
-                    <span>{formatRupiah(selectedProduct.product.service_fee_idr)}</span>
-                  </div>
-                )}
-                {selectedProduct.product.shipping_fee_idr > 0 && (
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Ongkir</span>
-                    <span>{formatRupiah(selectedProduct.product.shipping_fee_idr)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <span>Platform fee (5%)</span>
-                  <span>{formatRupiah(Math.round(selectedProduct.product.total_price_idr * 0.05))}</span>
-                </div>
-                <div className="flex justify-between text-sm font-bold text-gray-900 dark:text-white pt-1.5 border-t border-gray-200 dark:border-gray-700">
-                  <span>Total</span>
-                  <span>{formatRupiah(selectedProduct.product.total_price_idr + Math.round(selectedProduct.product.total_price_idr * 0.05))}</span>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                    Alamat lengkap <span className="text-red-400">*</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Jl. Contoh No. 123, Kecamatan, Kota"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                    value={shippingAddress}
+                    onChange={e => setShippingAddress(e.target.value)}
+                  />
                 </div>
               </div>
+
+              {/* Rincian harga */}
+              {(() => {
+                const isSameCity = buyerCity.trim().toLowerCase() === (selectedProduct.trip.arrival_city ?? '').toLowerCase()
+                const domesticShipping = buyerCity ? (isSameCity ? 25000 : 50000) : 0
+                const platformFee = Math.round(selectedProduct.product.total_price_idr * 0.05)
+                const total = selectedProduct.product.total_price_idr + platformFee + domesticShipping
+                return (
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-1.5">
+                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <span>Harga produk</span>
+                      <span>{formatRupiah(selectedProduct.product.product_price_idr)}</span>
+                    </div>
+                    {selectedProduct.product.service_fee_idr > 0 && (
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>Service fee</span>
+                        <span>{formatRupiah(selectedProduct.product.service_fee_idr)}</span>
+                      </div>
+                    )}
+                    {selectedProduct.product.shipping_fee_idr > 0 && (
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>Ongkir luar negeri</span>
+                        <span>{formatRupiah(selectedProduct.product.shipping_fee_idr)}</span>
+                      </div>
+                    )}
+                    {buyerCity && (
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>Ongkir domestik {isSameCity ? '(sekota)' : '(beda kota)'}</span>
+                        <span>{formatRupiah(domesticShipping)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <span>Platform fee (5%)</span>
+                      <span>{formatRupiah(platformFee)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold text-gray-900 dark:text-white pt-1.5 border-t border-gray-200 dark:border-gray-700">
+                      <span>Total</span>
+                      <span>{formatRupiah(total)}</span>
+                    </div>
+                    {!buyerCity && (
+                      <p className="text-xs text-gray-400 italic">*Isi kota untuk melihat total dengan ongkir domestik</p>
+                    )}
+                  </div>
+                )
+              })()}
 
               {orderError && <p className="text-red-500 text-sm">{orderError}</p>}
 
