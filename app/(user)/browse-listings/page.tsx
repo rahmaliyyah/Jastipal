@@ -485,11 +485,12 @@ export default function BrowseListingsPage() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.product_name}</p>
-                        {product.product_url && (
-                          <a href={product.product_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline">
-                            Lihat produk →
-                          </a>
-                        )}
+                        <button
+                          onClick={() => router.push(`/trips/${trip.id}/products/${product.id}`)}
+                          className="text-xs text-blue-500 hover:underline text-left"
+                        >
+                          Lihat detail →
+                        </button>
                         <p className="text-xs text-gray-400 mt-0.5">Stok: {product.stock}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
