@@ -34,7 +34,7 @@ export default function AddProductPage() {
 
   const [form, setForm] = useState({
     product_name: '',
-    product_url: '',
+    description: '',
     product_price_idr: '',
     service_fee_idr: '',
     shipping_fee_idr: '',
@@ -114,7 +114,7 @@ export default function AddProductPage() {
       trip_id: tripId,
       jastiper_id: userId,
       product_name: form.product_name,
-      product_url: form.product_url || null,
+      description: form.description || null,
       image_url: imageUrl,
       product_price_idr: productPrice,
       service_fee_idr: serviceFee,
@@ -131,7 +131,7 @@ export default function AddProductPage() {
     }
 
     setSuccess('Produk berhasil ditambahkan!')
-    setForm({ product_name: '', product_url: '', product_price_idr: '', service_fee_idr: '', shipping_fee_idr: '', stock: '1' })
+    setForm({ product_name: '', description: '', product_price_idr: '', service_fee_idr: '', shipping_fee_idr: '', stock: '1' })
     setImageFile(null)
     setImagePreview(null)
     setLoading(false)
@@ -243,19 +243,20 @@ export default function AddProductPage() {
           />
         </div>
 
+        <div>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+            Deskripsi <span className="text-gray-400 text-xs font-normal">(opsional)</span>
+          </label>
+          <textarea
+            rows={2}
+            placeholder="Contoh: Warna putih, ukuran M, original store..."
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+          />
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Link produk <span className="text-gray-400 text-xs font-normal">(opsional)</span>
-            </label>
-            <input
-              type="url"
-              placeholder="https://..."
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={form.product_url}
-              onChange={e => setForm({ ...form, product_url: e.target.value })}
-            />
-          </div>
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
               Stok <span className="text-red-400">*</span>

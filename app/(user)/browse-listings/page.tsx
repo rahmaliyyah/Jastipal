@@ -27,6 +27,7 @@ type Product = {
   product_name: string
   product_url: string | null
   image_url: string | null
+  description: string | null
   product_price_idr: number
   service_fee_idr: number
   shipping_fee_idr: number
@@ -70,6 +71,7 @@ export default function BrowseListingsPage() {
   const [orderSuccess, setOrderSuccess] = useState('')
   const [buyerCity, setBuyerCity] = useState('')
   const [shippingAddress, setShippingAddress] = useState('')
+  const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
     async function init() {
@@ -142,12 +144,13 @@ export default function BrowseListingsPage() {
     const tripIds = tripsData.map((t: any) => t.id)
     const { data: productsData } = await supabase
       .from('listings')
-      .select('id, trip_id, product_name, product_url, image_url, product_price_idr, service_fee_idr, shipping_fee_idr, total_price_idr, stock, status')
+      .select('id, trip_id, product_name, product_url, image_url, description, product_price_idr, service_fee_idr, shipping_fee_idr, total_price_idr, stock, status')
       .in('trip_id', tripIds)
       .eq('status', 'open')
 
     const productsMap: Record<string, Product[]> = {}
     ;(productsData ?? []).forEach((p: any) => {
+      if (p.stock <= 0) return // sembunyikan produk stok habis
       if (!productsMap[p.trip_id]) productsMap[p.trip_id] = []
       productsMap[p.trip_id].push(p)
     })
@@ -175,17 +178,20 @@ export default function BrowseListingsPage() {
     if (!selectedProduct || !userId) return
     if (!buyerCity.trim()) { setOrderError('Kota pengiriman wajib diisi'); return }
     if (!shippingAddress.trim()) { setOrderError('Alamat pengiriman wajib diisi'); return }
-    setOrderLoading(true)
-    setOrderError('')
+    if (quantity < 1) { setOrderError('Jumlah minimal 1'); return }
 
     const { product, trip } = selectedProduct
+
+    if (quantity > (product.stock ?? 1)) { setOrderError(`Stok tidak cukup, tersisa ${product.stock}`); return }
+    setOrderLoading(true)
+    setOrderError('')
     
     // hitung ongkir domestik
     const isSameCity = buyerCity.trim().toLowerCase() === (trip.arrival_city ?? '').toLowerCase()
     const domesticShipping = isSameCity ? 25000 : 50000
     
-    const platformFee = Math.round(product.total_price_idr * 0.05)
-    const total = product.total_price_idr + platformFee + domesticShipping
+    const platformFee = Math.round(product.total_price_idr * quantity * 0.05)
+    const total = (product.total_price_idr * quantity) + platformFee + domesticShipping
 
     const { data: orderData, error: orderErr } = await supabase
       .from('orders')
@@ -196,7 +202,7 @@ export default function BrowseListingsPage() {
         flow_type: 'flow_b',
         product_url: product.product_url,
         product_name: product.product_name,
-        quantity: 1,
+        quantity: quantity,
         delivery_pref: 'courier',
         shipping_address: `${shippingAddress}, ${buyerCity}`,
         status: 'waiting_payment',
@@ -206,11 +212,17 @@ export default function BrowseListingsPage() {
 
     if (orderErr) { setOrderError('Gagal membuat order: ' + orderErr.message); setOrderLoading(false); return }
 
+    // kurangi stok produk
+    await supabase
+      .from('listings')
+      .update({ stock: Math.max(0, (product.stock ?? 1) - quantity) })
+      .eq('id', product.id)
+
     await supabase.from('order_pricing').insert({
       order_id: orderData.id,
-      product_price_idr: product.product_price_idr,
-      service_fee_idr: product.service_fee_idr,
-      shipping_fee_idr: product.shipping_fee_idr + domesticShipping,
+      product_price_idr: product.product_price_idr * quantity,
+      service_fee_idr: product.service_fee_idr * quantity,
+      shipping_fee_idr: product.shipping_fee_idr * quantity + domesticShipping,
       platform_fee_idr: platformFee,
       estimated_customs_idr: 0,
       total_idr: total,
@@ -226,6 +238,7 @@ export default function BrowseListingsPage() {
     setSelectedProduct(null)
     setBuyerCity('')
     setShippingAddress('')
+    setQuantity(1)
     setOrderLoading(false)
   }
 
@@ -275,6 +288,25 @@ export default function BrowseListingsPage() {
                 </div>
               )}
 
+              {/* Quantity input */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                  Jumlah <span className="text-red-400">*</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center text-lg font-medium transition-all"
+                  >-</button>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white w-6 text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(q => Math.min(selectedProduct.product.stock ?? 1, q + 1))}
+                    className="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center text-lg font-medium transition-all"
+                  >+</button>
+                  <span className="text-xs text-gray-400">Stok tersedia: {selectedProduct.product.stock}</span>
+                </div>
+              </div>
+
               {/* Input kota & alamat */}
               <div className="space-y-3">
                 <div>
@@ -314,13 +346,13 @@ export default function BrowseListingsPage() {
               {(() => {
                 const isSameCity = buyerCity.trim().toLowerCase() === (selectedProduct.trip.arrival_city ?? '').toLowerCase()
                 const domesticShipping = buyerCity ? (isSameCity ? 25000 : 50000) : 0
-                const platformFee = Math.round(selectedProduct.product.total_price_idr * 0.05)
-                const total = selectedProduct.product.total_price_idr + platformFee + domesticShipping
+                const platformFee = Math.round(selectedProduct.product.total_price_idr * quantity * 0.05)
+                const total = (selectedProduct.product.total_price_idr * quantity) + platformFee + domesticShipping
                 return (
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-1.5">
                     <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                      <span>Harga produk</span>
-                      <span>{formatRupiah(selectedProduct.product.product_price_idr)}</span>
+                      <span>Harga produk {quantity > 1 ? `(x${quantity})` : ''}</span>
+                      <span>{formatRupiah(selectedProduct.product.product_price_idr * quantity)}</span>
                     </div>
                     {selectedProduct.product.service_fee_idr > 0 && (
                       <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
@@ -462,6 +494,17 @@ export default function BrowseListingsPage() {
                           </div>
                         )}
                         <p className="text-xs text-gray-600 dark:text-gray-400">{trip.jastiper.full_name}</p>
+                        {trip.jastiper.whatsapp_number && (
+                          <a
+                            href={`https://wa.me/${trip.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white rounded-lg px-2 py-1 text-[10px] font-medium transition-all"
+                          >
+                            WA
+                          </a>
+                        )}
                       </div>
                     )}
                   </div>
@@ -491,6 +534,9 @@ export default function BrowseListingsPage() {
                         >
                           Lihat detail →
                         </button>
+                        {product.description && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5">{product.description}</p>
+                        )}
                         <p className="text-xs text-gray-400 mt-0.5">Stok: {product.stock}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">

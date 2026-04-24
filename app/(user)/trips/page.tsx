@@ -30,7 +30,7 @@ export default function MyTripsPage() {
 
   const [trips, setTrips] = useState<Trip[]>([])
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'open' | 'closed'>('open')
+  const [tab, setTab] = useState<'active' | 'expired'>('active')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [success, setSuccess] = useState('')
   const [userId, setUserId] = useState('')
@@ -63,17 +63,24 @@ export default function MyTripsPage() {
   async function fetchTrips() {
     setLoading(true)
 
+    const today = new Date().toISOString().split('T')[0]
     const { data } = await supabase
       .from('trips')
       .select('id, title, description, trip_country, arrival_date, image_url, status, created_at')
       .eq('jastiper_id', userId)
-      .eq('status', tab)
       .order('created_at', { ascending: false })
+    
+    // filter client-side berdasarkan tanggal tiba
+    const filtered = (data ?? []).filter((t: any) => {
+      const isExpired = t.arrival_date < today
+      return tab === 'expired' ? isExpired : !isExpired
+    })
+    const filteredData = filtered
 
-    if (!data) { setTrips([]); setLoading(false); return }
+    if (!filteredData) { setTrips([]); setLoading(false); return }
 
     // hitung produk dengan satu query
-    const tripIds = data.map((t: any) => t.id)
+    const tripIds = filteredData.map((t: any) => t.id)
     let countMap: Record<string, number> = {}
 
     if (tripIds.length > 0) {
@@ -87,27 +94,8 @@ export default function MyTripsPage() {
       })
     }
 
-    setTrips(data.map((t: any) => ({ ...t, product_count: countMap[t.id] ?? 0 })))
+    setTrips(filteredData.map((t: any) => ({ ...t, product_count: countMap[t.id] ?? 0 })))
     setLoading(false)
-  }
-
-  async function handleClose(id: string) {
-    setActionLoading(id)
-    await supabase.from('trips').update({ status: 'closed' }).eq('id', id)
-    // tutup semua produk dalam trip
-    await supabase.from('listings').update({ status: 'closed' }).eq('trip_id', id)
-    setSuccess('Trip berhasil ditutup')
-    setActionLoading(null)
-    fetchTrips()
-  }
-
-  async function handleReopen(id: string) {
-    setActionLoading(id)
-    await supabase.from('trips').update({ status: 'open' }).eq('id', id)
-    await supabase.from('listings').update({ status: 'open' }).eq('trip_id', id)
-    setSuccess('Trip berhasil dibuka kembali')
-    setActionLoading(null)
-    fetchTrips()
   }
 
   async function handleDelete(id: string) {
@@ -150,7 +138,7 @@ export default function MyTripsPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
-        {(['open', 'closed'] as const).map(t => (
+        {(['active', 'expired'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -160,7 +148,7 @@ export default function MyTripsPage() {
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            {t === 'open' ? 'Aktif' : 'Ditutup'}
+            {t === 'active' ? 'Aktif' : 'Kadaluarsa'}
           </button>
         ))}
       </div>
@@ -178,9 +166,9 @@ export default function MyTripsPage() {
             </svg>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            {tab === 'open' ? 'Belum ada trip aktif' : 'Belum ada trip yang ditutup'}
+            {tab === 'active' ? 'Belum ada trip aktif' : 'Tidak ada trip yang kadaluarsa'}
           </p>
-          {tab === 'open' && (
+          {tab === 'active' && (
             <button
               onClick={() => router.push('/trips/new')}
               className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 transition-all"
@@ -244,23 +232,6 @@ export default function MyTripsPage() {
                   >
                     + Produk
                   </button>
-                  {trip.status === 'open' ? (
-                    <button
-                      onClick={() => handleClose(trip.id)}
-                      disabled={actionLoading === trip.id}
-                      className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg py-2 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-all"
-                    >
-                      {actionLoading === trip.id ? 'Memproses...' : 'Tutup Trip'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleReopen(trip.id)}
-                      disabled={actionLoading === trip.id}
-                      className="flex-1 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-400 rounded-lg py-2 text-xs font-medium hover:bg-green-50 dark:hover:bg-green-950 disabled:opacity-50 transition-all"
-                    >
-                      {actionLoading === trip.id ? 'Memproses...' : 'Buka Kembali'}
-                    </button>
-                  )}
                   <button
                     onClick={() => handleDelete(trip.id)}
                     disabled={actionLoading === trip.id}
