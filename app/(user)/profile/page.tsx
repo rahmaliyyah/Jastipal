@@ -30,6 +30,9 @@ export default function ProfilePage() {
   const [jastiperProfile, setJastiperProfile] = useState<JastiperProfile | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [form, setForm] = useState({ full_name: '', phone: '' })
+  const [jastiperForm, setJastiperForm] = useState({ whatsapp_number: '', service_fee_pct: '' })
+  const [jastiperEditLoading, setJastiperEditLoading] = useState(false)
+  const [jastiperEditSuccess, setJastiperEditSuccess] = useState(false)
 
   useEffect(() => {
     async function getProfile() {
@@ -58,7 +61,13 @@ export default function ProfilePage() {
         .eq('user_id', user.id)
         .single()
 
-      if (jpData) setJastiperProfile(jpData)
+      if (jpData) {
+        setJastiperProfile(jpData)
+        setJastiperForm({
+          whatsapp_number: jpData.whatsapp_number ?? '',
+          service_fee_pct: jpData.service_fee_pct?.toString() ?? '',
+        })
+      }
       setProfileLoaded(true)
     }
     getProfile()
@@ -89,6 +98,27 @@ export default function ProfilePage() {
     if (updateError) { setError('Gagal menyimpan, coba lagi.'); setLoading(false); return }
     setSuccess(true)
     setLoading(false)
+  }
+
+  async function handleSaveJastiperProfile() {
+    setJastiperEditLoading(true)
+    setJastiperEditSuccess(false)
+
+    const { error: updateError } = await supabase
+      .from('jastiper_profiles')
+      .update({
+        whatsapp_number: jastiperForm.whatsapp_number || null,
+        service_fee_pct: jastiperForm.service_fee_pct ? parseFloat(jastiperForm.service_fee_pct) : null,
+      })
+      .eq('user_id', userId)
+
+    if (updateError) {
+      setError('Gagal menyimpan profil jastiper')
+    } else {
+      setJastiperEditSuccess(true)
+      setTimeout(() => setJastiperEditSuccess(false), 3000)
+    }
+    setJastiperEditLoading(false)
   }
 
   async function handleSwitchRole(to: 'buyer' | 'jastiper') {
@@ -167,6 +197,46 @@ export default function ProfilePage() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
           Kamu bisa beralih antara mode buyer dan jastiper kapan saja.
         </p>
+
+        {/* Edit profil jastiper */}
+        <div className="space-y-3 mb-5">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Edit Profil Jastiper</h3>
+
+          <div>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Nomor WhatsApp</label>
+            <input
+              placeholder="Contoh: 08123456789"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={jastiperForm.whatsapp_number}
+              onChange={e => setJastiperForm({ ...jastiperForm, whatsapp_number: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Service Fee (%)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              placeholder="Contoh: 10"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={jastiperForm.service_fee_pct}
+              onChange={e => setJastiperForm({ ...jastiperForm, service_fee_pct: e.target.value })}
+            />
+          </div>
+
+          {jastiperEditSuccess && (
+            <p className="text-xs text-green-600 dark:text-green-400 font-medium">✓ Profil jastiper berhasil disimpan</p>
+          )}
+
+          <button
+            onClick={handleSaveJastiperProfile}
+            disabled={jastiperEditLoading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50 transition-all"
+          >
+            {jastiperEditLoading ? 'Menyimpan...' : 'Simpan Profil Jastiper'}
+          </button>
+        </div>
 
         {/* Info jastiper */}
         <div className="grid grid-cols-2 gap-2 mb-5">

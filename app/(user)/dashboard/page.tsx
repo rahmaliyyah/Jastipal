@@ -164,12 +164,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Jastiper Tersedia</h2>
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-12 text-center">
-              <p className="text-gray-400 dark:text-gray-500 text-sm">List jastiper akan muncul di sini</p>
-            </div>
-          </div>
+
         </div>
       )}
 
