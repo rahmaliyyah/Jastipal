@@ -34,6 +34,11 @@ type Order = {
     store_photo_url: string | null
   } | null
   payment_proof_url: string | null
+  dispute: {
+    reason: string
+    resolution: string | null
+    status: string
+  } | null
 }
 
 const statusConfig: Record<string, { label: string; color: string; step: number }> = {
@@ -158,6 +163,7 @@ export default function OrdersPage() {
     const orderIds = data.map((o: any) => o.id)
     let proofMap: Record<string, any> = {}
     let escrowMap: Record<string, string | null> = {}
+    let disputeMap: Record<string, any> = {}
 
     if (orderIds.length > 0) {
       const { data: escrowData } = await supabase
@@ -175,12 +181,21 @@ export default function OrdersPage() {
       ;(proofData ?? []).forEach((p: any) => { proofMap[p.order_id] = p })
     }
 
+    if (orderIds.length > 0) {
+      const { data: disputeData } = await supabase
+        .from('disputes')
+        .select('order_id, reason, resolution, status')
+        .in('order_id', orderIds)
+      ;(disputeData ?? []).forEach((d: any) => { disputeMap[d.order_id] = d })
+    }
+
     const mapped = data.map((o: any) => ({
       ...o,
       counterpart: counterpartMap[o[counterpartCol]] ?? null,
       pricing: o.order_pricing?.[0] ?? null,
       proof: proofMap[o.id] ?? null,
       payment_proof_url: escrowMap[o.id] ?? null,
+      dispute: disputeMap[o.id] ?? null,
     }))
 
     setOrders(mapped)
@@ -259,11 +274,29 @@ export default function OrdersPage() {
     if (activeRole === 'buyer') {
       if (order.status === 'shipped') {
         return (
+          <div className="space-y-2">
+            <button
+              onClick={() => { setSelected(order); }}
+              className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+            >
+              Konfirmasi Terima Barang
+            </button>
+            <button
+              onClick={() => router.push(`/orders/${order.id}/dispute`)}
+              className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+            >
+              Ada Masalah? Buka Dispute
+            </button>
+          </div>
+        )
+      }
+      if (order.status === 'processing') {
+        return (
           <button
-            onClick={() => { setSelected(order); }}
-            className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+            onClick={() => router.push(`/orders/${order.id}/dispute`)}
+            className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-all"
           >
-            Konfirmasi Terima Barang
+            Ada Masalah? Buka Dispute
           </button>
         )
       }
@@ -535,6 +568,24 @@ export default function OrdersPage() {
                         </a>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* Info dispute jika ada di order cancelled */}
+                {order.status === 'cancelled' && order.dispute && (
+                  <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
+                    <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-1">Order dibatalkan karena dispute</p>
+                    <p className="text-xs text-red-700 dark:text-red-300 mb-1">
+                      <span className="font-medium">Alasan:</span> {order.dispute.reason}
+                    </p>
+                    {order.dispute.resolution && (
+                      <p className="text-xs text-red-700 dark:text-red-300">
+                        <span className="font-medium">Keputusan admin:</span> {order.dispute.resolution}
+                      </p>
+                    )}
+                    <p className="text-xs text-red-500 mt-1">
+                      {order.dispute.status === 'resolved' ? '💰 Dana dikembalikan ke buyer' : ''}
+                    </p>
                   </div>
                 )}
 
