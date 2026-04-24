@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isPublicRoute = ['/login', '/register'].includes(pathname)
+  const isPublicRoute = ['/', '/login', '/register'].includes(pathname)
   const isAuthCallback = pathname.startsWith('/auth/callback')
 
   // belum login → ke login
@@ -67,8 +67,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login?error=frozen', request.url))
     }
 
-    // sudah login → jangan bisa akses halaman publik
-    if (isPublicRoute) {
+    // sudah login → jangan bisa akses halaman login/register (tapi boleh lihat landing)
+    if (['/login', '/register'].includes(pathname)) {
       if (userData?.is_admin) {
         return NextResponse.redirect(new URL('/admin', request.url))
       }
