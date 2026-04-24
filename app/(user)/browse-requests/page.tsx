@@ -366,14 +366,14 @@ export default function BrowseRequestsPage() {
               <div key={req.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
                 {/* Buyer info */}
                 <div className="flex items-center gap-2 mb-4">
-                  {req.users.avatar_url ? (
-                    <img src={req.users.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                  {req.users?.avatar_url ? (
+                    <img src={req.users?.avatar_url} className="w-7 h-7 rounded-full object-cover" />
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-medium text-blue-600 dark:text-blue-300 uppercase">
-                      {req.users.full_name?.[0] ?? '?'}
+                      {req.users?.full_name?.[0] ?? '?'}
                     </div>
                   )}
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{req.users.full_name}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{req.users?.full_name}</p>
                   <span className="text-gray-300 dark:text-gray-600">·</span>
                   <p className="text-xs text-gray-400">{formatDate(req.created_at)}</p>
                 </div>

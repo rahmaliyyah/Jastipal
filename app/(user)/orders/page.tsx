@@ -538,7 +538,18 @@ export default function OrdersPage() {
 
                 {/* Delivery info */}
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 space-y-1">
-                  <p className="capitalize">📦 {order.delivery_pref === 'courier' ? `Courier → ${order.shipping_address ?? '-'}` : `Meetup → ${order.meetup_location ?? '-'}`}</p>
+                  {order.delivery_pref === 'courier' ? (
+                    <p>📦 Courier → {order.shipping_address ?? '-'}</p>
+                  ) : (
+                    <>
+                      <p>🤝 Meetup → {order.meetup_location ?? '-'}</p>
+                      {order.meetup_time && (
+                        <p>🕐 Waktu meetup: <span className="font-medium text-gray-700 dark:text-gray-300">
+                          {new Date(order.meetup_time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span></p>
+                      )}
+                    </>
+                  )}
                   {order.tracking_number && (
                     <p>🚚 Resi: <span className="font-medium text-gray-700 dark:text-gray-300">{order.tracking_number}</span></p>
                   )}
