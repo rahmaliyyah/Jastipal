@@ -25,6 +25,7 @@ export default function OpenDisputePage() {
   const [userId, setUserId] = useState('')
   const [activeRole, setActiveRole] = useState<'buyer' | 'jastiper'>('buyer')
   const [reason, setReason] = useState('')
+  const [selectedReason, setSelectedReason] = useState('')
   const [existingDispute, setExistingDispute] = useState(false)
 
   useEffect(() => {
@@ -154,20 +155,20 @@ export default function OpenDisputePage() {
                 ]).map(option => (
                   <button
                     key={option}
-                    onClick={() => setReason(option)}
+                    onClick={() => { setSelectedReason(option); setReason(option !== 'Lainnya' ? option : '') }}
                     className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${
-                      reason === option
+                      selectedReason === option
                         ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-800 font-medium text-gray-900 dark:text-white'
                         : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
-                    {reason === option && <span className="mr-2">✓</span>}{option}
+                    {selectedReason === option && <span className="mr-2">✓</span>}{option}
                   </button>
                 ))}
               </div>
             </div>
 
-            {reason === 'Lainnya' && (
+            {selectedReason === 'Lainnya' && (
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
                   Jelaskan masalahmu <span className="text-red-400">*</span>

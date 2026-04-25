@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 type Order = {
   id: string
   flow_type: 'flow_a' | 'flow_b'
+  listing_id: string | null
   product_name: string
   product_url: string
   quantity: number
@@ -130,7 +131,7 @@ export default function OrdersPage() {
 
     const { data } = await supabase
       .from('orders')
-      .select('id, flow_type, product_name, product_url, quantity, delivery_pref, shipping_address, meetup_location, meetup_time, status, tracking_number, notes, created_at, buyer_id, jastiper_id, order_pricing(product_price_idr, platform_fee_idr, total_idr)')
+      .select('id, flow_type, listing_id, product_name, product_url, quantity, delivery_pref, shipping_address, meetup_location, meetup_time, status, tracking_number, notes, created_at, buyer_id, jastiper_id, order_pricing(product_price_idr, platform_fee_idr, total_idr)')
       .eq(col, userId)
       .in('status', statuses)
       .order('created_at', { ascending: false })
@@ -254,15 +255,25 @@ export default function OrdersPage() {
   async function handleCancel(order: Order) {
     setActionLoading(true)
 
+    // batalkan order
     await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id)
 
-    await supabase.from('escrow_transactions').update({
-      status: 'refunded',
-      released_at: new Date().toISOString(),
-    }).eq('order_id', order.id)
+    // kembalikan stok jika flow_b (listing)
+    if (order.flow_type === 'flow_b' && order.listing_id) {
+      const { data: listing } = await supabase
+        .from('listings')
+        .select('stock')
+        .eq('id', order.listing_id)
+        .single()
+      if (listing) {
+        await supabase.from('listings').update({ stock: listing.stock + order.quantity }).eq('id', order.listing_id)
+      }
+    }
 
-    setSuccess('Order dibatalkan, dana akan dikembalikan.')
-    setSelected(null)
+    // update escrow jadi refunded
+    await supabase.from('escrow_transactions').update({ status: 'refunded' }).eq('order_id', order.id)
+
+    setSuccess('Pesanan berhasil dibatalkan')
     setActionLoading(false)
     fetchOrders()
   }
@@ -281,25 +292,28 @@ export default function OrdersPage() {
             >
               Konfirmasi Terima Barang
             </button>
-            <button
-              onClick={() => router.push(`/orders/${order.id}/dispute`)}
-              className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-all"
-            >
-              Ada Masalah? Buka Dispute
-            </button>
+            {!order.dispute && (
+              <button
+                onClick={() => router.push(`/orders/${order.id}/dispute`)}
+                className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+              >
+                Ada Masalah? Buka Dispute
+              </button>
+            )}
           </div>
         )
       }
       if (order.status === 'processing') {
-        return (
+        return !order.dispute ? (
           <button
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
             className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-all"
           >
             Ada Masalah? Buka Dispute
           </button>
-        )
+        ) : null
       }
+
       if (order.status === 'waiting_payment') {
         if (order.payment_proof_url) {
           return (
@@ -310,12 +324,21 @@ export default function OrdersPage() {
           )
         }
         return (
-          <button
-            onClick={() => router.push(`/orders/${order.id}/pay`)}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-          >
-            Bayar Sekarang
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={() => router.push(`/orders/${order.id}/pay`)}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
+            >
+              Bayar Sekarang
+            </button>
+            <button
+              onClick={() => handleCancel(order)}
+              disabled={actionLoading}
+              className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-all"
+            >
+              Batalkan Pesanan
+            </button>
+          </div>
         )
       }
     }
@@ -331,6 +354,16 @@ export default function OrdersPage() {
             {order.delivery_pref === 'courier' ? 'Upload Struk & Input Nomor Resi' : 'Upload Struk & Konfirmasi Meetup'}
           </button>
         )
+      }
+      if (order.status === 'shipped') {
+        return !order.dispute ? (
+          <button
+            onClick={() => router.push(`/orders/${order.id}/dispute`)}
+            className="w-full border border-red-300 dark:border-red-700 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+          >
+            Buyer Tidak Konfirmasi? Buka Dispute
+          </button>
+        ) : null
       }
     }
 
@@ -579,6 +612,14 @@ export default function OrdersPage() {
                         </a>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* Info dispute open - menunggu penanganan */}
+                {order.dispute && order.dispute.status === 'open' && (
+                  <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
+                    <p className="text-xs font-medium text-yellow-700 dark:text-yellow-300">⏳ Dispute sedang menunggu penanganan admin</p>
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-0.5">{order.dispute.reason}</p>
                   </div>
                 )}
 

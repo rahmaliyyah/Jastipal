@@ -13,6 +13,7 @@ type Trip = {
   status: 'open' | 'closed'
   created_at: string
   product_count: number
+  has_active_orders: boolean
 }
 
 function formatDate(d: string) {
@@ -30,7 +31,7 @@ export default function MyTripsPage() {
 
   const [trips, setTrips] = useState<Trip[]>([])
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'active' | 'expired'>('active')
+  const [tab, setTab] = useState<'open' | 'closed'>('open')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [success, setSuccess] = useState('')
   const [userId, setUserId] = useState('')
@@ -63,17 +64,16 @@ export default function MyTripsPage() {
   async function fetchTrips() {
     setLoading(true)
 
-    const today = new Date().toISOString().split('T')[0]
     const { data } = await supabase
       .from('trips')
       .select('id, title, description, trip_country, arrival_date, image_url, status, created_at')
       .eq('jastiper_id', userId)
       .order('created_at', { ascending: false })
     
-    // filter client-side berdasarkan tanggal tiba
+    // filter berdasarkan tab
     const filtered = (data ?? []).filter((t: any) => {
-      const isExpired = t.arrival_date < today
-      return tab === 'expired' ? isExpired : !isExpired
+      if (tab === 'closed') return t.status === 'closed'
+      return t.status === 'open'
     })
     const filteredData = filtered
 
@@ -83,6 +83,7 @@ export default function MyTripsPage() {
     const tripIds = filteredData.map((t: any) => t.id)
     let countMap: Record<string, number> = {}
 
+    let activeOrdersMap: Record<string, boolean> = {}
     if (tripIds.length > 0) {
       const { data: listings } = await supabase
         .from('listings')
@@ -92,10 +93,51 @@ export default function MyTripsPage() {
       ;(listings ?? []).forEach((l: any) => {
         countMap[l.trip_id] = (countMap[l.trip_id] ?? 0) + 1
       })
+
+      // cek apakah ada order aktif per trip
+      const listingIds = (await supabase
+        .from('listings')
+        .select('id, trip_id')
+        .in('trip_id', tripIds)
+      ).data ?? []
+
+      const listingTripMap: Record<string, string> = {}
+      listingIds.forEach((l: any) => { listingTripMap[l.id] = l.trip_id })
+
+      const { data: activeOrders } = await supabase
+        .from('orders')
+        .select('listing_id')
+        .in('listing_id', listingIds.map((l: any) => l.id))
+        .in('status', ['waiting_payment', 'processing', 'shipped'])
+
+      ;(activeOrders ?? []).forEach((o: any) => {
+        const tripId = listingTripMap[o.listing_id]
+        if (tripId) activeOrdersMap[tripId] = true
+      })
     }
 
-    setTrips(filteredData.map((t: any) => ({ ...t, product_count: countMap[t.id] ?? 0 })))
+    setTrips(filteredData.map((t: any) => ({ 
+      ...t, 
+      product_count: countMap[t.id] ?? 0,
+      has_active_orders: activeOrdersMap[t.id] ?? false,
+    }))    )
     setLoading(false)
+  }
+
+  async function handleClose(id: string) {
+    setActionLoading(id)
+    await supabase.from('trips').update({ status: 'closed' }).eq('id', id)
+    setSuccess('Trip berhasil ditutup')
+    setActionLoading(null)
+    fetchTrips()
+  }
+
+  async function handleReopen(id: string) {
+    setActionLoading(id)
+    await supabase.from('trips').update({ status: 'open' }).eq('id', id)
+    setSuccess('Trip berhasil dibuka kembali')
+    setActionLoading(null)
+    fetchTrips()
   }
 
   async function handleDelete(id: string) {
@@ -138,7 +180,7 @@ export default function MyTripsPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
-        {(['active', 'expired'] as const).map(t => (
+        {(['open', 'closed'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -148,7 +190,7 @@ export default function MyTripsPage() {
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            {t === 'active' ? 'Aktif' : 'Kadaluarsa'}
+            {t === 'open' ? 'Aktif' : 'Ditutup'}
           </button>
         ))}
       </div>
@@ -166,9 +208,9 @@ export default function MyTripsPage() {
             </svg>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            {tab === 'active' ? 'Belum ada trip aktif' : 'Tidak ada trip yang kadaluarsa'}
+            {tab === 'open' ? 'Belum ada trip aktif' : 'Belum ada trip yang ditutup'}
           </p>
-          {tab === 'active' && (
+          {tab === 'open' && (
             <button
               onClick={() => router.push('/trips/new')}
               className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 transition-all"
@@ -218,6 +260,11 @@ export default function MyTripsPage() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 italic mb-4">"{trip.description}"</p>
                 )}
 
+                {/* Active orders warning */}
+                {trip.has_active_orders && tab === 'open' && (
+                  <p className="text-xs text-orange-500 mt-2">⚠️ Ada order aktif — trip tidak bisa ditutup</p>
+                )}
+
                 {/* Actions */}
                 <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
                   <button
@@ -226,19 +273,41 @@ export default function MyTripsPage() {
                   >
                     Lihat Detail
                   </button>
-                  <button
-                    onClick={() => router.push(`/trips/${trip.id}/products/new`)}
-                    className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg py-2 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                  >
-                    + Produk
-                  </button>
-                  <button
-                    onClick={() => handleDelete(trip.id)}
-                    disabled={actionLoading === trip.id}
-                    className="border border-red-200 dark:border-red-800 text-red-500 rounded-lg px-3 py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-all"
-                  >
-                    Hapus
-                  </button>
+                  {tab === 'open' && (
+                    <button
+                      onClick={() => router.push(`/trips/${trip.id}/products/new`)}
+                      className="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-2 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                    >
+                      + Produk
+                    </button>
+                  )}
+                  {tab === 'open' && !trip.has_active_orders && (
+                    <button
+                      onClick={() => handleClose(trip.id)}
+                      disabled={actionLoading === trip.id}
+                      className="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-2 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-all"
+                    >
+                      Tutup
+                    </button>
+                  )}
+                  {tab === 'closed' && (
+                    <button
+                      onClick={() => handleReopen(trip.id)}
+                      disabled={actionLoading === trip.id}
+                      className="border border-green-300 dark:border-green-700 text-green-600 dark:text-green-400 rounded-lg px-3 py-2 text-xs font-medium hover:bg-green-50 dark:hover:bg-green-950 disabled:opacity-50 transition-all"
+                    >
+                      Buka
+                    </button>
+                  )}
+                  {!trip.has_active_orders && (
+                    <button
+                      onClick={() => handleDelete(trip.id)}
+                      disabled={actionLoading === trip.id}
+                      className="border border-red-200 dark:border-red-800 text-red-500 rounded-lg px-3 py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-all"
+                    >
+                      Hapus
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -212,11 +212,19 @@ export default function BrowseListingsPage() {
 
     if (orderErr) { setOrderError('Gagal membuat order: ' + orderErr.message); setOrderLoading(false); return }
 
-    // kurangi stok produk
-    await supabase
+    // kurangi stok produk - fetch dulu stok terbaru dari DB
+    const { data: latestListing } = await supabase
       .from('listings')
-      .update({ stock: Math.max(0, (product.stock ?? 1) - quantity) })
+      .select('stock')
       .eq('id', product.id)
+      .single()
+    
+    if (latestListing) {
+      await supabase
+        .from('listings')
+        .update({ stock: Math.max(0, latestListing.stock - quantity) })
+        .eq('id', product.id)
+    }
 
     await supabase.from('order_pricing').insert({
       order_id: orderData.id,
