@@ -42,34 +42,40 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
-
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: '#49BC9E', fontFamily: "'Inter', sans-serif" }}
+    >
       {/* Popup verifikasi email */}
       {showPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 w-full max-w-sm shadow-xl text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-2xl p-8 w-full shadow-xl text-center" style={{ maxWidth: '380px' }}>
             {/* icon */}
-            <div className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-950 flex items-center justify-center mx-auto mb-4">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: '#F0FDF4' }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#49BC9E" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-lg font-bold mb-2" style={{ color: '#1F2937' }}>
               Cek email kamu!
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+            <p className="text-sm mb-1" style={{ color: '#6B7280' }}>
               Kami telah mengirim link verifikasi ke
             </p>
-            <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-6">
+            <p className="text-sm font-semibold mb-4" style={{ color: '#1F2937' }}>
               {registeredEmail}
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
+            <p className="text-xs mb-6" style={{ color: '#9CA3AF' }}>
               Klik link di email tersebut untuk mengaktifkan akun kamu. Cek folder spam jika tidak muncul dalam beberapa menit.
             </p>
             <a
               href="/login"
-              className="block w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 transition-all text-center"
+              className="block w-full rounded-lg py-3 text-sm font-semibold text-white text-center transition-all"
+              style={{ backgroundColor: '#49BC9E' }}
             >
               Ke halaman masuk
             </a>
@@ -78,36 +84,55 @@ export default function RegisterPage() {
       )}
 
       {/* Form register */}
-      <div className="bg-white dark:bg-gray-900 p-8 rounded-xl border border-gray-300 dark:border-gray-700 w-full max-w-sm shadow-sm">
-        <h1 className="text-xl font-semibold mb-1 text-gray-900 dark:text-white">Daftar akun</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Bergabung dengan Jastipal</p>
+      <div
+        className="bg-white p-8 rounded-2xl w-full shadow-md"
+        style={{ maxWidth: '420px' }}
+      >
+        <h1 className="text-2xl font-bold mb-1" style={{ color: '#1F2937' }}>Daftar akun</h1>
+        <p className="text-sm mb-6" style={{ color: '#6B7280' }}>Bergabung dengan Jastipal</p>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && (
+          <div className="rounded-lg px-4 py-3 mb-4" style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA' }}>
+            <p className="text-sm" style={{ color: '#E33629' }}>{error}</p>
+          </div>
+        )}
 
         <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Nama lengkap</label>
+          <label className="text-sm font-medium mb-1 block" style={{ color: '#1F2937' }}>Nama</label>
           <input
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="Masukkan nama kamu"
+            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all"
+            style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#49BC9E')}
+            onBlur={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
             value={form.full_name}
             onChange={e => setForm({ ...form, full_name: e.target.value })}
           />
         </div>
 
         <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Email</label>
+          <label className="text-sm font-medium mb-1 block" style={{ color: '#1F2937' }}>Email</label>
           <input
             type="email"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="Masukkan email kamu"
+            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all"
+            style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#49BC9E')}
+            onBlur={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
             value={form.email}
             onChange={e => setForm({ ...form, email: e.target.value })}
           />
         </div>
 
         <div className="mb-6">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Password</label>
+          <label className="text-sm font-medium mb-1 block" style={{ color: '#1F2937' }}>Password</label>
           <input
             type="password"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="Masukkan password"
+            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all"
+            style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#49BC9E')}
+            onBlur={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
             value={form.password}
             onChange={e => setForm({ ...form, password: e.target.value })}
           />
@@ -116,22 +141,32 @@ export default function RegisterPage() {
         <button
           onClick={handleRegister}
           disabled={loading}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
+          className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all"
+          style={{
+            backgroundColor: '#49BC9E',
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? 'not-allowed' : 'pointer',
+          }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = '#3DAA8E' }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#49BC9E' }}
         >
           {loading ? 'Loading...' : 'Daftar'}
         </button>
 
         <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
-          <span className="text-xs text-gray-400">atau</span>
-          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+          <div className="flex-1 h-px" style={{ backgroundColor: '#D1D5DB' }}></div>
+          <span className="text-xs" style={{ color: '#6B7280' }}>Atau</span>
+          <div className="flex-1 h-px" style={{ backgroundColor: '#D1D5DB' }}></div>
         </div>
 
         <button
           onClick={handleGoogleRegister}
-          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+          className="w-full rounded-lg py-3 text-sm font-medium transition-all flex items-center justify-center gap-2"
+          style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24">
+          <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
@@ -140,8 +175,9 @@ export default function RegisterPage() {
           Daftar dengan Google
         </button>
 
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
-          Sudah punya akun? <a href="/login" className="text-blue-500">Masuk</a>
+        <p className="text-center text-sm mt-5" style={{ color: '#6B7280' }}>
+          Sudah punya akun?{' '}
+          <a href="/login" className="font-semibold" style={{ color: '#3DAA8E' }}>Masuk</a>
         </p>
       </div>
     </div>
