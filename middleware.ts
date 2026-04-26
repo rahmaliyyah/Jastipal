@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isPublicRoute = ['/', '/login', '/register'].includes(pathname)
+ const isPublicRoute = ['/', '/login', '/register'].includes(pathname) || pathname.startsWith('/preview')
   const isAuthCallback = pathname.startsWith('/auth/callback')
 
   // belum login → ke login
