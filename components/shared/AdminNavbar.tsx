@@ -76,9 +76,19 @@ export default function AdminNavbar() {
             </Link>
 
             {/* USERS */}
-            <span className="text-gray-500 hover:text-gray-800 cursor-pointer">
+            <Link
+              href="/preview/admin/admin-users"
+              className={`relative font-medium ${
+                isActive("/preview/admin/admin-users")
+                  ? "text-teal-600"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
               Users
-            </span>
+              {isActive("/preview/admin/admin-users") && (
+                <span className="absolute -bottom-[28px] left-0 right-0 h-[2px] bg-[#14B8A6]" />
+              )}
+            </Link>
 
           </div>
         </div>
