@@ -33,38 +33,47 @@ export default function AdminNavbar() {
 
             {/* DASHBOARD */}
             <Link
-              href="/preview/admin-dashboard"
+              href="/preview/admin/admin-dashboard"
               className={`relative font-medium ${
-                isActive("/preview/admin-dashboard")
+                isActive("/preview/admin/admin-dashboard")
                   ? "text-teal-600"
                   : "text-gray-500 hover:text-gray-800"
               }`}
             >
               Dashboard
-              {isActive("/preview/admin-dashboard") && (
+              {isActive("/preview/admin/admin-dashboard") && (
                 <span className="absolute -bottom-[28px] left-0 right-0 h-[2px] bg-[#14B8A6]" />
               )}
             </Link>
 
             {/* KYC */}
             <Link
-              href="/preview/admin-kyc"
+              href="/preview/admin/admin-kyc"
               className={`relative font-medium ${
-                isActive("/preview/admin-kyc")
+                isActive("/preview/admin/admin-kyc")
                   ? "text-teal-600"
                   : "text-gray-500 hover:text-gray-800"
               }`}
             >
               Verifikasi KYC
-              {isActive("/preview/admin-kyc") && (
+              {isActive("/preview/admin/admin-kyc") && (
                 <span className="absolute -bottom-[28px] left-0 right-0 h-[2px] bg-[#14B8A6]" />
               )}
             </Link>
 
-            {/* PAYMENT */}
-            <span className="text-gray-500 hover:text-gray-800 cursor-pointer">
+            <Link
+              href="/preview/admin/admin-payment"
+              className={`relative font-medium ${
+                isActive("/preview/admin/admin-payment")
+                  ? "text-teal-600"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
               Verifikasi Bayar
-            </span>
+              {isActive("/preview/admin/admin-payment") && (
+                <span className="absolute -bottom-[28px] left-0 right-0 h-[2px] bg-[#14B8A6]" />
+              )}
+            </Link>
 
             {/* USERS */}
             <span className="text-gray-500 hover:text-gray-800 cursor-pointer">

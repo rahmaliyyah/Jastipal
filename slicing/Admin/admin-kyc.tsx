@@ -102,8 +102,12 @@ export default function AdminKYCSlicing() {
                 <div className="flex gap-4">
                   <img src={user.avatar} className="w-12 h-12 rounded-full object-cover" />
                   <div>
-                    <p className="text-[18px] font-semibold text-[#0F172A]">{user.name}</p>
-                    <p className="text-[14px] text-[#64748B]">{user.email}</p>
+                    <p className="text-[18px] font-semibold text-[#0F172A]">
+                      {user.name}
+                    </p>
+                    <p className="text-[14px] text-[#64748B]">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
                 <div className="w-[1px] h-10 bg-[#E2E8F0]" />
@@ -112,12 +116,16 @@ export default function AdminKYCSlicing() {
               {/* BOX */}
               <div className="mt-4 bg-[#F1F5F9] rounded-2xl px-5 py-4 flex justify-between">
                 <div>
-                  <p className="text-[12px] text-[#94A3B8]">Domisili</p>
-                  <p className="text-[14px] font-semibold text-[#0F172A]">{user.country}</p>
+                  <p className="text-[13px] text-gray-500 mb-1">Domisili</p>
+                  <p className="text-[15px] font-semibold text-gray-900">
+                    {user.country}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-[12px] text-[#94A3B8]">Service Fee</p>
-                  <p className="text-[14px] font-semibold text-[#0F172A]">Fee {user.fee}</p>
+                  <p className="text-[13px] text-gray-500 mb-1">Service Fee</p>
+                  <p className="text-[15px] font-semibold text-gray-900">
+                    Fee {user.fee}
+                  </p>
                 </div>
               </div>
 
@@ -148,83 +156,108 @@ export default function AdminKYCSlicing() {
           ))}
         </div>
 
-        {filteredData.length === 0 && (
-          <p className="text-center text-gray-400 mt-20">Tidak ada data</p>
-        )}
-
       </div>
 
       {/* ================= MODAL ================= */}
       {selectedUser && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-             onClick={() => setSelectedUser(null)}>
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={() => setSelectedUser(null)}
+        >
 
           <div
-            className="bg-white w-[650px] rounded-2xl p-6 shadow-xl"
+            className="bg-white w-[650px] rounded-2xl p-6 shadow-xl relative"
             onClick={(e) => e.stopPropagation()}
           >
 
             {/* HEADER */}
             <div className="flex justify-between mb-4">
-              <h2 className="font-semibold text-lg text-[#0F172A]">
+              <h2 className="font-semibold text-lg text-gray-900">
                 Detail Pengajuan KYC
               </h2>
-              <button onClick={() => setSelectedUser(null)}>✕</button>
+              <button
+  onClick={() => {
+    setSelectedUser(null)
+    setRejectReason("")
+  }}
+  className="absolute right-4 top-4 text-gray-500 hover:text-gray-800 text-xl font-bold transition"
+>
+  ✕
+</button>
             </div>
 
             {/* USER */}
             <div className="flex gap-3 mb-5">
               <img src={selectedUser.avatar} className="w-12 h-12 rounded-full" />
               <div>
-                <p className="font-semibold text-[#0F172A]">{selectedUser.name}</p>
-                <p className="text-sm text-[#64748B]">{selectedUser.email}</p>
+                <p className="font-semibold text-gray-900">{selectedUser.name}</p>
+                <p className="text-sm text-gray-500">{selectedUser.email}</p>
               </div>
             </div>
 
             {/* FORM */}
             <div className="space-y-4">
+
               <div className="grid grid-cols-2 gap-4">
+
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Domisili</p>
-                  <input value={selectedUser.country} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
+                  <p className="text-[13px] text-gray-500 mb-1">Domisili</p>
+                  <input
+                    value={selectedUser.country}
+                    readOnly
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                  />
                 </div>
+
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Service Fee</p>
-                  <input value={selectedUser.fee} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
+                  <p className="text-[13px] text-gray-500 mb-1">Service Fee</p>
+                  <input
+                    value={selectedUser.fee}
+                    readOnly
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                  />
                 </div>
+
               </div>
 
               <div>
-                <p className="text-xs text-gray-500 mb-1">WhatsApp</p>
-                <input value={selectedUser.phone} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
+                <p className="text-[13px] text-gray-500 mb-1">WhatsApp</p>
+                <input
+                  value={selectedUser.phone}
+                  readOnly
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                />
               </div>
 
               <div>
-                <p className="text-xs text-gray-500 mb-1">Bio</p>
-                <textarea value={selectedUser.bio} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
+                <p className="text-[13px] text-gray-500 mb-1">Bio</p>
+                <textarea
+                  value={selectedUser.bio}
+                  readOnly
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                />
               </div>
+
             </div>
 
             {/* IMAGE */}
             <div className="grid grid-cols-2 gap-4 mt-5">
-              <img src="/ktp-logo.svg" className="rounded-xl" />
-              <img src="/pegang-ktp.svg" className="rounded-xl" />
+              <img src="/ktp-logo.svg" className="rounded-xl border" />
+              <img src="/pegang-ktp.svg" className="rounded-xl border" />
             </div>
-
-            {/* ================= STATE UI ================= */}
 
             {/* MENUNGGU */}
             {selectedUser.status === "Menunggu" && (
               <>
                 <div className="mt-4">
-                  <p className="text-xs text-gray-500 mb-1">
+                  <p className="text-[13px] text-gray-500 mb-1">
                     Alasan penolakan (wajib jika menolak)
                   </p>
                   <input
                     placeholder="Contoh: Foto KTP buram"
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="w-full border px-3 py-2 rounded-lg"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400"
                   />
                 </div>
 
@@ -248,7 +281,7 @@ export default function AdminKYCSlicing() {
 
             {/* DISETUJUI */}
             {selectedUser.status === "Disetujui" && (
-              <div className="mt-5 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center gap-2">
+              <div className="mt-5 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
                 ✓ Sudah disetujui sebagai Jastiper
               </div>
             )}
@@ -264,12 +297,13 @@ export default function AdminKYCSlicing() {
         </div>
       )}
 
-      {/* ================= CONFIRM ================= */}
+      {/* CONFIRM */}
       {confirmType && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl text-center">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60]">
+          <div className="bg-white px-6 py-5 rounded-xl text-center shadow-xl w-[320px]">
 
-<p className="mb-4 text-gray-900 font-semibold text-[16px]">              {confirmType === "approve"
+            <p className="mb-5 text-gray-900 font-medium">
+              {confirmType === "approve"
                 ? "Yakin ingin menyetujui?"
                 : "Yakin ingin menolak?"}
             </p>
@@ -278,7 +312,7 @@ export default function AdminKYCSlicing() {
 
               <button
                 onClick={() => setConfirmType(null)}
-                className="px-5 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 font-medium hover:bg-gray-100 transition"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg"
               >
                 Batal
               </button>
@@ -290,32 +324,35 @@ export default function AdminKYCSlicing() {
                     return
                   }
 
+                  const newStatus = confirmType === "approve" ? "Disetujui" : "Ditolak"
+
                   setKycList((prev) =>
                     prev.map((i) =>
                       i.id === selectedUser?.id
                         ? {
                             ...i,
-                            status:
-                              confirmType === "approve"
-                                ? "Disetujui"
-                                : "Ditolak",
-                            rejectReason,
+                            status: newStatus as KYCStatus,
+                            rejectReason: confirmType === "reject" ? rejectReason : undefined,
                           }
                         : i
                     )
                   )
 
+                  setActiveTab(newStatus as KYCStatus)
                   setConfirmType(null)
                   setSelectedUser(null)
                   setRejectReason("")
                 }}
-                className="px-4 py-2 bg-[#14B8A6] text-white rounded-lg"
+                className={`px-4 py-2 text-white rounded-lg ${
+                  confirmType === "approve"
+                    ? "bg-[#14B8A6]"
+                    : "bg-red-500"
+                }`}
               >
                 Ya
               </button>
 
             </div>
-
           </div>
         </div>
       )}
