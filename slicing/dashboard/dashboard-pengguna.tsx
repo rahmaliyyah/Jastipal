@@ -7,7 +7,7 @@ export default function DashboardPenggunaSlicing() {
           <div className="flex items-center gap-8">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Jastipal" className="h-6 w-6" />
+              <img src="/logo_jastipal.svg" alt="Jastipal" className="h-6 w-6" />
               <span className="font-bold text-gray-900">Jastipal</span>
             </div>
             {/* Nav Links */}
@@ -23,7 +23,7 @@ export default function DashboardPenggunaSlicing() {
               <span className="text-gray-500 text-xl">🔔</span>
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">1</span>
             </div>
-            <img src="/avatar.png" alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
+            <img src="/mas_ganteng.svg" alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
             <span className="text-sm font-medium text-gray-900">Han Yujin</span>
           </div>
         </nav>
@@ -68,12 +68,8 @@ export default function DashboardPenggunaSlicing() {
   
           {/* Request Saya */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 flex items-center gap-4">
-            <div className="w-10 h-10 bg-[#49BC9E] rounded-lg flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h18v2H3zM3 8h18v2H3zM3 13h18v2H3zM3 18h18v2H3z" />
-              </svg>
-            </div>
-            <div>
+            <img src="/button-cart.svg" alt="Request Saya" className="w-16 h-16 flex-shrink-0" />
+            <div className="flex flex-col justify-center">
               <p className="font-bold text-gray-900">Request Saya</p>
               <p className="text-sm text-gray-500">0 Aktif</p>
             </div>
