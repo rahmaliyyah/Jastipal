@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <div className="max-w-[1280px] mx-auto px-6 py-10 w-full">
+      <div className="max-w-[1280px] mx-auto px-6 py-6 w-full">
 
         {/* HEADER */}
         <div className="mb-8">
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
               {[
                 { label: 'KYC Menunggu', value: stats.pendingKyc, href: '/admin/kyc', urgent: stats.pendingKyc > 0 },
                 { label: 'Bukti Transfer', value: stats.pendingPayment, href: '/admin/payments', urgent: stats.pendingPayment > 0 },
-                { label: 'Disputes', value: stats.pendingDisputes, href: '/admin/disputes', urgent: stats.pendingDisputes > 0 },
+                { label: 'Pelanggaran', value: stats.pendingDisputes, href: '/admin/disputes', urgent: stats.pendingDisputes > 0 },
                 { label: 'Total User', value: stats.totalUsers, href: null, urgent: false },
                 { label: 'Order Aktif', value: stats.activeOrders, href: null, urgent: false },
               ].map(card => (
@@ -130,9 +130,26 @@ export default function AdminDashboardPage() {
                       <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
                   </div>
-                  <p className="font-semibold text-[#0F172A] text-[16px]">Disputes</p>
-                  <p className="text-[14px] text-[#64748B] mt-1">{stats.pendingDisputes} dispute menunggu</p>
+                  <p className="font-semibold text-[#0F172A] text-[16px]">Pelanggaran</p>
+                  <p className="text-[14px] text-[#64748B] mt-1">{stats.pendingDisputes} laporan pelanggaran menunggu</p>
                 </div>
+               
+                {/* USERS */}
+<div
+  onClick={() => router.push('/admin/users')}
+  className="bg-white border border-[#E2E8F0] rounded-[12px] p-6 flex flex-col hover:border-teal-400 hover:shadow-sm hover:scale-[1.01] transition cursor-pointer"
+>
+  <div className="w-12 h-12 bg-[#14B8A6] rounded-[10px] flex items-center justify-center mb-4">
+    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  </div>
+  <p className="font-semibold text-[#0F172A] text-[16px]">Kelola Users</p>
+  <p className="text-[14px] text-[#64748B] mt-1">{stats.totalUsers} user terdaftar</p>
+</div>
 
               </div>
             </div>

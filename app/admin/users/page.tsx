@@ -85,7 +85,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen py-6">
 
       {/* ── CONFIRM MODAL (freeze/unfreeze) ── */}
       {selected && (

@@ -139,7 +139,7 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <div className="py-10">
+    <div className="py-6 min-h-screen">
 
       {/* ── IMAGE PREVIEW MODAL ── */}
       {previewImg && (

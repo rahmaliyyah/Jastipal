@@ -59,13 +59,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   function isActive(path: string) {
     return pathname === path || pathname.startsWith(path + '/')
   }
+  console.log('pathname:', pathname)
 
   const navItems = [
     {
-      href: '/admin',
-      label: 'Dashboard',
-      badge: null,
-    },
+  href: '/admin/dashboard',
+  label: 'Dashboard',
+  badge: null,
+},
     {
       href: '/admin/kyc',
       label: 'Verifikasi KYC',
@@ -78,12 +79,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     },
     {
       href: '/admin/users',
-      label: 'Users',
+      label: 'Kelola User',
       badge: null,
     },
     {
       href: '/admin/disputes',
-      label: 'Disputes',
+      label: 'Pelanggaran',
       badge: pendingDisputes > 0 ? pendingDisputes : null,
     },
   ]
