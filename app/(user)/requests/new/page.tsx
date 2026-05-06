@@ -79,151 +79,172 @@ export default function NewRequestPage() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-3xl mx-auto">
+
+      {/* Back + Title */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-4"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali
+      </button>
+
       <div className="mb-6">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 flex items-center gap-1 transition-all"
-        >
-          ← Kembali
-        </button>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Buat Request</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Minta jastiper untuk belikan barang dari luar negeri
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Buat Permintaan</h1>
+        <p className="text-sm text-gray-500">Kasih tahu kami barang apa yang ingin kamu beli dari luar negeri.</p>
       </div>
 
-      <div className="space-y-5">
-        {error && (
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
-            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
-          </div>
-        )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
 
-        {/* Info Produk */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Info Produk</h2>
+      <div className="space-y-4">
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Link produk <span className="text-red-400">*</span>
-            </label>
-            <input
-              type="url"
-              placeholder="https://amazon.co.jp/dp/..."
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={form.product_url}
-              onChange={e => set('product_url', e.target.value)}
-            />
-          </div>
+        {/* Card: Detail Produk */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4">Detail Produk</h2>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Nama produk <span className="text-red-400">*</span>
-            </label>
-            <input
-              placeholder="Contoh: Nintendo Switch OLED"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={form.product_name}
-              onChange={e => set('product_name', e.target.value)}
-            />
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Link Produk</label>
+            <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-[#49BC9E] transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              <input
+                type="url"
+                placeholder="Tempel URL dari Amazon, Shopee JP, Olive Young, dll."
+                className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
+                value={form.product_url}
+                onChange={e => set('product_url', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1.5">Kami akan mencoba mengambil detail produk secara otomatis.</p>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Jumlah</label>
-            <input
-              type="number"
-              min={1}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={form.quantity}
-              onChange={e => set('quantity', parseInt(e.target.value) || 1)}
-            />
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Produk</label>
+              <input
+                placeholder="Contoh: Sony WH-1000XM5"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
+                value={form.product_name}
+                onChange={e => set('product_name', e.target.value)}
+              />
+            </div>
+            <div className="w-36">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Jumlah</label>
+              <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => set('quantity', Math.max(1, form.quantity - 1))}
+                  className="px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors border-r border-gray-200"
+                >
+                  -
+                </button>
+                <span className="flex-1 text-center text-sm text-gray-900 py-2.5">{form.quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => set('quantity', form.quantity + 1)}
+                  className="px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors border-l border-gray-200"
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Budget & Deadline */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Budget & Deadline</h2>
+        {/* Card: Budget & Tenggat Waktu */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4">Budget & Tenggat Waktu</h2>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Maksimal budget (IDR) <span className="text-red-400">*</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">Rp</span>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Maksimal Budget (IDR)</label>
+            <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-[#49BC9E] transition-colors">
+              <span className="text-sm text-gray-400 font-medium flex-shrink-0">Rp</span>
               <input
                 type="number"
                 min={0}
-                placeholder="3000000"
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                placeholder="Masukkan budget Anda"
+                className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
                 value={form.max_budget_idr}
                 onChange={e => set('max_budget_idr', e.target.value)}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Jastiper akan set harga fix ≤ budget ini. Tagihan langsung muncul begitu jastiper ambil request kamu.
+            <p className="text-xs text-gray-400 mt-1.5 flex items-start gap-1">
+              <span className="flex-shrink-0 mt-0.5">ⓘ</span>
+              Jastiper akan menyesuaikan harga akhir agar tetap dalam batas budget. Tagihan dikirim setelah request disetujui.
             </p>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Deadline <span className="text-red-400">*</span>
-            </label>
-            <input
-              type="date"
-              min={new Date().toISOString().split('T')[0]}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={form.deadline}
-              onChange={e => set('deadline', e.target.value)}
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Estimasi Barang Diterima</label>
+            <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-[#49BC9E] transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <input
+                type="date"
+                min={new Date().toISOString().split('T')[0]}
+                className="flex-1 text-sm text-gray-700 outline-none bg-transparent"
+                value={form.deadline}
+                onChange={e => set('deadline', e.target.value)}
+              />
+            </div>
             <p className="text-xs text-gray-400 mt-1">Tanggal terakhir barang harus tiba di kamu</p>
           </div>
         </div>
 
-        {/* Pengiriman */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Pengiriman</h2>
+        {/* Card: Pengiriman */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4">Pengiriman</h2>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-              Preferensi pengiriman <span className="text-red-400">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {(['courier', 'meetup'] as DeliveryPref[]).map(pref => (
-                <button
-                  key={pref}
-                  type="button"
-                  onClick={() => set('delivery_pref', pref)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
-                    form.delivery_pref === pref
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400'
-                  }`}
-                >
-                  {pref === 'courier' ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
-                  )}
-                  {pref === 'courier' ? 'Courier' : 'Meetup'}
-                </button>
-              ))}
-            </div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Metode Pengiriman</label>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <button
+              type="button"
+              onClick={() => set('delivery_pref', 'courier')}
+              className={`flex items-center gap-2 border rounded-lg px-4 py-3 transition-colors ${
+                form.delivery_pref === 'courier'
+                  ? 'border-[#49BC9E] bg-[#e6f7f3] text-[#49BC9E]'
+                  : 'border-gray-200 text-gray-700 hover:border-[#49BC9E]'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+              </svg>
+              <span className="text-sm">Kirim Paket</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => set('delivery_pref', 'meetup')}
+              className={`flex items-center gap-2 border rounded-lg px-4 py-3 transition-colors ${
+                form.delivery_pref === 'meetup'
+                  ? 'border-[#49BC9E] bg-[#e6f7f3] text-[#49BC9E]'
+                  : 'border-gray-200 text-gray-700 hover:border-[#49BC9E]'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-sm">Meetup / Ketemuan</span>
+            </button>
           </div>
 
           {form.delivery_pref === 'courier' && (
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Alamat pengiriman <span className="text-red-400">*</span>
               </label>
               <textarea
                 rows={3}
                 placeholder="Jl. Merdeka No. 12, Kel. Kauman, Kec. Klojen, Malang, Jawa Timur 65119"
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors resize-none"
                 value={form.shipping_address}
                 onChange={e => set('shipping_address', e.target.value)}
               />
@@ -231,56 +252,56 @@ export default function NewRequestPage() {
           )}
 
           {form.delivery_pref === 'meetup' && (
-            <>
+            <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Lokasi meetup <span className="text-red-400">*</span>
                 </label>
                 <input
                   placeholder="Contoh: Mall Olympic Garden, Malang"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
                   value={form.meetup_location}
                   onChange={e => set('meetup_location', e.target.value)}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Waktu meetup <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="datetime-local"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-[#49BC9E] transition-colors"
                   value={form.meetup_time}
                   onChange={e => set('meetup_time', e.target.value)}
                 />
               </div>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Catatan */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">Catatan untuk Jastiper</h2>
+        {/* Card: Catatan */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4">Catatan untuk Jastiper</h2>
           <textarea
-            rows={3}
-            placeholder="Contoh: Tolong pilih warna putih, pastikan ada charger EU plug"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+            placeholder="Tambahkan catatan khusus (misalnya: packaging, struk, warna, dll.)"
+            rows={4}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors resize-none"
             value={form.notes}
             onChange={e => set('notes', e.target.value)}
           />
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
-        >
-          {loading ? 'Mengirim request...' : 'Kirim Request'}
-        </button>
+        {/* Submit */}
+        <div className="flex justify-end pb-6">
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
+          >
+            {loading ? 'Mengirim request...' : 'Kirim Request'}
+          </button>
+        </div>
 
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center pb-6">
-          Setelah jastiper mengambil request ini, tagihan akan langsung muncul. Kamu punya 24 jam untuk membayar.
-        </p>
       </div>
     </div>
   )
