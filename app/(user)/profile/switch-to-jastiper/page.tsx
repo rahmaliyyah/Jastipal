@@ -73,90 +73,111 @@ export default function SwitchToJastiperPage() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-3xl mx-auto">
+
+      {/* Back */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-4"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Profile
+      </button>
+
+      {/* Page Title */}
       <div className="mb-6">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 flex items-center gap-1 transition-all"
-        >
-          ← Kembali
-        </button>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Daftar sebagai Jastiper</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Isi data di bawah dan upload dokumen identitas untuk diverifikasi admin.
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Daftar sebagai Jastiper</h1>
+        <p className="text-sm text-gray-500">Isi data di bawah ini dan upload dokumen identitas untuk verifikasi</p>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-5">
+      {/* Card */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-base font-bold text-gray-900 mb-5">Data Pribadi</h2>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+        {/* Bio */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Bio <span className="text-red-400">*</span>
           </label>
           <textarea
             rows={3}
             placeholder="Ceritakan sedikit tentang dirimu sebagai jastiper..."
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors resize-none"
             value={form.bio}
             onChange={e => setForm({ ...form, bio: e.target.value })}
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-            Service fee (%) <span className="text-red-400">*</span>
+        {/* Service Fee */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Service Fee (%) <span className="text-red-400">*</span>
           </label>
           <input
             type="number"
             min="0"
             max="100"
-            placeholder="Contoh: 10 (artinya 10%)"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="Masukkan biaya service Anda"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
             value={form.service_fee_pct}
             onChange={e => setForm({ ...form, service_fee_pct: e.target.value })}
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-            Negara domisili <span className="text-red-400">*</span>
+        {/* Negara Domisili */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Negara Domisili <span className="text-red-400">*</span>
           </label>
           <input
-            placeholder="Contoh: Japan"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="Masukkan negara domisili Anda"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
             value={form.base_country}
             onChange={e => setForm({ ...form, base_country: e.target.value })}
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+        {/* WhatsApp */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Nomor WhatsApp <span className="text-red-400">*</span>
           </label>
           <input
             type="tel"
             placeholder="+6281234567890"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
             value={form.whatsapp_number}
             onChange={e => setForm({ ...form, whatsapp_number: e.target.value })}
           />
           <p className="text-xs text-gray-400 mt-1">Nomor ini akan ditampilkan ke buyer untuk komunikasi</p>
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+        {/* Foto KTP / Passport */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Foto KTP / Passport <span className="text-red-400">*</span>
           </label>
           <div
             onClick={() => idcardRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-all"
+            className="border-2 border-dashed border-gray-300 rounded-lg px-6 py-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#49BC9E] transition-colors"
           >
             {idcardFile ? (
-              <p className="text-sm text-green-600 dark:text-green-400 font-medium">✓ {idcardFile.name}</p>
+              <p className="text-sm text-green-600 font-medium">✓ {idcardFile.name}</p>
             ) : (
-              <p className="text-sm text-gray-400">Klik untuk upload foto KTP atau passport</p>
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-center">
+                  <span className="text-[#49BC9E] font-medium hover:underline">Upload a file</span>
+                  <span className="text-gray-500"> or drag and drop</span>
+                </p>
+                <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF up to 10MB</p>
+              </>
             )}
           </div>
           <input
@@ -168,18 +189,28 @@ export default function SwitchToJastiperPage() {
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-            Foto Selfie + KTP <span className="text-red-400">*</span>
+        {/* Foto Selfie + KTP */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Foto Selfie & KTP <span className="text-red-400">*</span>
           </label>
           <div
             onClick={() => selfieRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-all"
+            className="border-2 border-dashed border-gray-300 rounded-lg px-6 py-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#49BC9E] transition-colors"
           >
             {selfieFile ? (
-              <p className="text-sm text-green-600 dark:text-green-400 font-medium">✓ {selfieFile.name}</p>
+              <p className="text-sm text-green-600 font-medium">✓ {selfieFile.name}</p>
             ) : (
-              <p className="text-sm text-gray-400">Klik untuk upload foto selfie sambil pegang KTP</p>
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-center">
+                  <span className="text-[#49BC9E] font-medium hover:underline">Upload a file</span>
+                  <span className="text-gray-500"> or drag and drop</span>
+                </p>
+                <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF up to 10MB</p>
+              </>
             )}
           </div>
           <input
@@ -191,16 +222,17 @@ export default function SwitchToJastiperPage() {
           />
         </div>
 
+        {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
+          className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg disabled:opacity-50 mb-3"
         >
           {loading ? 'Mengirim pengajuan...' : 'Kirim Pengajuan'}
         </button>
 
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
-          Data kamu aman dan hanya digunakan untuk verifikasi identitas
+        <p className="text-xs text-gray-400 text-center">
+          Jastipal menjamin keamanan data Anda. Informasi yang diberikan hanya digunakan untuk proses verifikasi identitas
         </p>
       </div>
     </div>
