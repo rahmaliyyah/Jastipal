@@ -31,16 +31,13 @@ export default function DashboardPage() {
         setActiveRole(data.active_role ?? 'buyer')
       }
 
-      // hitung request open
       const { count: openCount } = await supabase
         .from('requests')
         .select('*', { count: 'exact', head: true })
         .eq('buyer_id', user.id)
         .eq('status', 'open')
-
       setOpenRequests(openCount ?? 0)
 
-      // hitung trip aktif jastiper
       const { count: tripCount } = await supabase
         .from('trips')
         .select('*', { count: 'exact', head: true })
@@ -48,8 +45,6 @@ export default function DashboardPage() {
         .eq('status', 'open')
       setOpenTrips(tripCount ?? 0)
 
-      // hitung tagihan yang benar-benar waiting_payment
-      // ambil semua request matched milik buyer
       const { data: matchedRequests } = await supabase
         .from('requests')
         .select('id')
@@ -63,7 +58,6 @@ export default function DashboardPage() {
           .select('*', { count: 'exact', head: true })
           .in('request_id', requestIds)
           .eq('status', 'waiting_payment')
-
         setPendingPaymentCount(waitingCount ?? 0)
       }
     }
@@ -72,32 +66,34 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-          Selamat datang, {userName} 👋
+
+      {/* Greeting */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <span className="rounded-sm">Selamat</span> datang, {userName}! 🙌
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm text-gray-500">
           {activeRole === 'jastiper'
             ? 'Kamu sedang aktif sebagai jastiper'
-            : 'Temukan jastiper terpercaya untuk belanja dari luar negeri'}
+            : 'Temukan jastiper terpercaya untuk membantu belanja dari luar negeri'}
         </p>
       </div>
 
       {/* Alert tagihan masuk */}
       {pendingPaymentCount > 0 && activeRole === 'buyer' && (
         <div
-          className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:border-blue-300 transition-all"
+          className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:border-blue-300 transition-all"
           onClick={() => router.push('/requests')}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600 dark:text-blue-400">
+            <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">{pendingPaymentCount} tagihan menunggu pembayaran</p>
-              <p className="text-xs text-blue-600 dark:text-blue-400">Bayar sebelum kadaluarsa</p>
+              <p className="text-sm font-semibold text-blue-800">{pendingPaymentCount} tagihan menunggu pembayaran</p>
+              <p className="text-xs text-blue-600">Bayar sebelum kadaluarsa</p>
             </div>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500">
@@ -106,133 +102,136 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Mode buyer */}
+      {/* ── MODE BUYER ── */}
       {activeRole === 'buyer' && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Aksi Cepat</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => router.push('/browse-listings')}
-                className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl p-4 text-left hover:opacity-90 transition-all"
-              >
-                <div className="w-8 h-8 rounded-lg bg-white/20 dark:bg-gray-900/20 flex items-center justify-center mb-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
-                </div>
-                <p className="text-sm font-semibold">Browse Listing</p>
-                <p className="text-xs opacity-70 mt-0.5">Cari jastiper yang siap berangkat</p>
-              </button>
+        <div>
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Aksi Cepat</h2>
 
-              <button
-                onClick={() => router.push('/requests/new')}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all"
-              >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
-                </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Buat Request</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Minta jastiper belikan barang</p>
-              </button>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Browse Listing */}
+            <div
+              onClick={() => router.push('/browse-listings')}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+            >
+              <div className="w-10 h-10 bg-[#49BC9E] rounded-lg flex items-center justify-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+              </div>
+              <p className="font-bold text-gray-900 mb-1">Browse Listing</p>
+              <p className="text-sm text-gray-500">Cari jastiper yang siap berangkat</p>
+            </div>
 
-              <button
-                onClick={() => router.push('/requests')}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all col-span-2"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
-                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Request Saya</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{openRequests} aktif</p>
-                      {pendingPaymentCount > 0 && (
-                        <span className="text-xs bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium">
-                          {pendingPaymentCount} tagihan
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </button>
+            {/* Buat Request */}
+            <div
+              onClick={() => router.push('/requests/new')}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+            >
+              <div className="w-10 h-10 bg-[#49BC9E] rounded-lg flex items-center justify-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p className="font-bold text-gray-900 mb-1">Buat Request</p>
+              <p className="text-sm text-gray-500">Minta jastiper belikan barang</p>
             </div>
           </div>
 
-
+          {/* Request Saya */}
+          <div
+            onClick={() => router.push('/requests')}
+            className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-[#49BC9E] rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">Request Saya</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-sm text-gray-500">{openRequests} Aktif</p>
+                  {pendingPaymentCount > 0 && (
+                    <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
+                      {pendingPaymentCount} tagihan
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Mode jastiper */}
+      {/* ── MODE JASTIPER ── */}
       {activeRole === 'jastiper' && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Aksi Cepat</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => router.push('/browse-requests')}
-                className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl p-4 text-left hover:opacity-90 transition-all"
-              >
-                <div className="w-8 h-8 rounded-lg bg-white/20 dark:bg-gray-900/20 flex items-center justify-center mb-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
-                </div>
-                <p className="text-sm font-semibold">Browse Request</p>
-                <p className="text-xs opacity-70 mt-0.5">Cari request yang bisa diambil</p>
-              </button>
+        <div>
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Aksi Cepat</h2>
 
-              <button
-                onClick={() => router.push('/trips/new')}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all"
-              >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
-                </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Buat Trip</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Upload trip & katalog produkmu</p>
-              </button>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Browse Request */}
+            <div
+              onClick={() => router.push('/browse-requests')}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+            >
+              <div className="w-10 h-10 bg-[#49BC9E] rounded-lg flex items-center justify-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+              </div>
+              <p className="font-bold text-gray-900 mb-1">Browse Request</p>
+              <p className="text-sm text-gray-500">Cari request yang bisa diambil</p>
+            </div>
 
-              <button
-                onClick={() => router.push('/orders')}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all col-span-2"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-600 dark:text-gray-400">
-                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Order Masuk</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Lihat order yang perlu diproses</p>
-                  </div>
-                </div>
-              </button>
+            {/* Buat Trip */}
+            <div
+              onClick={() => router.push('/trips/new')}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+            >
+              <div className="w-10 h-10 bg-[#49BC9E] rounded-lg flex items-center justify-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p className="font-bold text-gray-900 mb-1">Buat Trip</p>
+              <p className="text-sm text-gray-500">Upload trip & katalog produkmu</p>
             </div>
           </div>
 
+          {/* Order Masuk */}
+          <div
+            onClick={() => router.push('/orders')}
+            className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer mb-4"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-[#49BC9E] rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">Order Masuk</p>
+                <p className="text-sm text-gray-500">Lihat order yang perlu diproses</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Trip Saya */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Trip Saya</h2>
-              <button onClick={() => router.push('/trips')} className="text-xs text-blue-500 hover:text-blue-600">Lihat semua →</button>
+              <h2 className="text-base font-semibold text-gray-900">Trip Saya</h2>
+              <button onClick={() => router.push('/trips')} className="text-xs text-[#49BC9E] hover:underline">Lihat semua →</button>
             </div>
             <div
               onClick={() => router.push('/trips')}
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-all"
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
             >
               {openTrips > 0 ? (
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{openTrips}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">trip aktif</p>
+                    <p className="text-2xl font-bold text-gray-900">{openTrips}</p>
+                    <p className="text-sm text-gray-500">trip aktif</p>
                   </div>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
                     <polyline points="9 18 15 12 9 6"/>
@@ -240,8 +239,13 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-400 dark:text-gray-500 text-sm mb-2">Belum ada trip aktif</p>
-                  <button onClick={(e) => { e.stopPropagation(); router.push('/trips/new') }} className="text-xs text-blue-500 hover:text-blue-600 font-medium">+ Buat trip baru</button>
+                  <p className="text-gray-400 text-sm mb-2">Belum ada trip aktif</p>
+                  <button
+                    onClick={e => { e.stopPropagation(); router.push('/trips/new') }}
+                    className="text-xs text-[#49BC9E] hover:underline font-medium"
+                  >
+                    + Buat trip baru
+                  </button>
                 </div>
               )}
             </div>
