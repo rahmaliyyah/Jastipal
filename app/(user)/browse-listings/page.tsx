@@ -121,7 +121,6 @@ export default function BrowseListingsPage() {
 
     if (!tripsData || tripsData.length === 0) { setTrips([]); setAllTrips([]); setLoading(false); return }
 
-    // ambil info jastiper terpisah
     const jastiperIds = [...new Set(tripsData.map((t: any) => t.jastiper_id).filter(Boolean))]
     let userMap: Record<string, { full_name: string; avatar_url: string | null }> = {}
     let waMap: Record<string, string | null> = {}
@@ -140,7 +139,6 @@ export default function BrowseListingsPage() {
       ;(jpData ?? []).forEach((jp: any) => { waMap[jp.user_id] = jp.whatsapp_number })
     }
 
-    // ambil produk per trip
     const tripIds = tripsData.map((t: any) => t.id)
     const { data: productsData } = await supabase
       .from('listings')
@@ -150,7 +148,7 @@ export default function BrowseListingsPage() {
 
     const productsMap: Record<string, Product[]> = {}
     ;(productsData ?? []).forEach((p: any) => {
-      if (p.stock <= 0) return // sembunyikan produk stok habis
+      if (p.stock <= 0) return
       if (!productsMap[p.trip_id]) productsMap[p.trip_id] = []
       productsMap[p.trip_id].push(p)
     })
@@ -165,7 +163,7 @@ export default function BrowseListingsPage() {
         } : null,
         products: productsMap[t.id] ?? [],
       }))
-      .filter((t: any) => t.products.length > 0) // hanya tampilkan trip yang punya produk
+      .filter((t: any) => t.products.length > 0)
 
     const uniqueCountries = [...new Set(mapped.map((t: any) => t.trip_country).filter(Boolean))]
     setCountries(uniqueCountries as string[])
@@ -185,11 +183,10 @@ export default function BrowseListingsPage() {
     if (quantity > (product.stock ?? 1)) { setOrderError(`Stok tidak cukup, tersisa ${product.stock}`); return }
     setOrderLoading(true)
     setOrderError('')
-    
-    // hitung ongkir domestik
+
     const isSameCity = buyerCity.trim().toLowerCase() === (trip.arrival_city ?? '').toLowerCase()
     const domesticShipping = isSameCity ? 25000 : 50000
-    
+
     const platformFee = Math.round(product.total_price_idr * quantity * 0.05)
     const total = (product.total_price_idr * quantity) + platformFee + domesticShipping
 
@@ -212,13 +209,12 @@ export default function BrowseListingsPage() {
 
     if (orderErr) { setOrderError('Gagal membuat order: ' + orderErr.message); setOrderLoading(false); return }
 
-    // kurangi stok produk - fetch dulu stok terbaru dari DB
     const { data: latestListing } = await supabase
       .from('listings')
       .select('stock')
       .eq('id', product.id)
       .single()
-    
+
     if (latestListing) {
       await supabase
         .from('listings')
@@ -255,30 +251,36 @@ export default function BrowseListingsPage() {
 
       {/* Modal order */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md shadow-2xl">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Konfirmasi Order</h2>
-              <button onClick={() => { setSelectedProduct(null); setOrderError('') }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-base font-bold text-gray-900">Konfirmasi Order</h2>
+              <button
+                onClick={() => { setSelectedProduct(null); setOrderError('') }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
               </button>
             </div>
             <div className="p-6 space-y-4">
+
               {/* Product info */}
               <div className="flex gap-3">
                 {selectedProduct.product.image_url ? (
                   <img src={selectedProduct.product.image_url} className="w-16 h-16 rounded-xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                  <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
                       <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                     </svg>
                   </div>
                 )}
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white text-sm">{selectedProduct.product.product_name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{selectedProduct.trip.title}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{selectedProduct.trip.trip_country} · Tiba {formatDate(selectedProduct.trip.arrival_date)}</p>
+                  <p className="font-medium text-gray-900 text-sm">{selectedProduct.product.product_name}</p>
+                  <p className="text-xs text-gray-500">{selectedProduct.trip.title}</p>
+                  <p className="text-xs text-gray-500">{selectedProduct.trip.trip_country} · Tiba {formatDate(selectedProduct.trip.arrival_date)}</p>
                 </div>
               </div>
 
@@ -288,28 +290,28 @@ export default function BrowseListingsPage() {
                   {selectedProduct.trip.jastiper.avatar_url ? (
                     <img src={selectedProduct.trip.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-medium text-blue-600 dark:text-blue-300 uppercase">
+                    <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
                       {selectedProduct.trip.jastiper.full_name?.[0] ?? '?'}
                     </div>
                   )}
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{selectedProduct.trip.jastiper.full_name}</p>
+                  <p className="text-sm text-gray-600">{selectedProduct.trip.jastiper.full_name}</p>
                 </div>
               )}
 
               {/* Quantity input */}
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">
                   Jumlah <span className="text-red-400">*</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center text-lg font-medium transition-all"
+                    className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center text-lg font-medium transition-colors"
                   >-</button>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white w-6 text-center">{quantity}</span>
+                  <span className="text-sm font-semibold text-gray-900 w-6 text-center">{quantity}</span>
                   <button
                     onClick={() => setQuantity(q => Math.min(selectedProduct.product.stock ?? 1, q + 1))}
-                    className="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center text-lg font-medium transition-all"
+                    className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center text-lg font-medium transition-colors"
                   >+</button>
                   <span className="text-xs text-gray-400">Stok tersedia: {selectedProduct.product.stock}</span>
                 </div>
@@ -318,32 +320,32 @@ export default function BrowseListingsPage() {
               {/* Input kota & alamat */}
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">
                     Kota pengiriman <span className="text-red-400">*</span>
                   </label>
                   <input
                     placeholder="Contoh: Malang, Surabaya, Jakarta"
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] transition-colors text-gray-900"
                     value={buyerCity}
                     onChange={e => setBuyerCity(e.target.value)}
                   />
                   {buyerCity && selectedProduct.trip.arrival_city && (
                     <p className="text-xs mt-1 font-medium">
                       {buyerCity.trim().toLowerCase() === selectedProduct.trip.arrival_city.toLowerCase()
-                        ? <span className="text-green-600 dark:text-green-400">✓ Sekota dengan jastiper — ongkir Rp 25.000</span>
+                        ? <span className="text-[#2d9b7f]">✓ Sekota dengan jastiper — ongkir Rp 25.000</span>
                         : <span className="text-orange-500">📦 Beda kota dengan jastiper ({selectedProduct.trip.arrival_city}) — ongkir Rp 50.000</span>
                       }
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">
                     Alamat lengkap <span className="text-red-400">*</span>
                   </label>
                   <textarea
                     rows={2}
                     placeholder="Jl. Contoh No. 123, Kecamatan, Kota"
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] transition-colors text-gray-900 resize-none"
                     value={shippingAddress}
                     onChange={e => setShippingAddress(e.target.value)}
                   />
@@ -357,34 +359,34 @@ export default function BrowseListingsPage() {
                 const platformFee = Math.round(selectedProduct.product.total_price_idr * quantity * 0.05)
                 const total = (selectedProduct.product.total_price_idr * quantity) + platformFee + domesticShipping
                 return (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-1.5">
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+                    <div className="flex justify-between text-xs text-gray-500">
                       <span>Harga produk {quantity > 1 ? `(x${quantity})` : ''}</span>
                       <span>{formatRupiah(selectedProduct.product.product_price_idr * quantity)}</span>
                     </div>
                     {selectedProduct.product.service_fee_idr > 0 && (
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex justify-between text-xs text-gray-500">
                         <span>Service fee</span>
                         <span>{formatRupiah(selectedProduct.product.service_fee_idr)}</span>
                       </div>
                     )}
                     {selectedProduct.product.shipping_fee_idr > 0 && (
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex justify-between text-xs text-gray-500">
                         <span>Ongkir luar negeri</span>
                         <span>{formatRupiah(selectedProduct.product.shipping_fee_idr)}</span>
                       </div>
                     )}
                     {buyerCity && (
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex justify-between text-xs text-gray-500">
                         <span>Ongkir domestik {isSameCity ? '(sekota)' : '(beda kota)'}</span>
                         <span>{formatRupiah(domesticShipping)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex justify-between text-xs text-gray-500">
                       <span>Platform fee (5%)</span>
                       <span>{formatRupiah(platformFee)}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-bold text-gray-900 dark:text-white pt-1.5 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between text-sm font-bold text-gray-900 pt-1.5 border-t border-gray-200">
                       <span>Total</span>
                       <span>{formatRupiah(total)}</span>
                     </div>
@@ -398,10 +400,17 @@ export default function BrowseListingsPage() {
               {orderError && <p className="text-red-500 text-sm">{orderError}</p>}
 
               <div className="flex gap-2">
-                <button onClick={() => { setSelectedProduct(null); setOrderError('') }} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+                <button
+                  onClick={() => { setSelectedProduct(null); setOrderError('') }}
+                  className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
                   Batal
                 </button>
-                <button onClick={handleOrder} disabled={orderLoading} className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all">
+                <button
+                  onClick={handleOrder}
+                  disabled={orderLoading}
+                  className="flex-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors"
+                >
                   {orderLoading ? 'Memproses...' : 'Order Sekarang'}
                 </button>
               </div>
@@ -412,15 +421,18 @@ export default function BrowseListingsPage() {
 
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Browse Trip</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Temukan jastiper yang siap berangkat</p>
+        <h1 className="text-2xl font-bold text-gray-900">Browse Trip</h1>
+        <p className="text-sm text-gray-500 mt-1">Temukan jastiper yang siap berangkat</p>
       </div>
 
       {/* Success toast */}
       {orderSuccess && (
-        <div className="mb-5 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-green-700 dark:text-green-300">{orderSuccess}</p>
-          <button onClick={() => { setOrderSuccess(''); router.push('/orders') }} className="text-green-500 ml-4 text-xs underline shrink-0">
+        <div className="mb-5 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-[#2d9b7f] font-medium">{orderSuccess}</p>
+          <button
+            onClick={() => { setOrderSuccess(''); router.push('/orders') }}
+            className="text-[#49BC9E] ml-4 text-xs underline shrink-0"
+          >
             Lihat pesanan →
           </button>
         </div>
@@ -434,81 +446,110 @@ export default function BrowseListingsPage() {
         <input
           type="text"
           placeholder="Cari produk, negara, atau jastiper..."
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#49BC9E] transition-colors bg-white text-gray-900"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         {search && (
           <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
           </button>
         )}
       </div>
 
       {/* Filters */}
       <div className="flex gap-2 mb-6 flex-wrap">
-        <select value={filterCountry} onChange={e => setFilterCountry(e.target.value)} className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 outline-none">
-          <option value="">Semua negara</option>
-          {countries.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 outline-none">
-          <option value="newest">Terbaru</option>
-          <option value="arrival_soon">Tiba paling cepat</option>
-        </select>
+        <div className="relative">
+          <select
+            value={filterCountry}
+            onChange={e => setFilterCountry(e.target.value)}
+            className="appearance-none text-sm border border-gray-200 rounded-lg pl-4 pr-9 py-2.5 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
+          >
+            <option value="">Semua negara</option>
+            {countries.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div className="relative">
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as any)}
+            className="appearance-none text-sm border border-gray-200 rounded-lg pl-4 pr-9 py-2.5 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
+          >
+            <option value="newest">Terbaru</option>
+            <option value="arrival_soon">Tiba paling cepat</option>
+          </select>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
         <div className="flex items-center ml-auto">
-          <p className="text-xs text-gray-500 dark:text-gray-400">{trips.length} trip tersedia</p>
+          <p className="text-xs text-gray-500">{trips.length} trip tersedia</p>
         </div>
       </div>
 
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-2 border-gray-200 border-t-[#49BC9E] rounded-full animate-spin"></div>
         </div>
       ) : trips.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Tidak ada trip yang tersedia</p>
+          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <p className="text-sm text-gray-500">Tidak ada trip yang tersedia</p>
         </div>
       ) : (
         <div className="space-y-6">
           {trips.map(trip => {
             const dl = daysLeft(trip.arrival_date)
             return (
-              <div key={trip.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                {/* Trip header */}
+              <div key={trip.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+
+                {/* Trip cover image */}
                 {trip.image_url && (
                   <img src={trip.image_url} className="w-full h-36 object-cover" alt={trip.title} />
                 )}
-                <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+
+                {/* Trip header */}
+                <div className="p-4 border-b border-gray-100">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">{trip.title}</p>
+                      <p className="font-semibold text-gray-900">{trip.title}</p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">📍 {trip.trip_country}</span>
-                        <span className="text-gray-300 dark:text-gray-600">·</span>
-                        <span className={`text-xs font-medium ${dl.urgent ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                        <span className="text-xs text-gray-500">📍 {trip.trip_country}</span>
+                        <span className="text-gray-300">·</span>
+                        <span className={`text-xs font-medium ${dl.urgent ? 'text-orange-500' : 'text-gray-500'}`}>
                           ✈️ Tiba {dl.label}
                         </span>
                       </div>
                     </div>
+
                     {/* Jastiper */}
                     {trip.jastiper && (
                       <div className="flex items-center gap-2 shrink-0">
                         {trip.jastiper.avatar_url ? (
                           <img src={trip.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
                         ) : (
-                          <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-medium text-blue-600 dark:text-blue-300 uppercase">
+                          <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
                             {trip.jastiper.full_name?.[0] ?? '?'}
                           </div>
                         )}
-                        <p className="text-xs text-gray-600 dark:text-gray-400">{trip.jastiper.full_name}</p>
+                        <p className="text-xs text-gray-600">{trip.jastiper.full_name}</p>
                         {trip.jastiper.whatsapp_number && (
                           <a
                             href={`https://wa.me/${trip.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={e => e.stopPropagation()}
-                            className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white rounded-lg px-2 py-1 text-[10px] font-medium transition-all"
+                            className="flex items-center gap-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2 py-1 text-[10px] font-medium transition-colors"
                           >
                             WA
                           </a>
@@ -517,42 +558,42 @@ export default function BrowseListingsPage() {
                     )}
                   </div>
                   {trip.description && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 italic">{trip.description}</p>
+                    <p className="text-xs text-gray-400 italic">{trip.description}</p>
                   )}
                 </div>
 
                 {/* Products */}
-                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                <div className="divide-y divide-gray-100">
                   {trip.products.map(product => (
                     <div key={product.id} className="flex gap-3 p-4">
                       {product.image_url ? (
                         <img src={product.image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
                       ) : (
-                        <div className="w-14 h-14 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
                             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                           </svg>
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.product_name}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{product.product_name}</p>
                         <button
                           onClick={() => router.push(`/trips/${trip.id}/products/${product.id}`)}
-                          className="text-xs text-blue-500 hover:underline text-left"
+                          className="text-xs text-[#49BC9E] hover:text-[#3da88d] hover:underline text-left transition-colors"
                         >
                           Lihat detail →
                         </button>
                         {product.description && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5">{product.description}</p>
+                          <p className="text-xs text-gray-400 italic mt-0.5">{product.description}</p>
                         )}
                         <p className="text-xs text-gray-400 mt-0.5">Stok: {product.stock}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{formatRupiah(product.total_price_idr)}</p>
+                        <p className="text-sm font-bold text-gray-900">{formatRupiah(product.total_price_idr)}</p>
                         <p className="text-xs text-gray-400">+5% fee</p>
                         <button
                           onClick={() => { setSelectedProduct({ product, trip }); setOrderError('') }}
-                          className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all"
+                          className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
                         >
                           Order
                         </button>
