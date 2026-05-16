@@ -66,7 +66,7 @@ export default function JastiperDashboardPage() {
 
           {/* BROWSE REQUEST */}
           <Link href="/preview/jastiper/browse-request">
-            <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5 min-h-[140px] hover:shadow-md transition-all cursor-pointer hover:shadow-md">
+            <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5 min-h-[140px] hover:shadow-md transition-all cursor-pointer">
               <div className="w-12 h-12 rounded-xl bg-[#59D3B4] flex items-center justify-center shadow-md shadow-teal-100">
                 <Search className="text-white" size={24} />
               </div>
@@ -81,48 +81,49 @@ export default function JastiperDashboardPage() {
             </div>
           </Link>
 
+          {/* OPEN TRIP / PERJALANAN SAYA */}
+          <Link href="/preview/jastiper/perjalanan-saya">
+            <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5 min-h-[140px] hover:shadow-md transition-all cursor-pointer">
+              <div className="w-12 h-12 rounded-xl bg-[#59D3B4] flex items-center justify-center shadow-md shadow-teal-100">
+                <Plus className="text-white" size={24} />
+              </div>
 
+              <h3 className="mt-5 text-[18px] font-bold text-[#0F172A]">
+                Open Trip
+              </h3>
 
-          {/* BUAT TRIP */}
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5 min-h-[140px] hover:shadow-md transition-all">
-
-            <div className="w-12 h-12 rounded-xl bg-[#59D3B4] flex items-center justify-center shadow-md shadow-teal-100">
-              <Plus className="text-white" size={24} />
+              <p className="mt-2 text-[16px] text-[#64748B] leading-relaxed">
+                Buat perjalanan baru dan tambahkan katalog produkmu
+              </p>
             </div>
-
-            <h3 className="mt-5 text-[18px] font-bold text-[#0F172A]">
-              Buat Trip
-            </h3>
-
-            <p className="mt-2 text-[16px] text-[#64748B] leading-relaxed">
-              Buat perjalanan baru dan tambahkan katalog produkmu
-            </p>
-          </div>
+          </Link>
 
           {/* ORDER MASUK */}
-          <div className="lg:col-span-2 bg-white border border-[#CBD5E1] rounded-2xl p-5 min-h-[100px] hover:shadow-md transition-all">
+          <Link href="/preview/jastiper/orders" className="lg:col-span-2">
+            <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5 min-h-[100px] hover:shadow-md transition-all cursor-pointer">
 
-            <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4">
 
-              <div className="w-12 h-12 rounded-xl bg-[#59D3B4] flex items-center justify-center shadow-md shadow-teal-100 flex-shrink-0">
-                <ShoppingCart className="text-white" size={24} />
+                <div className="w-12 h-12 rounded-xl bg-[#59D3B4] flex items-center justify-center shadow-md shadow-teal-100 flex-shrink-0">
+                  <ShoppingCart className="text-white" size={24} />
+                </div>
+
+                <div>
+                  <h3 className="text-[18px] font-bold text-[#0F172A]">
+                    Order Masuk
+                  </h3>
+
+                  <p className="mt-1 text-[16px] text-[#64748B] leading-relaxed">
+                    Kelola pesanan pelanggan yang perlu diproses
+                  </p>
+                </div>
+
               </div>
-
-              <div>
-                <h3 className="text-[18px] font-bold text-[#0F172A]">
-                  Order Masuk
-                </h3>
-
-                <p className="mt-1 text-[16px] text-[#64748B] leading-relaxed">
-                  Kelola pesanan pelanggan yang perlu diproses
-                </p>
-              </div>
-
             </div>
-          </div>
+          </Link>
 
         </div>
       </div>
     </main>
   )
-}
+} 
