@@ -38,12 +38,17 @@ export default function RequestTagihanSlicing() {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-8 py-8">
 
-        {/* Page Title */}
-        <div className="mb-6">
+      {/* Page Title */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Request Saya</h1>
           <p className="text-sm text-gray-500">Pantau status permintaan barang kamu</p>
         </div>
-
+        {/* Tambah Permintaan Button */}
+        <button className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-5 py-2.5 rounded-lg">
+          Tambah Permintaan
+        </button>
+      </div>
         {/* Tabs */}
         <div className="flex items-center gap-6 border-b border-gray-200 mb-6">
         <button className="pb-3 text-sm text-gray-500 hover:text-gray-700 transition-colors border-b-2 border-transparent">Menunggu</button>
@@ -104,11 +109,56 @@ export default function RequestTagihanSlicing() {
             <p className="text-sm text-gray-500">Pastikan barang yang dibeli original</p>
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end">
-            <button className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg">
-              Batalkan
+          {/* Tagihan Anda */}
+          <div className="border border-gray-200 rounded-lg p-4 mb-4">
+            
+            {/* Jastiper Info */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <img src="/mas_ganteng.svg" alt="Haewon" className="w-10 h-10 rounded-full object-cover" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Haewon</p>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[#49BC9E] text-xs">✓</span>
+                    <span className="text-xs text-[#49BC9E]">Jastiper</span>
+                  </div>
+                </div>
+              </div>
+              <button className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-5 py-2 rounded-lg">
+                Hubungi
+              </button>
+            </div>
+
+            {/* Rincian Harga */}
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-[#49BC9E]">Harga (Produk & Fee Jastiper)</p>
+              <p className="text-sm font-semibold text-gray-900">Rp 850.000</p>
+            </div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-[#49BC9E]">Platform Fee (5%)</p>
+              <p className="text-sm font-semibold text-gray-900">Rp 42.500</p>
+            </div>
+
+            {/* Total */}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-bold text-gray-900">Total Tagihan</p>
+              <p className="text-sm font-bold text-[#49BC9E]">IDR 892.500</p>
+            </div>
+
+            {/* Bayar Sekarang */}
+            <button className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold py-3 rounded-lg mb-2">
+              Bayar Sekarang
             </button>
+            <p className="text-xs text-gray-400 text-center">
+              Pesanan akan dibatalkan otomatis jika pembayaran tidak dilakukan sebelum waktu habis.
+            </p>
+
+          </div>
+
+          {/* Catatan */}
+          <div>
+            <p className="text-sm font-semibold text-gray-900 mb-1">Catatan:</p>
+            <p className="text-sm text-gray-500">Pastikan barang yang dibeli original</p>
           </div>
 
         </div>
