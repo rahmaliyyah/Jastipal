@@ -266,10 +266,10 @@ export default function OrdersPage() {
     if (activeRole === 'buyer') {
       if (order.status === 'shipped') {
         return (
-          <div className="grid grid-cols-2 gap-3">
+          <div className={order.dispute ? '' : 'grid grid-cols-2 gap-3'}>
             <button
               onClick={() => { setSelected(order) }}
-              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
+              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
             >
               Konfirmasi Pesanan Diterima
             </button>
@@ -290,7 +290,7 @@ export default function OrdersPage() {
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
             className="w-full border border-red-200 text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 transition-colors"
           >
-            Ada Masalah? Buka Dispute
+            Ada Masalah? Laporkan
           </button>
         ) : null
       }
@@ -667,7 +667,7 @@ export default function OrdersPage() {
                 {/* Info dispute di order cancelled */}
                 {order.status === 'cancelled' && order.dispute && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-medium text-red-600 mb-1">Order dibatalkan karena dispute</p>
+                    <p className="text-xs font-semibold text-red-600 mb-1">Order dibatalkan karena pelanggaran</p>
                     <p className="text-xs text-red-700 mb-1">
                       <span className="font-medium">Alasan:</span> {order.dispute.reason}
                     </p>
@@ -677,7 +677,7 @@ export default function OrdersPage() {
                       </p>
                     )}
                     {order.dispute.status === 'resolved' && (
-                      <p className="text-xs text-red-500 mt-1">💰 Dana dikembalikan ke buyer</p>
+                      <p className="text-xs text-red-500 mt-1">Dana dikembalikan ke buyer</p>
                     )}
                   </div>
                 )}

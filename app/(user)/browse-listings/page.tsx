@@ -53,6 +53,94 @@ function daysLeft(date: string) {
   return { label: `${days} hari lagi`, urgent: false }
 }
 
+// Icon components
+function IconSearch() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  )
+}
+function IconX({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  )
+}
+function IconChevronDown() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  )
+}
+function IconMapPin() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+    </svg>
+  )
+}
+function IconPlane() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19.5 2.5S18 2 16.5 3.5L13 7 4.8 5.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
+    </svg>
+  )
+}
+function IconPackage() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+  )
+}
+function IconImage() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+    </svg>
+  )
+}
+function IconEmpty() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+    </svg>
+  )
+}
+function IconWhatsapp() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+    </svg>
+  )
+}
+function IconCheckCircle() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  )
+}
+function IconTruck() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+    </svg>
+  )
+}
+function IconUser() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  )
+}
+
 export default function BrowseListingsPage() {
   const supabase = createClient()
   const router = useRouter()
@@ -259,9 +347,7 @@ export default function BrowseListingsPage() {
                 onClick={() => { setSelectedProduct(null); setOrderError('') }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
+                <IconX size={20} />
               </button>
             </div>
             <div className="p-6 space-y-4">
@@ -272,9 +358,7 @@ export default function BrowseListingsPage() {
                   <img src={selectedProduct.product.image_url} className="w-16 h-16 rounded-xl object-cover shrink-0" />
                 ) : (
                   <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                    </svg>
+                    <IconImage />
                   </div>
                 )}
                 <div>
@@ -332,8 +416,15 @@ export default function BrowseListingsPage() {
                   {buyerCity && selectedProduct.trip.arrival_city && (
                     <p className="text-xs mt-1 font-medium">
                       {buyerCity.trim().toLowerCase() === selectedProduct.trip.arrival_city.toLowerCase()
-                        ? <span className="text-[#2d9b7f]">✓ Sekota dengan jastiper — ongkir Rp 25.000</span>
-                        : <span className="text-orange-500">📦 Beda kota dengan jastiper ({selectedProduct.trip.arrival_city}) — ongkir Rp 50.000</span>
+                        ? (
+                          <span className="text-[#2d9b7f] flex items-center gap-1">
+                            <IconCheckCircle /> Sekota dengan jastiper — ongkir Rp 25.000
+                          </span>
+                        ) : (
+                          <span className="text-orange-500 flex items-center gap-1">
+                            <IconTruck /> Beda kota dengan jastiper ({selectedProduct.trip.arrival_city}) — ongkir Rp 50.000
+                          </span>
+                        )
                       }
                     </p>
                   )}
@@ -421,8 +512,8 @@ export default function BrowseListingsPage() {
 
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Browse Trip</h1>
-        <p className="text-sm text-gray-500 mt-1">Temukan jastiper yang siap berangkat</p>
+        <h1 className="text-2xl font-bold text-gray-900">Jelajahi Produk</h1>
+        <p className="text-sm text-gray-500 mt-1">Temukan produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
       </div>
 
       {/* Success toast */}
@@ -440,9 +531,9 @@ export default function BrowseListingsPage() {
 
       {/* Search */}
       <div className="relative mb-4">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <IconSearch />
+        </span>
         <input
           type="text"
           placeholder="Cari produk, negara, atau jastiper..."
@@ -452,9 +543,7 @@ export default function BrowseListingsPage() {
         />
         {search && (
           <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
+            <IconX size={14} />
           </button>
         )}
       </div>
@@ -470,9 +559,9 @@ export default function BrowseListingsPage() {
             <option value="">Semua negara</option>
             {countries.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <IconChevronDown />
+          </span>
         </div>
         <div className="relative">
           <select
@@ -483,9 +572,9 @@ export default function BrowseListingsPage() {
             <option value="newest">Terbaru</option>
             <option value="arrival_soon">Tiba paling cepat</option>
           </select>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <IconChevronDown />
+          </span>
         </div>
         <div className="flex items-center ml-auto">
           <p className="text-xs text-gray-500">{trips.length} trip tersedia</p>
@@ -500,9 +589,7 @@ export default function BrowseListingsPage() {
       ) : trips.length === 0 ? (
         <div className="text-center py-20">
           <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-            </svg>
+            <IconEmpty />
           </div>
           <p className="text-sm text-gray-500">Tidak ada trip yang tersedia</p>
         </div>
@@ -511,54 +598,79 @@ export default function BrowseListingsPage() {
           {trips.map(trip => {
             const dl = daysLeft(trip.arrival_date)
             return (
-              <div key={trip.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+              <div key={trip.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
 
                 {/* Trip cover image */}
                 {trip.image_url && (
-                  <img src={trip.image_url} className="w-full h-36 object-cover" alt={trip.title} />
+                  <img src={trip.image_url} className="w-full h-52 object-cover" alt={trip.title} />
                 )}
 
                 {/* Trip header */}
-                <div className="p-4 border-b border-gray-100">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div>
-                      <p className="font-semibold text-gray-900">{trip.title}</p>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-xs text-gray-500">📍 {trip.trip_country}</span>
-                        <span className="text-gray-300">·</span>
-                        <span className={`text-xs font-medium ${dl.urgent ? 'text-orange-500' : 'text-gray-500'}`}>
-                          ✈️ Tiba {dl.label}
-                        </span>
-                      </div>
-                    </div>
+                <div className="p-5 border-b border-gray-100">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">{trip.title}</h2>
 
-                    {/* Jastiper */}
-                    {trip.jastiper && (
-                      <div className="flex items-center gap-2 shrink-0">
-                        {trip.jastiper.avatar_url ? (
-                          <img src={trip.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
-                            {trip.jastiper.full_name?.[0] ?? '?'}
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-600">{trip.jastiper.full_name}</p>
-                        {trip.jastiper.whatsapp_number && (
-                          <a
-                            href={`https://wa.me/${trip.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            className="flex items-center gap-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2 py-1 text-[10px] font-medium transition-colors"
-                          >
-                            WA
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                 {/* Stats grid */}
+<div className="grid grid-cols-3 gap-2 mb-4">
+  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+    <div className="flex items-center gap-1 text-gray-400 mb-1">
+      <IconMapPin />
+      <span className="text-xs">Negara</span>
+    </div>
+    <p className="text-sm font-semibold text-gray-900">{trip.trip_country}</p>
+  </div>
+  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+    <div className="flex items-center gap-1 text-gray-400 mb-1">
+      <IconPlane />
+      <span className="text-xs">Tanggal Tiba</span>
+    </div>
+    <p className={`text-sm font-semibold ${dl.urgent ? 'text-orange-500' : 'text-gray-900'}`}>
+      {formatDate(trip.arrival_date)}
+    </p>
+  </div>
+  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+    <div className="flex items-center gap-1 text-gray-400 mb-1">
+      <IconPackage />
+      <span className="text-xs">Produk</span>
+    </div>
+    <p className="text-sm font-semibold text-gray-900">{trip.products.length} item</p>
+  </div>
+</div>
+
+                  {/* Deskripsi */}
                   {trip.description && (
-                    <p className="text-xs text-gray-400 italic">{trip.description}</p>
+                    <div className="mb-4">
+                      <p className="text-xs text-gray-400 mb-1">Deskripsi</p>
+                      <p className="text-sm text-gray-700">{trip.description}</p>
+                    </div>
+                  )}
+
+                  {/* Jastiper */}
+                  {trip.jastiper && (
+                    <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
+                      <span className="text-gray-400">
+                        <IconUser />
+                      </span>
+                      {trip.jastiper.avatar_url ? (
+                        <img src={trip.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
+                          {trip.jastiper.full_name?.[0] ?? '?'}
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-600 flex-1">{trip.jastiper.full_name}</p>
+                      {trip.jastiper.whatsapp_number && (
+                        <a
+                          href={`https://wa.me/${trip.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="flex items-center gap-1.5 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors"
+                        >
+                          <IconWhatsapp />
+                          WA
+                        </a>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -570,9 +682,7 @@ export default function BrowseListingsPage() {
                         <img src={product.image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
                       ) : (
                         <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                          </svg>
+                          <IconImage />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">

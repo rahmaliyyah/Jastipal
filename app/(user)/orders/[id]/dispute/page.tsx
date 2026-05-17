@@ -95,108 +95,127 @@ export default function OpenDisputePage() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+      <div className="w-6 h-6 border-2 border-gray-200 border-t-[#49BC9E] rounded-full animate-spin"></div>
     </div>
   )
 
   if (!order) return null
 
   return (
-    <div className="max-w-lg">
-      <button onClick={() => router.back()} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 flex items-center gap-1 transition-all">
-        ← Kembali
+    <div className="max-w-lg pb-12">
+
+      {/* Back + Title */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali
       </button>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Buka Dispute</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{order.product_name}</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Ajukan Komplain</h1>
+        <p className="text-sm text-gray-500">{order.product_name}</p>
       </div>
 
+      {/* Existing dispute warning */}
       {existingDispute && (
-        <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl px-4 py-3 mb-5">
-          <p className="text-sm text-yellow-700 dark:text-yellow-300 font-medium">⚠️ Dispute sudah pernah dibuka untuk order ini</p>
-          <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">Admin sedang memproses dispute ini. Harap tunggu.</p>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 mb-5">
+          <p className="text-sm text-yellow-700 font-medium">⚠️ Dispute sudah pernah dibuka untuk order ini</p>
+          <p className="text-xs text-yellow-600 mt-1">Admin sedang memproses dispute ini. Harap tunggu.</p>
         </div>
       )}
 
+      {/* Success state */}
       {success && (
-        <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 mb-5">
-          <p className="text-sm text-green-700 dark:text-green-300 font-medium">✓ Dispute berhasil dibuka! Admin akan segera meninjau.</p>
+        <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-5">
+          <p className="text-sm text-green-700 font-medium">✓ Dispute berhasil dibuka! Admin akan segera meninjau.</p>
         </div>
       )}
 
       {!existingDispute && !success && (
-        <div className="space-y-5">
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-4">
-            <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">⚠️ Perhatian</p>
-            <p className="text-xs text-red-600 dark:text-red-400">
+        <>
+          {/* Perhatian banner */}
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+            <p className="text-sm font-semibold text-red-700 mb-1">Perhatian</p>
+            <p className="text-xs text-red-600">
               Dispute akan diproses oleh admin. Pastikan kamu sudah mencoba menghubungi {activeRole === 'buyer' ? 'jastiper' : 'buyer'} via WhatsApp sebelum membuka dispute.
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Detail Dispute</h2>
+          {/* Card form */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+            <h2 className="text-base font-bold text-gray-900 mb-4">Detail Komplain</h2>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Pilih alasan <span className="text-red-400">*</span>
-              </label>
-              <div className="space-y-2">
-                {(activeRole === 'buyer' ? [
-                  'Barang tidak sampai setelah waktu yang dijanjikan',
-                  'Barang rusak atau tidak sesuai deskripsi',
-                  'Jastiper tidak responsif',
-                  'Jastiper tidak membeli barang',
-                  'Lainnya',
-                ] : [
-                  'Buyer tidak konfirmasi terima padahal barang sudah dikirim',
-                  'Buyer tidak bisa dihubungi',
-                  'Lainnya',
-                ]).map(option => (
-                  <button
-                    key={option}
-                    onClick={() => { setSelectedReason(option); setReason(option !== 'Lainnya' ? option : '') }}
-                    className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${
-                      selectedReason === option
-                        ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-800 font-medium text-gray-900 dark:text-white'
-                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
-                  >
-                    {selectedReason === option && <span className="mr-2">✓</span>}{option}
-                  </button>
-                ))}
-              </div>
+            {/* Pilih Alasan */}
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Pilih Alasan <span className="text-red-400">*</span>
+            </label>
+            <div className="flex flex-col gap-2 mb-6">
+              {(activeRole === 'buyer' ? [
+                'Barang tidak sampai setelah waktu yang dijanjikan',
+                'Barang rusak atau tidak sesuai deskripsi',
+                'Jastiper tidak responsif',
+                'Jastiper tidak membeli barang',
+                'Lainnya',
+              ] : [
+                'Buyer tidak konfirmasi terima padahal barang sudah dikirim',
+                'Buyer tidak bisa dihubungi',
+                'Lainnya',
+              ]).map(option => (
+                <button
+                  key={option}
+                  onClick={() => { setSelectedReason(option); setReason(option !== 'Lainnya' ? option : '') }}
+                  className={`w-full text-left border rounded-lg px-4 py-3 text-sm transition-colors ${
+                    selectedReason === option
+                      ? 'border-[#49BC9E] bg-[#f0faf7] text-gray-900 font-medium'
+                      : 'border-gray-200 text-gray-700 hover:border-[#49BC9E]'
+                  }`}
+                >
+                  {selectedReason === option && (
+                    <span className="mr-2 text-[#49BC9E]">✓</span>
+                  )}
+                  {option}
+                </button>
+              ))}
             </div>
 
+            {/* Textarea — tampil saat Lainnya dipilih */}
             {selectedReason === 'Lainnya' && (
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+              <>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Jelaskan masalahmu <span className="text-red-400">*</span>
                 </label>
                 <textarea
                   rows={4}
-                  placeholder="Ceritakan detail masalah yang kamu alami..."
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                  placeholder="Tuliskan detail kendala atau kronologi yang terjadi..."
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors resize-none"
                   onChange={e => setReason(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </div>
 
+          {/* Error */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
-              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !reason.trim()}
-            className="w-full bg-red-500 hover:bg-red-600 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50 transition-all"
-          >
-            {submitting ? 'Membuka dispute...' : 'Buka Dispute'}
-          </button>
-        </div>
+          {/* Submit */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !reason.trim()}
+              className="bg-[#49BC9E] hover:bg-[#3da88d] disabled:opacity-50 transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg"
+            >
+              {submitting ? 'Mengirim...' : 'Kirim Komplain'}
+            </button>
+          </div>
+        </>
       )}
     </div>
   )

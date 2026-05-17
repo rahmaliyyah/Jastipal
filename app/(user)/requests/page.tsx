@@ -529,7 +529,7 @@ export default function MyRequestsPage() {
                       )}
                       {tab === 'selesai' && (
                         <p className="text-xs text-green-600 text-center">
-                          Transaksi selesai — terima kasih telah menggunakan Jastipal!
+                          Transaksi selesai, terima kasih telah menggunakan Jastipal!
                         </p>
                       )}
                     </>

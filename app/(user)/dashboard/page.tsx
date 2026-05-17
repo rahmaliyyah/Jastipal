@@ -118,8 +118,8 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
                 </svg>
               </div>
-              <p className="font-bold text-gray-900 mb-1">Browse Listing</p>
-              <p className="text-sm text-gray-500">Cari jastiper yang siap berangkat</p>
+              <p className="font-bold text-gray-900 mb-1">Jelajahi Produk</p>
+              <p className="text-sm text-gray-500">Cari produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
             </div>
 
             {/* Buat Request */}
