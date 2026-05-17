@@ -266,19 +266,19 @@ export default function OrdersPage() {
     if (activeRole === 'buyer') {
       if (order.status === 'shipped') {
         return (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => { setSelected(order) }}
-              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
+              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
             >
-              Konfirmasi Terima Barang
+              Konfirmasi Pesanan Diterima
             </button>
             {!order.dispute && (
               <button
                 onClick={() => router.push(`/orders/${order.id}/dispute`)}
-                className="w-full border border-red-200 text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 transition-colors"
+                className="border border-gray-200 text-gray-500 rounded-lg py-3 text-sm font-semibold hover:bg-gray-50 transition-colors"
               >
-                Ada Masalah? Buka Dispute
+                Laporkan Kendala
               </button>
             )}
           </div>
@@ -359,23 +359,30 @@ export default function OrdersPage() {
           <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl p-6">
             {activeRole === 'buyer' && selected.status === 'shipped' && (
               <>
-                <h2 className="text-base font-bold text-gray-900 mb-2">Konfirmasi Terima Barang</h2>
-                <p className="text-sm text-gray-500 mb-6">
-                  Pastikan barang sudah kamu terima dengan kondisi baik sebelum konfirmasi. Dana akan langsung dicairkan ke jastiper setelah konfirmasi.
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors"
-                  >
-                    Batal
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-base font-bold text-gray-900">Konfirmasi Pesanan Diterima</h2>
+                  <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
+                </div>
+                <p className="text-sm text-gray-500 mb-6">
+                  Pastikan pesanan telah diterima dalam kondisi baik sebelum melakukan konfirmasi. Setelah dikonfirmasi, dana akan otomatis diteruskan kepada jastiper.
+                </p>
+                <div className="flex flex-col gap-3">
                   <button
                     onClick={() => handleDelivered(selected)}
                     disabled={actionLoading}
-                    className="flex-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors"
+                    className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold disabled:opacity-50 transition-colors"
                   >
-                    {actionLoading ? 'Memproses...' : 'Ya, Sudah Terima'}
+                    {actionLoading ? 'Memproses...' : 'Konfirmasi Diterima'}
+                  </button>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="w-full border border-gray-200 text-gray-600 rounded-lg py-3 text-sm font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Batal
                   </button>
                 </div>
               </>
@@ -467,10 +474,18 @@ export default function OrdersPage() {
                     <p className="font-bold text-gray-900 truncate">{order.product_name}</p>
                     <p className="text-sm text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
                   </div>
-                  <span className={`text-sm font-semibold shrink-0 ${
+                  <span className={`text-xs font-semibold rounded-full px-2.5 py-1 border shrink-0 ${
                     order.status === 'waiting_payment' && order.payment_proof_url
-                      ? 'text-orange-500'
-                      : cfg?.color
+                      ? 'text-orange-600 bg-orange-50 border-orange-200'
+                      : order.status === 'waiting_payment'
+                      ? 'text-orange-400 bg-orange-50 border-orange-200'
+                      : order.status === 'processing'
+                      ? 'text-blue-500 bg-blue-50 border-blue-200'
+                      : order.status === 'shipped'
+                      ? 'text-purple-600 bg-purple-50 border-purple-200'
+                      : order.status === 'delivered'
+                      ? 'text-green-600 bg-green-50 border-green-200'
+                      : 'text-red-500 bg-red-50 border-red-200'
                   }`}>
                     {order.status === 'waiting_payment' && order.payment_proof_url
                       ? 'Direview Admin'
@@ -527,15 +542,23 @@ export default function OrdersPage() {
                   </div>
                 )}
 
-                {/* Delivery info */}
-                <div className="mb-4">
+                {/* Delivery info — grid 2 kolom jika ada tracking number, single jika meetup */}
+                <div className={`mb-4 ${order.tracking_number ? 'grid grid-cols-2 gap-4' : ''}`}>
                   {order.delivery_pref === 'courier' ? (
                     <>
-                      <p className="text-sm font-semibold text-gray-900 mb-1">Pengiriman:</p>
-                      <p className="text-sm text-gray-500">{order.shipping_address ?? '-'}</p>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 mb-1">Pengiriman:</p>
+                        <p className="text-sm text-gray-500">{order.shipping_address ?? '-'}</p>
+                      </div>
+                      {order.tracking_number && (
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 mb-1">Ekspedisi:</p>
+                          <p className="text-sm text-gray-500">{order.tracking_number}</p>
+                        </div>
+                      )}
                     </>
                   ) : (
-                    <>
+                    <div>
                       <p className="text-sm font-semibold text-gray-900 mb-1">Lokasi Meetup:</p>
                       <p className="text-sm text-gray-500">{order.meetup_location ?? '-'}</p>
                       {order.meetup_time && (
@@ -543,10 +566,7 @@ export default function OrdersPage() {
                           {new Date(order.meetup_time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>
                       )}
-                    </>
-                  )}
-                  {order.tracking_number && (
-                    <p className="text-sm text-gray-500 mt-1">Resi: <span className="font-medium text-gray-700">{order.tracking_number}</span></p>
+                    </div>
                   )}
                 </div>
 
@@ -599,25 +619,32 @@ export default function OrdersPage() {
 
                 {/* Bukti pembelian */}
                 {activeRole === 'buyer' && order.proof && (
-                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-medium text-gray-600 mb-2">Bukti Pembelian dari Jastiper</p>
-                    <div className="flex gap-2">
+                  <div className="border border-gray-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm font-semibold text-gray-900 mb-3">Bukti Pembelian</p>
+                    <div className="grid grid-cols-2 gap-3">
                       <a
                         href={order.proof.receipt_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 text-center text-xs bg-white border border-gray-200 rounded-lg py-2 text-[#49BC9E] hover:text-[#3da88d] font-medium transition-colors"
+                        className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors"
                       >
-                        🧾 Lihat Struk
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-sm text-gray-700">Lihat Struk</span>
                       </a>
                       {order.proof.store_photo_url && (
                         <a
                           href={order.proof.store_photo_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 text-center text-xs bg-white border border-gray-200 rounded-lg py-2 text-[#49BC9E] hover:text-[#3da88d] font-medium transition-colors"
+                          className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors"
                         >
-                          📸 Foto Toko
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="text-sm text-gray-700">Lihat Bukti Foto Toko</span>
                         </a>
                       )}
                     </div>
@@ -626,9 +653,14 @@ export default function OrdersPage() {
 
                 {/* Info dispute open */}
                 {order.dispute && order.dispute.status === 'open' && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-medium text-yellow-700">⏳ Dispute sedang menunggu penanganan admin</p>
-                    <p className="text-xs text-yellow-600 mt-0.5">{order.dispute.reason}</p>
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 flex items-start gap-2 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-semibold text-blue-600">Komplain sedang ditinjau oleh admin</p>
+                      <p className="text-xs text-blue-500 mt-0.5">{order.dispute.reason}</p>
+                    </div>
                   </div>
                 )}
 
