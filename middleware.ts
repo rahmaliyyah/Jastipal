@@ -67,8 +67,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login?error=frozen', request.url))
     }
 
-    // sudah login → jangan bisa akses halaman login/register (tapi boleh lihat landing)
-    if (['/login', '/register'].includes(pathname)) {
+    // sudah login → jangan bisa akses halaman login/register/landing
+   if (['/', '/login', '/register'].includes(pathname)) {
       if (userData?.is_admin) {
         return NextResponse.redirect(new URL('/admin', request.url))
       }
