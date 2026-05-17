@@ -30,7 +30,7 @@ export default function ProfilePage() {
   const [jastiperProfile, setJastiperProfile] = useState<JastiperProfile | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [form, setForm] = useState({ full_name: '', phone: '' })
-  const [jastiperForm, setJastiperForm] = useState({ whatsapp_number: '', service_fee_pct: '' })
+  const [jastiperForm, setJastiperForm] = useState({ whatsapp_number: '', service_fee_pct: '', base_country: '' })
   const [jastiperEditLoading, setJastiperEditLoading] = useState(false)
   const [jastiperEditSuccess, setJastiperEditSuccess] = useState(false)
 
@@ -66,6 +66,7 @@ export default function ProfilePage() {
         setJastiperForm({
           whatsapp_number: jpData.whatsapp_number ?? '',
           service_fee_pct: jpData.service_fee_pct?.toString() ?? '',
+          base_country: jpData.base_country ?? '',
         })
       }
       setProfileLoaded(true)
@@ -109,6 +110,7 @@ export default function ProfilePage() {
       .update({
         whatsapp_number: jastiperForm.whatsapp_number || null,
         service_fee_pct: jastiperForm.service_fee_pct ? parseFloat(jastiperForm.service_fee_pct) : null,
+        base_country: jastiperForm.base_country || null,
       })
       .eq('user_id', userId)
 
@@ -216,9 +218,9 @@ export default function ProfilePage() {
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Alamat di Indonesia</label>
           <input
-            readOnly
             className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-white outline-none"
-            value={jastiperProfile.base_country ?? '-'}
+            value={jastiperForm.base_country}
+            onChange={e => setJastiperForm({ ...jastiperForm, base_country: e.target.value })}
           />
         </div>
 
