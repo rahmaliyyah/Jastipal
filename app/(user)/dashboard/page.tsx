@@ -180,8 +180,8 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
                 </svg>
               </div>
-              <p className="font-bold text-gray-900 mb-1">Browse Request</p>
-              <p className="text-sm text-gray-500">Cari request yang bisa diambil</p>
+              <p className="font-bold text-gray-900 mb-1">Cari Permintaan</p>
+              <p className="text-sm text-gray-500">Cari permintaan buyer yang bisa diambil</p>
             </div>
 
             {/* Buat Trip */}

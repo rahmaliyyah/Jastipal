@@ -341,7 +341,7 @@ export default function OrdersPage() {
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
             className="w-full border border-red-200 text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 transition-colors"
           >
-            Buyer Tidak Konfirmasi? Buka Dispute
+            Ada masalah? Laporkan
           </button>
         ) : null
       }

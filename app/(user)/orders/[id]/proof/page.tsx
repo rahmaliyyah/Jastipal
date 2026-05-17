@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
+import { ChevronLeft, ImagePlus } from 'lucide-react'
 
 type OrderDetail = {
   id: string
@@ -27,6 +28,7 @@ export default function UploadProofPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [trackingNumber, setTrackingNumber] = useState('')
+  const [courier, setCourier] = useState('')
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [storePhotoFile, setStorePhotoFile] = useState<File | null>(null)
   const [boardingFile, setBoardingFile] = useState<File | null>(null)
@@ -86,7 +88,6 @@ export default function UploadProofPage() {
         boardingUrl = await uploadFile(boardingFile, `${basePath}/boarding.${boardingFile.name.split('.').pop()}`)
       }
 
-      // cek apakah sudah ada proof untuk order ini
       const { data: existingProof } = await supabase
         .from('proof_of_purchase')
         .select('id')
@@ -112,16 +113,13 @@ export default function UploadProofPage() {
       }
 
       if (order?.delivery_pref === 'courier') {
-        // courier: tandai shipped dengan nomor resi
         await supabase.from('orders').update({
           status: 'shipped',
           tracking_number: trackingNumber,
         }).eq('id', orderId)
       } else {
-        // meetup: jastiper hanya upload struk, status tetap processing
-        // buyer yang akan konfirmasi terima barang setelah ketemu
         await supabase.from('orders').update({
-          status: 'shipped', // pakai shipped agar buyer bisa konfirmasi
+          status: 'shipped',
         }).eq('id', orderId)
       }
 
@@ -137,7 +135,7 @@ export default function UploadProofPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+        <div className="w-6 h-6 border-2 border-[#CBD5E1] border-t-[#49BC9E] rounded-full animate-spin"></div>
       </div>
     )
   }
@@ -145,122 +143,213 @@ export default function UploadProofPage() {
   if (!order) return null
 
   return (
-    <div className="max-w-lg">
-      <div className="mb-6">
-        <button onClick={() => router.back()} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 flex items-center gap-1 transition-all">
-          ← Kembali
+    <main className="min-h-screen bg-[#F8FAFC]">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-2">
+
+        {/* BACK */}
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-1 text-[#64748B] text-[15px] hover:text-[#0F172A] transition-colors mb-4"
+        >
+          <ChevronLeft size={18} />
+          Kembali
         </button>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Upload Bukti Pembelian</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{order.product_name}</p>
-      </div>
 
-      {/* Info flow */}
-      <div className={`rounded-xl p-4 mb-5 border ${
-        order.delivery_pref === 'courier'
-          ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
-          : 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
-      }`}>
-        <p className={`text-sm font-medium mb-1 ${order.delivery_pref === 'courier' ? 'text-blue-800 dark:text-blue-200' : 'text-green-800 dark:text-green-200'}`}>
-          {order.delivery_pref === 'courier' ? '📦 Pengiriman Courier' : '🤝 Meetup'}
-        </p>
-        <p className={`text-xs ${order.delivery_pref === 'courier' ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
-          {order.delivery_pref === 'courier'
-            ? 'Upload struk + input nomor resi → status berubah ke Dikirim → buyer konfirmasi terima'
-            : 'Upload struk sebagai bukti beli → buyer konfirmasi terima setelah meetup → dana cair'}
-        </p>
-      </div>
+        {/* HEADER */}
+        <div className="mb-6">
+          <h1 className="text-[28px] font-bold text-[#0F172A]">Bukti Pembelian</h1>
+          <p className="mt-1 text-[15px] text-[#64748B]">{order.product_name}</p>
+        </div>
 
-      <div className="space-y-5">
+        {/* Info flow */}
+        <div className={`mb-6 rounded-xl p-4 border ${
+          order.delivery_pref === 'courier'
+            ? 'bg-blue-50 border-blue-200'
+            : 'bg-[#e6f7f3] border-[#b3e8d9]'
+        }`}>
+          <p className={`text-[14px] font-semibold mb-1 ${
+            order.delivery_pref === 'courier' ? 'text-blue-800' : 'text-[#2d9b7f]'
+          }`}>
+            {order.delivery_pref === 'courier' ? 'Pengiriman Paket' : 'Meetup'}
+          </p>
+          <p className={`text-[13px] ${
+            order.delivery_pref === 'courier' ? 'text-blue-600' : 'text-[#49BC9E]'
+          }`}>
+            {order.delivery_pref === 'courier'
+              ? 'Upload struk + input nomor resi → status berubah ke Dikirim → buyer konfirmasi terima'
+              : 'Upload struk sebagai bukti beli → buyer konfirmasi terima setelah meetup → dana cair'}
+          </p>
+        </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
-            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+          <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p className="text-red-600 text-[14px]">{error}</p>
           </div>
         )}
 
-        {/* Bukti pembelian */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-5">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Bukti Pembelian</h2>
+        {/* Success */}
+        {success && (
+          <div className="mb-5 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3">
+            <p className="text-[#2d9b7f] text-[14px] font-medium">
+              ✓ Berhasil! {order.delivery_pref === 'courier'
+                ? 'Order ditandai sebagai Dikirim, buyer perlu konfirmasi terima.'
+                : 'Struk berhasil diupload. Buyer perlu konfirmasi setelah meetup.'} Mengalihkan...
+            </p>
+          </div>
+        )}
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Foto struk / invoice <span className="text-red-400">*</span>
+        {/* UPLOAD SECTION */}
+        <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 sm:p-8 mb-6">
+          <h2 className="text-[20px] font-bold text-[#0F172A] mb-6">Upload Bukti Pembelian</h2>
+
+          {/* FOTO STRUK */}
+          <div className="mb-6">
+            <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+              Foto Struk / Invoice <span className="text-red-400">*</span>
             </label>
-            <div onClick={() => receiptRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-all">
+            <div
+              onClick={() => receiptRef.current?.click()}
+              className="border-2 border-dashed border-[#CBD5E1] rounded-xl h-[160px] flex flex-col items-center justify-center text-center px-4 cursor-pointer hover:border-[#49BC9E] transition-all"
+            >
               {receiptFile ? (
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">✓ {receiptFile.name}</p>
+                <>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#49BC9E] mb-2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <p className="text-[14px] font-semibold text-[#49BC9E]">{receiptFile.name}</p>
+                  <p className="text-[13px] text-[#64748B] mt-1">Klik untuk ganti</p>
+                </>
               ) : (
-                <p className="text-sm text-gray-400">Klik untuk upload struk pembelian</p>
+                <>
+                  <ImagePlus size={28} className="text-[#94A3B8]" />
+                  <p className="mt-2 text-[14px]">
+                    <span className="text-[#49BC9E] font-medium">Upload a file</span>
+                    <span className="text-[#64748B]"> or drag and drop</span>
+                  </p>
+                  <p className="text-[12px] text-[#94A3B8] mt-1">PNG, JPG, GIF up to 10MB</p>
+                </>
               )}
             </div>
             <input ref={receiptRef} type="file" accept="image/*" className="hidden" onChange={e => setReceiptFile(e.target.files?.[0] ?? null)} />
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Foto di toko <span className="text-gray-400 text-xs font-normal">(opsional)</span>
+          {/* FOTO DI TOKO */}
+          <div className="mb-6">
+            <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+              Foto di Toko <span className="italic font-normal text-[#94A3B8]">(Opsional)</span>
             </label>
-            <div onClick={() => storePhotoRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-all">
+            <div
+              onClick={() => storePhotoRef.current?.click()}
+              className="border-2 border-dashed border-[#CBD5E1] rounded-xl h-[160px] flex flex-col items-center justify-center text-center px-4 cursor-pointer hover:border-[#49BC9E] transition-all"
+            >
               {storePhotoFile ? (
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">✓ {storePhotoFile.name}</p>
+                <>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#49BC9E] mb-2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <p className="text-[14px] font-semibold text-[#49BC9E]">{storePhotoFile.name}</p>
+                  <p className="text-[13px] text-[#64748B] mt-1">Klik untuk ganti</p>
+                </>
               ) : (
-                <p className="text-sm text-gray-400">Klik untuk upload foto di toko (opsional)</p>
+                <>
+                  <ImagePlus size={28} className="text-[#94A3B8]" />
+                  <p className="mt-2 text-[14px]">
+                    <span className="text-[#49BC9E] font-medium">Upload a file</span>
+                    <span className="text-[#64748B]"> or drag and drop</span>
+                  </p>
+                  <p className="text-[12px] text-[#94A3B8] mt-1">PNG, JPG, GIF up to 10MB</p>
+                </>
               )}
             </div>
             <input ref={storePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => setStorePhotoFile(e.target.files?.[0] ?? null)} />
           </div>
 
+          {/* BOARDING PASS */}
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Boarding pass <span className="text-gray-400 text-xs font-normal">(opsional)</span>
+            <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+              Boarding Pass <span className="italic font-normal text-[#94A3B8]">(Opsional)</span>
             </label>
-            <div onClick={() => boardingRef.current?.click()} className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400 transition-all">
+            <div
+              onClick={() => boardingRef.current?.click()}
+              className="border-2 border-dashed border-[#CBD5E1] rounded-xl h-[160px] flex flex-col items-center justify-center text-center px-4 cursor-pointer hover:border-[#49BC9E] transition-all"
+            >
               {boardingFile ? (
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">✓ {boardingFile.name}</p>
+                <>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#49BC9E] mb-2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <p className="text-[14px] font-semibold text-[#49BC9E]">{boardingFile.name}</p>
+                  <p className="text-[13px] text-[#64748B] mt-1">Klik untuk ganti</p>
+                </>
               ) : (
-                <p className="text-sm text-gray-400">Klik untuk upload boarding pass (opsional)</p>
+                <>
+                  <ImagePlus size={28} className="text-[#94A3B8]" />
+                  <p className="mt-2 text-[14px]">
+                    <span className="text-[#49BC9E] font-medium">Upload a file</span>
+                    <span className="text-[#64748B]"> or drag and drop</span>
+                  </p>
+                  <p className="text-[12px] text-[#94A3B8] mt-1">PNG, JPG, GIF up to 10MB</p>
+                </>
               )}
             </div>
             <input ref={boardingRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={e => setBoardingFile(e.target.files?.[0] ?? null)} />
           </div>
         </div>
 
-        {/* Nomor resi — hanya untuk courier */}
+        {/* NOMOR RESI — hanya untuk courier */}
         {order.delivery_pref === 'courier' && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">Nomor Resi <span className="text-red-400">*</span></h2>
-            <input
-              placeholder="Contoh: JNE123456789"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={trackingNumber}
-              onChange={e => setTrackingNumber(e.target.value)}
-            />
-            <p className="text-xs text-gray-400 mt-1">Nomor resi akan ditampilkan ke buyer untuk tracking</p>
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 sm:p-8 mb-6">
+            <h2 className="text-[20px] font-bold text-[#0F172A] mb-5">Nomor Resi</h2>
+
+            <div className="mb-5">
+              <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+                Ekspedisi Pengiriman
+              </label>
+              <input
+                type="text"
+                value={courier}
+                onChange={e => setCourier(e.target.value)}
+                placeholder="Masukkan ekspedisi pengiriman"
+                className="w-full h-[48px] rounded-xl border border-[#CBD5E1] px-4 text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#49BC9E] transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+                Nomor Resi <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={trackingNumber}
+                onChange={e => setTrackingNumber(e.target.value)}
+                placeholder="Contoh: JNE123456789"
+                className="w-full h-[48px] rounded-xl border border-[#CBD5E1] px-4 text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#49BC9E] transition-colors"
+              />
+              <p className="text-[12px] text-[#94A3B8] mt-1">Nomor resi akan ditampilkan ke buyer untuk tracking</p>
+            </div>
           </div>
         )}
 
-        {success && (
-          <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3">
-            <p className="text-green-700 dark:text-green-300 text-sm font-medium">
-              ✓ Berhasil! {order.delivery_pref === 'courier' ? 'Order ditandai sebagai Dikirim, buyer perlu konfirmasi terima.' : 'Struk berhasil diupload. Buyer perlu konfirmasi setelah meetup.'} Mengalihkan ke halaman pesanan...
-            </p>
-          </div>
-        )}
+        {/* SUBMIT */}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || success}
+            className="h-[52px] px-8 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[16px] shadow-lg shadow-teal-100 disabled:opacity-50 transition-all"
+          >
+            {submitting ? 'Mengirim...' : success ? 'Berhasil!' : order.delivery_pref === 'courier' ? 'Kirim Bukti & Pengiriman' : 'Upload Struk Pembelian'}
+          </button>
+        </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || success}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
-        >
-          {submitting ? 'Mengirim...' : success ? 'Berhasil!' : order.delivery_pref === 'courier' ? 'Upload & Tandai Dikirim' : 'Upload Struk Pembelian'}
-        </button>
-
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center pb-6">
+        {/* FOOTNOTE */}
+        <p className="mt-4 text-center text-[13px] text-[#94A3B8] leading-relaxed pb-8">
           {order.delivery_pref === 'courier'
-            ? 'Buyer akan diminta mengkonfirmasi penerimaan barang'
-            : 'Buyer perlu konfirmasi terima setelah meetup — dana cair otomatis setelah konfirmasi'}
+            ? 'Dana akan cair otomatis setelah buyer mengonfirmasi penerimaan barang.'
+            : 'Buyer perlu konfirmasi terima setelah meetup — dana cair otomatis setelah konfirmasi.'}
         </p>
+
       </div>
-    </div>
+    </main>
   )
 }
