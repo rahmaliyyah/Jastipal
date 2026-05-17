@@ -156,7 +156,7 @@ export default function SwitchToJastiperPage() {
           <p className="text-xs text-gray-400 mt-1">Nomor ini akan ditampilkan ke buyer untuk komunikasi</p>
         </div>
 
-        {/* Foto KTP / Passport Opsional */}
+        {/* Foto KTP / Passport Opsional. */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Foto KTP / Passport <span className="text-red-400">*</span>
