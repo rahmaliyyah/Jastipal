@@ -234,7 +234,7 @@ export default function NewTripPage() {
           {/* KOTA */}
           <div>
             <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
-              Kota Kedatangan di Indonesia <span className="text-red-400">*</span>
+              Kota Pengirim (Isi jika Anda akan mengirim barang dari kota ini) <span className="text-red-400">*</span>
             </label>
             <input
               type="text"

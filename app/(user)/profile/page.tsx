@@ -214,7 +214,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Domisili</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Alamat di Indonesia</label>
           <input
             readOnly
             className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-white outline-none"

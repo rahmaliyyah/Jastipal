@@ -131,10 +131,10 @@ export default function SwitchToJastiperPage() {
         {/* Negara Domisili */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Negara Domisili <span className="text-red-400">*</span>
+            Alamat di Indonesia <span className="text-red-400">*</span>
           </label>
           <input
-            placeholder="Masukkan negara domisili Anda"
+            placeholder="Masukkan alamat Anda di Indonesia. Contoh: Jl. Merdeka, Jakarta"
             className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
             value={form.base_country}
             onChange={e => setForm({ ...form, base_country: e.target.value })}
