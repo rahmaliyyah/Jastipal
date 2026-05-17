@@ -185,7 +185,7 @@ export default function MyRequestsPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl pb-12">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -200,13 +200,12 @@ export default function MyRequestsPage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          {/* Label: full text di desktop, singkat di mobile */}
-          <span className="hidden sm:inline">Buat Request</span>
+          <span className="hidden sm:inline">Tambah Permintaan</span>
           <span className="sm:hidden">Buat</span>
         </button>
       </div>
 
-      {/* Tabs — scrollable di mobile */}
+      {/* Tabs */}
       <div className="overflow-x-auto mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex items-center gap-0 border-b border-gray-200 min-w-max sm:min-w-0">
           {(['open', 'matched', 'paid', 'selesai', 'cancelled'] as const).map(t => (
@@ -302,30 +301,22 @@ export default function MyRequestsPage() {
               {/* Detail Grid */}
               <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 bg-gray-50 rounded-lg p-3 sm:p-4 mb-4">
                 <div>
-                  <p className="text-xs text-[#49BC9E] mb-1">Estimasi Barang Diterima</p>
+                  <p className="text-xs text-[#64748B] mb-1">Estimasi Barang Diterima</p>
                   <p className="text-sm font-semibold text-gray-900">{formatDate(req.deadline)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#49BC9E] mb-1">Metode Pengiriman</p>
+                  <p className="text-xs text-[#64748B] mb-1">Metode Pengiriman</p>
                   <p className="text-sm font-semibold text-gray-900">{req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#49BC9E] mb-1">Maksimal Budget</p>
+                  <p className="text-xs text-[#64748B] mb-1">Maksimal Budget</p>
                   <p className="text-sm font-semibold text-gray-900">{formatRupiah(req.max_budget_idr)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#49BC9E] mb-1">Jumlah</p>
+                  <p className="text-xs text-[#64748B] mb-1">Jumlah</p>
                   <p className="text-sm font-semibold text-gray-900">{req.quantity} Pcs</p>
                 </div>
               </div>
-
-              {/* Catatan */}
-              {req.notes && (
-                <div className="mb-5">
-                  <p className="text-sm font-semibold text-gray-900 mb-1">Catatan:</p>
-                  <p className="text-sm text-gray-500">{req.notes}</p>
-                </div>
-              )}
 
               {/* Tab Cancelled: request dibatalkan manual */}
               {tab === 'cancelled' && req.status === 'cancelled' && (
@@ -357,140 +348,187 @@ export default function MyRequestsPage() {
 
               {/* Info jastiper + harga — tampil di semua tab matched kecuali cancelled */}
               {tab !== 'cancelled' && req.status === 'matched' && req.fixed_price_idr && (
-                <div className={`border rounded-lg p-3 sm:p-4 mb-4 ${
-                  tab === 'matched' ? 'bg-blue-50 border-blue-200'
+                <div className={`border rounded-xl p-4 sm:p-5 mb-4 ${
+                  tab === 'matched' ? 'bg-gray-50 border-gray-200'
                   : tab === 'paid' ? 'bg-purple-50 border-purple-200'
                   : 'bg-green-50 border-green-200'
                 }`}>
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3 flex-wrap gap-1">
-                    <p className={`text-sm font-semibold ${
-                      tab === 'matched' ? 'text-blue-800'
-                      : tab === 'paid' ? 'text-purple-800'
-                      : 'text-green-800'
-                    }`}>
-                      {tab === 'matched' ? 'Tagihan dari Jastiper'
-                       : tab === 'paid' ? 'Sedang Diproses Jastiper'
-                       : 'Order Selesai'}
-                    </p>
-                    {tab === 'matched' && req.payment_expired_at && (
-                      <span className="text-xs text-blue-600 font-medium">
-                        ⏱ {formatExpiry(req.payment_expired_at)}
-                      </span>
-                    )}
-                  </div>
+                  {tab === 'matched' ? (
+                    <>
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-sm font-bold text-gray-900">Tagihan Anda</p>
+                        {req.payment_expired_at && (
+                          <span className="text-xs text-gray-500 font-medium">⏱ {formatExpiry(req.payment_expired_at)}</span>
+                        )}
+                      </div>
 
-                  {/* Info jastiper */}
-                  {req.jastiper && (
-                    <div className={`flex items-center gap-3 mb-3 pb-3 border-b ${
-                      tab === 'matched' ? 'border-blue-200'
-                      : tab === 'paid' ? 'border-purple-200'
-                      : 'border-green-200'
-                    }`}>
-                      {req.jastiper.avatar_url ? (
-                        <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover shrink-0" />
-                      ) : (
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold uppercase shrink-0 ${
-                          tab === 'matched' ? 'bg-blue-200 text-blue-700'
-                          : tab === 'paid' ? 'bg-purple-200 text-purple-700'
-                          : 'bg-green-200 text-green-700'
-                        }`}>
-                          {req.jastiper.full_name?.[0] ?? '?'}
+                      {/* Jastiper */}
+                      {req.jastiper && (
+                        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+                          {req.jastiper.avatar_url ? (
+                            <img src={req.jastiper.avatar_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 uppercase shrink-0">
+                              {req.jastiper.full_name?.[0] ?? '?'}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900">{req.jastiper.full_name}</p>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#49BC9E] shrink-0">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                              </svg>
+                              <span className="text-xs text-[#64748B] font-medium">Jastiper</span>
+                            </div>
+                          </div>
+                          {req.jastiper.whatsapp_number && (
+                            <a
+                              href={`https://wa.me/${req.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-4 py-2 text-sm font-semibold transition-all shrink-0"
+                            >
+                              Hubungi
+                            </a>
+                          )}
                         </div>
                       )}
-                      <div className="min-w-0 flex-1">
-                        <p className={`text-sm font-medium ${
-                          tab === 'matched' ? 'text-blue-800'
-                          : tab === 'paid' ? 'text-purple-800'
-                          : 'text-green-800'
-                        }`}>{req.jastiper.full_name}</p>
-                        <p className={`text-xs ${
-                          tab === 'matched' ? 'text-blue-600'
-                          : tab === 'paid' ? 'text-purple-600'
-                          : 'text-green-600'
-                        }`}>
-                          {tab === 'paid' ? 'Jastiper sedang memproses pesananmu' : 'Jastiper yang mengambil request ini'}
-                        </p>
+
+                      {/* Rincian harga */}
+                      <div className="space-y-3 mb-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-[#64748B]">Harga (Produk & Fee Jastiper)</span>
+                          <span className="text-sm font-semibold text-gray-900">{formatRupiah(req.fixed_price_idr)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-[#64748B]">Platform Fee (5%)</span>
+                          <span className="text-sm font-semibold text-gray-900">{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
+                        </div>
+                        <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                          <span className="text-base font-bold text-gray-900">Total Tagihan</span>
+                          <span className="text-base font-bold text-gray-900">{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
+                        </div>
                       </div>
-                      {req.jastiper.whatsapp_number && (
-                        <a
-                          href={`https://wa.me/${req.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-all shrink-0"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                          </svg>
-                          <span className="hidden sm:inline">WhatsApp</span>
-                          <span className="sm:hidden">WA</span>
-                        </a>
+
+                      {/* Tombol bayar */}
+                      {req.payment_proof_url ? (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 text-center">
+                          <p className="text-sm font-medium text-orange-700">⏳ Bukti transfer sedang direview admin</p>
+                          <p className="text-xs text-orange-500 mt-1">Biasanya selesai dalam 1x24 jam</p>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
+                            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-xl py-3 text-sm font-semibold transition-all"
+                          >
+                            Bayar Sekarang
+                          </button>
+                          <p className="text-xs text-gray-400 text-center mt-2">
+                            Pesanan akan dibatalkan otomatis jika pembayaran tidak dilakukan sebelum waktu habis.
+                          </p>
+                        </>
                       )}
-                    </div>
-                  )}
-
-                  {/* Rincian harga */}
-                  <div className="space-y-1.5 mb-3">
-                    <div className={`flex justify-between items-start text-xs ${
-                      tab === 'matched' ? 'text-blue-700'
-                      : tab === 'paid' ? 'text-purple-700'
-                      : 'text-green-700'
-                    }`}>
-                      <div className="min-w-0 flex-1 mr-3">
-                        <p>Harga fix (all-in)</p>
-                        <p className="text-[11px] mt-0.5 opacity-70">Sudah termasuk harga barang, service fee jastiper & ongkir</p>
-                      </div>
-                      <span className="font-medium shrink-0">{formatRupiah(req.fixed_price_idr)}</span>
-                    </div>
-                    <div className={`flex justify-between text-xs ${
-                      tab === 'matched' ? 'text-blue-700'
-                      : tab === 'paid' ? 'text-purple-700'
-                      : 'text-green-700'
-                    }`}>
-                      <span>Platform fee Jastipal (5%)</span>
-                      <span>{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
-                    </div>
-                    <div className={`flex justify-between text-sm font-bold pt-1.5 border-t ${
-                      tab === 'matched' ? 'text-blue-800 border-blue-200'
-                      : tab === 'paid' ? 'text-purple-800 border-purple-200'
-                      : 'text-green-800 border-green-200'
-                    }`}>
-                      <span>Total {tab === 'selesai' ? 'dibayar' : 'tagihan'}</span>
-                      <span>{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
-                    </div>
-                  </div>
-
-                  {/* Tombol bayar hanya di tab matched */}
-                  {tab === 'matched' && (
-                    req.payment_proof_url ? (
-                      <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 text-center">
-                        <p className="text-sm font-medium text-orange-700">⏳ Bukti transfer sedang direview admin</p>
-                        <p className="text-xs text-orange-500 mt-1">Biasanya selesai dalam 1x24 jam</p>
-                      </div>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium transition-all"
-                        >
-                          Bayar Sekarang
-                        </button>
-                        <p className="text-xs text-blue-500 text-center mt-2">
-                          Tidak membayar = order otomatis dibatalkan setelah waktu habis
+                    </>
+                  ) : (
+                    <>
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-3 flex-wrap gap-1">
+                        <p className={`text-sm font-semibold ${
+                          tab === 'paid' ? 'text-purple-800'
+                          : 'text-green-800'
+                        }`}>
+                          {tab === 'paid' ? 'Sedang Diproses Jastiper' : 'Order Selesai'}
                         </p>
-                      </>
-                    )
+                      </div>
+
+                      {/* Info jastiper */}
+                      {req.jastiper && (
+                        <div className={`flex items-center gap-3 mb-3 pb-3 border-b ${
+                          tab === 'paid' ? 'border-purple-200' : 'border-green-200'
+                        }`}>
+                          {req.jastiper.avatar_url ? (
+                            <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover shrink-0" />
+                          ) : (
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold uppercase shrink-0 ${
+                              tab === 'paid' ? 'bg-purple-200 text-purple-700' : 'bg-green-200 text-green-700'
+                            }`}>
+                              {req.jastiper.full_name?.[0] ?? '?'}
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className={`text-sm font-medium ${
+                              tab === 'paid' ? 'text-purple-800' : 'text-green-800'
+                            }`}>{req.jastiper.full_name}</p>
+                            <p className={`text-xs ${
+                              tab === 'paid' ? 'text-purple-600' : 'text-green-600'
+                            }`}>
+                              {tab === 'paid' ? 'Jastiper sedang memproses pesananmu' : 'Jastiper yang mengambil request ini'}
+                            </p>
+                          </div>
+                          {req.jastiper.whatsapp_number && (
+                            <a
+                              href={`https://wa.me/${req.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-all shrink-0"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                              </svg>
+                              <span className="hidden sm:inline">WhatsApp</span>
+                              <span className="sm:hidden">WA</span>
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Rincian harga */}
+                      <div className="space-y-1.5 mb-3">
+                        <div className={`flex justify-between items-start text-xs ${
+                          tab === 'paid' ? 'text-purple-700' : 'text-green-700'
+                        }`}>
+                          <div className="min-w-0 flex-1 mr-3">
+                            <p>Harga fix (all-in)</p>
+                            <p className="text-[11px] mt-0.5 opacity-70">Sudah termasuk harga barang, service fee jastiper & ongkir</p>
+                          </div>
+                          <span className="font-medium shrink-0">{formatRupiah(req.fixed_price_idr)}</span>
+                        </div>
+                        <div className={`flex justify-between text-xs ${
+                          tab === 'paid' ? 'text-purple-700' : 'text-green-700'
+                        }`}>
+                          <span>Platform fee Jastipal (5%)</span>
+                          <span>{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
+                        </div>
+                        <div className={`flex justify-between text-sm font-bold pt-1.5 border-t ${
+                          tab === 'paid' ? 'text-purple-800 border-purple-200' : 'text-green-800 border-green-200'
+                        }`}>
+                          <span>Total {tab === 'selesai' ? 'dibayar' : 'tagihan'}</span>
+                          <span>{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
+                        </div>
+                      </div>
+
+                      {tab === 'paid' && (
+                        <p className="text-xs text-purple-500 text-center">
+                          Jastiper akan mengupdate status saat barang siap dikirim
+                        </p>
+                      )}
+                      {tab === 'selesai' && (
+                        <p className="text-xs text-green-600 text-center">
+                          Transaksi selesai — terima kasih telah menggunakan Jastipal!
+                        </p>
+                      )}
+                    </>
                   )}
-                  {tab === 'paid' && (
-                    <p className="text-xs text-purple-500 text-center">
-                      Jastiper akan mengupdate status saat barang siap dikirim
-                    </p>
-                  )}
-                  {tab === 'selesai' && (
-                    <p className="text-xs text-green-600 text-center">
-                      Transaksi selesai — terima kasih telah menggunakan Jastipal!
-                    </p>
-                  )}
+                </div>
+              )}
+
+              {/* Catatan */}
+              {req.notes && (
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">Catatan:</p>
+                  <p className="text-sm text-gray-500">{req.notes}</p>
                 </div>
               )}
 
