@@ -142,17 +142,17 @@ export default function MyTripsPage() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-2">
+      <div className="max-w-[1280px] mx-auto px-3 sm:px-6 py-4 sm:py-2">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-[28px] font-bold text-[#0F172A]">Perjalanan Saya</h1>
-            <p className="mt-1 text-[15px] text-[#64748B]">Kelola perjalanan dan produk jastip Anda</p>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="min-w-0">
+            <h1 className="text-[24px] sm:text-[28px] font-bold text-[#0F172A] break-words">Perjalanan Saya</h1>
+            <p className="mt-1 text-[13px] sm:text-[15px] text-[#64748B]">Kelola perjalanan dan produk jastip Anda</p>
           </div>
           <button
             onClick={() => router.push('/trips/new')}
-            className="h-[44px] px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[15px] transition-all shadow-md shadow-teal-100 whitespace-nowrap"
+            className="h-[44px] px-4 sm:px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[13px] sm:text-[15px] transition-all shadow-md shadow-teal-100 whitespace-nowrap flex-shrink-0 w-full sm:w-auto"
           >
             + Buat Perjalanan
           </button>
@@ -160,9 +160,9 @@ export default function MyTripsPage() {
 
         {/* Success toast */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
-            <p className="text-[14px] text-green-700 font-medium">{success}</p>
-            <button onClick={() => setSuccess('')} className="text-green-400 ml-4">
+          <div className="mb-4 sm:mb-6 bg-green-50 border border-green-200 rounded-xl px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
+            <p className="text-[12px] sm:text-[14px] text-green-700 font-medium break-words">{success}</p>
+            <button onClick={() => setSuccess('')} className="text-green-400 ml-2 flex-shrink-0">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
@@ -171,12 +171,12 @@ export default function MyTripsPage() {
         )}
 
         {/* Toggle Tabs */}
-        <div className="inline-flex bg-[#1E293B] rounded-xl p-1 mb-6">
+        <div className="inline-flex bg-[#1E293B] rounded-xl p-1 mb-4 sm:mb-6">
           {(['open', 'closed'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-[14px] font-semibold capitalize transition-all ${
+              className={`px-3 sm:px-5 py-2 rounded-lg text-[12px] sm:text-[14px] font-semibold capitalize transition-all ${
                 tab === t
                   ? 'bg-white text-[#0F172A]'
                   : 'text-[#94A3B8] hover:text-white'
@@ -189,30 +189,30 @@ export default function MyTripsPage() {
 
         {/* Content */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-16 sm:py-20">
             <div className="w-6 h-6 border-2 border-[#CBD5E1] border-t-[#49BC9E] rounded-full animate-spin"></div>
           </div>
         ) : trips.length === 0 ? (
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-12 flex flex-col items-center gap-3">
-            <p className="text-[16px] text-[#94A3B8]">
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 sm:p-12 flex flex-col items-center gap-3">
+            <p className="text-[14px] sm:text-[16px] text-[#94A3B8] text-center">
               {tab === 'open' ? 'Belum ada perjalanan aktif.' : 'Belum ada perjalanan yang ditutup.'}
             </p>
             {tab === 'open' && (
               <button
                 onClick={() => router.push('/trips/new')}
-                className="mt-2 h-[44px] px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[15px] transition-all"
+                className="mt-2 h-[44px] px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[13px] sm:text-[15px] transition-all w-full sm:w-auto"
               >
                 Buat Perjalanan
               </button>
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {trips.map(trip => (
               <div key={trip.id} className="bg-white border border-[#CBD5E1] rounded-2xl overflow-hidden">
 
                 {/* Cover image */}
-                <div className="h-[240px] w-full bg-[#CBD5E1] overflow-hidden">
+                <div className="h-[160px] sm:h-[240px] w-full bg-[#CBD5E1] overflow-hidden">
                   {trip.image_url ? (
                     <img
                       src={trip.image_url}
@@ -230,43 +230,45 @@ export default function MyTripsPage() {
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <h2 className="text-[22px] font-bold text-[#0F172A] mb-4">{trip.title}</h2>
+                <div className="p-4 sm:p-6">
+                  <h2 className="text-[18px] sm:text-[22px] font-bold text-[#0F172A] mb-3 sm:mb-4 break-words">{trip.title}</h2>
 
                   {/* Info grid */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-[#F8FAFC] rounded-xl p-3">
-                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Negara</p>
-                      <p className="text-[15px] font-semibold text-[#0F172A]">{trip.trip_country}</p>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <div className="bg-[#F8FAFC] rounded-xl p-2 sm:p-3">
+                      <p className="text-[10px] sm:text-[12px] text-[#94A3B8] font-medium mb-1 truncate">Negara</p>
+                      <p className="text-[13px] sm:text-[15px] font-semibold text-[#0F172A] break-words">{trip.trip_country}</p>
                     </div>
-                    <div className="bg-[#F8FAFC] rounded-xl p-3">
-                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Tanggal Tiba</p>
-                      <p className="text-[15px] font-semibold text-[#0F172A]">{formatDate(trip.arrival_date)}</p>
+                    <div className="bg-[#F8FAFC] rounded-xl p-2 sm:p-3">
+                      <p className="text-[10px] sm:text-[12px] text-[#94A3B8] font-medium mb-1 truncate">Tanggal Tiba</p>
+                      <p className="text-[13px] sm:text-[15px] font-semibold text-[#0F172A]">{formatDate(trip.arrival_date)}</p>
                     </div>
-                    <div className="bg-[#F8FAFC] rounded-xl p-3">
-                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Produk</p>
-                      <p className="text-[15px] font-semibold text-[#0F172A]">{trip.product_count} item</p>
+                    <div className="bg-[#F8FAFC] rounded-xl p-2 sm:p-3">
+                      <p className="text-[10px] sm:text-[12px] text-[#94A3B8] font-medium mb-1 truncate">Produk</p>
+                      <p className="text-[13px] sm:text-[15px] font-semibold text-[#0F172A]">{trip.product_count} item</p>
                     </div>
                   </div>
 
                   {/* Description */}
                   {trip.description && (
-                    <div className="bg-[#F8FAFC] rounded-xl p-3 mb-5">
-                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Deskripsi</p>
-                      <p className="text-[14px] text-[#1E293B]">{trip.description}</p>
+                    <div className="bg-[#F8FAFC] rounded-xl p-2 sm:p-3 mb-3 sm:mb-5">
+                      <p className="text-[10px] sm:text-[12px] text-[#94A3B8] font-medium mb-1">Deskripsi</p>
+                      <p className="text-[12px] sm:text-[14px] text-[#1E293B] line-clamp-2 sm:line-clamp-none">{trip.description}</p>
                     </div>
                   )}
 
                   {/* Active orders warning */}
                   {trip.has_active_orders && tab === 'open' && (
-                    <p className="text-[13px] text-red-500 font-semibold mb-4">Ada order aktif, trip tidak bisa ditutup</p>
+                    <p className="text-[12px] sm:text-[13px] text-red-500 font-semibold mb-3 sm:mb-4">Ada order aktif, trip tidak bisa ditutup</p>
                   )}
 
-                  {/* Actions */}
-                  <div className={`grid gap-3 ${trip.has_active_orders ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  {/* Actions - Mobile optimized */}
+                  <div className={`grid gap-2 sm:gap-3 ${
+                    trip.has_active_orders ? 'grid-cols-2' : 'grid-cols-3'
+                  }`}>
                     <button
                       onClick={() => router.push(`/trips/${trip.id}`)}
-                      className="h-[48px] rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[15px] transition-all"
+                      className="h-[40px] sm:h-[48px] rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[12px] sm:text-[15px] transition-all"
                     >
                       Lihat Detail
                     </button>
@@ -274,7 +276,7 @@ export default function MyTripsPage() {
                     {tab === 'open' ? (
                       <button
                         onClick={() => router.push(`/trips/${trip.id}/products/new`)}
-                        className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] font-semibold text-[15px] transition-all"
+                        className="h-[40px] sm:h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] font-semibold text-[12px] sm:text-[15px] transition-all"
                       >
                         Tambah Produk
                       </button>
@@ -282,7 +284,7 @@ export default function MyTripsPage() {
                       <button
                         onClick={() => handleReopen(trip.id)}
                         disabled={actionLoading === trip.id}
-                        className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                        className="h-[40px] sm:h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] font-semibold text-[12px] sm:text-[15px] disabled:opacity-50 transition-all"
                       >
                         {actionLoading === trip.id ? '...' : 'Buka Kembali'}
                       </button>
@@ -293,7 +295,7 @@ export default function MyTripsPage() {
                         <button
                           onClick={() => handleClose(trip.id)}
                           disabled={actionLoading === trip.id}
-                          className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                          className="h-[40px] sm:h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[12px] sm:text-[15px] disabled:opacity-50 transition-all"
                         >
                           {actionLoading === trip.id ? '...' : 'Tutup'}
                         </button>
@@ -301,7 +303,7 @@ export default function MyTripsPage() {
                         <button
                           onClick={() => handleDelete(trip.id)}
                           disabled={actionLoading === trip.id}
-                          className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                          className="h-[40px] sm:h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[12px] sm:text-[15px] disabled:opacity-50 transition-all"
                         >
                           {actionLoading === trip.id ? '...' : 'Hapus'}
                         </button>

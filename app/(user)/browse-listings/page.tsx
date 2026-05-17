@@ -76,21 +76,21 @@ function IconChevronDown() {
 }
 function IconMapPin() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
     </svg>
   )
 }
 function IconPlane() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19.5 2.5S18 2 16.5 3.5L13 7 4.8 5.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
     </svg>
   )
 }
 function IconPackage() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/>
       <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
       <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
@@ -99,7 +99,7 @@ function IconPackage() {
 }
 function IconImage() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
       <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
     </svg>
   )
@@ -113,28 +113,28 @@ function IconEmpty() {
 }
 function IconWhatsapp() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
     </svg>
   )
 }
 function IconCheckCircle() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   )
 }
 function IconTruck() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
     </svg>
   )
 }
 function IconUser() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
     </svg>
   )
@@ -334,30 +334,29 @@ export default function BrowseListingsPage() {
   }
 
   return (
-    // ✅ FIX: w-full menggantikan max-w-2xl
     <div className="w-full">
 
-      {/* Modal order — ✅ FIX: muncul dari bawah di mobile (sheet), centered di sm */}
+      {/* Modal order */}
       {selectedProduct && (
         <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl border border-gray-200 w-full sm:max-w-md shadow-xl max-h-[92vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h2 className="text-base font-bold text-gray-900">Konfirmasi Order</h2>
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h2 className="text-sm font-bold text-gray-900">Konfirmasi Order</h2>
               <button
                 onClick={() => { setSelectedProduct(null); setOrderError('') }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <IconX size={20} />
+                <IconX size={18} />
               </button>
             </div>
-            <div className="p-4 sm:p-6 space-y-4">
+            <div className="px-4 py-4 space-y-3">
 
               {/* Product info */}
               <div className="flex gap-3">
                 {selectedProduct.product.image_url ? (
-                  <img src={selectedProduct.product.image_url} className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shrink-0" />
+                  <img src={selectedProduct.product.image_url} className="w-14 h-14 rounded-xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                  <div className="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                     <IconImage />
                   </div>
                 )}
@@ -372,44 +371,44 @@ export default function BrowseListingsPage() {
               {selectedProduct.trip.jastiper && (
                 <div className="flex items-center gap-2">
                   {selectedProduct.trip.jastiper.avatar_url ? (
-                    <img src={selectedProduct.trip.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                    <img src={selectedProduct.trip.jastiper.avatar_url} className="w-6 h-6 rounded-full object-cover" />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
+                    <div className="w-6 h-6 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
                       {selectedProduct.trip.jastiper.full_name?.[0] ?? '?'}
                     </div>
                   )}
-                  <p className="text-sm text-gray-600">{selectedProduct.trip.jastiper.full_name}</p>
+                  <p className="text-xs text-gray-600">{selectedProduct.trip.jastiper.full_name}</p>
                 </div>
               )}
 
               {/* Quantity input */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                <label className="text-xs font-medium text-gray-700 mb-1.5 block">
                   Jumlah <span className="text-red-400">*</span>
                 </label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center text-lg font-medium transition-colors"
+                    className="w-7 h-7 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center font-medium transition-colors"
                   >-</button>
                   <span className="text-sm font-semibold text-gray-900 w-6 text-center">{quantity}</span>
                   <button
                     onClick={() => setQuantity(q => Math.min(selectedProduct.product.stock ?? 1, q + 1))}
-                    className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center text-lg font-medium transition-colors"
+                    className="w-7 h-7 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center font-medium transition-colors"
                   >+</button>
                   <span className="text-xs text-gray-400">Stok: {selectedProduct.product.stock}</span>
                 </div>
               </div>
 
               {/* Input kota & alamat */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                  <label className="text-xs font-medium text-gray-700 mb-1 block">
                     Kota pengiriman <span className="text-red-400">*</span>
                   </label>
                   <input
                     placeholder="Contoh: Malang, Surabaya, Jakarta"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] transition-colors text-gray-900"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#49BC9E] transition-colors text-gray-900"
                     value={buyerCity}
                     onChange={e => setBuyerCity(e.target.value)}
                   />
@@ -430,13 +429,13 @@ export default function BrowseListingsPage() {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                  <label className="text-xs font-medium text-gray-700 mb-1 block">
                     Alamat lengkap <span className="text-red-400">*</span>
                   </label>
                   <textarea
                     rows={2}
                     placeholder="Jl. Contoh No. 123, Kecamatan, Kota"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] transition-colors text-gray-900 resize-none"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#49BC9E] transition-colors text-gray-900 resize-none"
                     value={shippingAddress}
                     onChange={e => setShippingAddress(e.target.value)}
                   />
@@ -450,7 +449,7 @@ export default function BrowseListingsPage() {
                 const platformFee = Math.round(selectedProduct.product.total_price_idr * quantity * 0.05)
                 const total = (selectedProduct.product.total_price_idr * quantity) + platformFee + domesticShipping
                 return (
-                  <div className="bg-gray-50 rounded-xl p-3 sm:p-4 space-y-1.5">
+                  <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>Harga produk {quantity > 1 ? `(x${quantity})` : ''}</span>
                       <span>{formatRupiah(selectedProduct.product.product_price_idr * quantity)}</span>
@@ -488,19 +487,19 @@ export default function BrowseListingsPage() {
                 )
               })()}
 
-              {orderError && <p className="text-red-500 text-sm">{orderError}</p>}
+              {orderError && <p className="text-red-500 text-xs">{orderError}</p>}
 
-              <div className="flex gap-2 pb-2">
+              <div className="flex gap-2 pb-1">
                 <button
                   onClick={() => { setSelectedProduct(null); setOrderError('') }}
-                  className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleOrder}
                   disabled={orderLoading}
-                  className="flex-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50 transition-colors"
                 >
                   {orderLoading ? 'Memproses...' : 'Order Sekarang'}
                 </button>
@@ -511,18 +510,18 @@ export default function BrowseListingsPage() {
       )}
 
       {/* Header */}
-      <div className="mb-4 sm:mb-5">
-        <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Jelajahi Produk</h1>
-        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Temukan produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold text-gray-900">Jelajahi Produk</h1>
+        <p className="text-xs text-gray-500 mt-0.5">Temukan produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
       </div>
 
       {/* Success toast */}
       {orderSuccess && (
-        <div className="mb-4 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-[#2d9b7f] font-medium">{orderSuccess}</p>
+        <div className="mb-4 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-3 py-2.5 flex items-center justify-between">
+          <p className="text-xs text-[#2d9b7f] font-medium">{orderSuccess}</p>
           <button
             onClick={() => { setOrderSuccess(''); router.push('/orders') }}
-            className="text-[#49BC9E] ml-4 text-xs underline shrink-0"
+            className="text-[#49BC9E] ml-3 text-xs underline shrink-0"
           >
             Lihat pesanan →
           </button>
@@ -537,29 +536,29 @@ export default function BrowseListingsPage() {
         <input
           type="text"
           placeholder="Cari produk, negara, atau jastiper..."
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#49BC9E] transition-colors bg-white text-gray-900"
+          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#49BC9E] transition-colors bg-white text-gray-900"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         {search && (
           <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <IconX size={14} />
+            <IconX size={13} />
           </button>
         )}
       </div>
 
-      {/* Filters — ✅ FIX: scroll horizontal di mobile agar tidak wrap */}
-      <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+      {/* Filters */}
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
         <div className="relative shrink-0">
           <select
             value={filterCountry}
             onChange={e => setFilterCountry(e.target.value)}
-            className="appearance-none text-sm border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
+            className="appearance-none text-xs border border-gray-200 rounded-lg pl-3 pr-7 py-2 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
           >
             <option value="">Semua negara</option>
             {countries.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
             <IconChevronDown />
           </span>
         </div>
@@ -567,17 +566,17 @@ export default function BrowseListingsPage() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
-            className="appearance-none text-sm border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
+            className="appearance-none text-xs border border-gray-200 rounded-lg pl-3 pr-7 py-2 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
           >
             <option value="newest">Terbaru</option>
             <option value="arrival_soon">Tiba paling cepat</option>
           </select>
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
             <IconChevronDown />
           </span>
         </div>
         <div className="flex items-center ml-auto shrink-0">
-          <p className="text-xs text-gray-500 whitespace-nowrap">{trips.length} trip tersedia</p>
+          <p className="text-xs text-gray-500 whitespace-nowrap">{trips.length} trip</p>
         </div>
       </div>
 
@@ -588,13 +587,13 @@ export default function BrowseListingsPage() {
         </div>
       ) : trips.length === 0 ? (
         <div className="text-center py-20">
-          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <IconEmpty />
           </div>
           <p className="text-sm text-gray-500">Tidak ada trip yang tersedia</p>
         </div>
       ) : (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4">
           {trips.map(trip => {
             const dl = daysLeft(trip.arrival_date)
             return (
@@ -602,58 +601,58 @@ export default function BrowseListingsPage() {
 
                 {/* Trip cover image */}
                 {trip.image_url && (
-                  <img src={trip.image_url} className="w-full h-36 sm:h-52 object-cover" alt={trip.title} />
+                  <img src={trip.image_url} className="w-full h-36 sm:h-48 object-cover" alt={trip.title} />
                 )}
 
                 {/* Trip header */}
-                <div className="p-4 sm:p-5 border-b border-gray-100">
-                  <h2 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">{trip.title}</h2>
+                <div className="p-4 border-b border-gray-100">
+                  <h2 className="text-base font-bold text-gray-900 mb-3">{trip.title}</h2>
 
-                  {/* Stats grid — ✅ FIX: lebih compact di mobile */}
-                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 sm:px-4 py-2 sm:py-3">
-                      <div className="flex items-center gap-1 text-gray-400 mb-1">
+                  {/* Stats grid */}
+                  <div className="grid grid-cols-3 gap-1.5 mb-3">
+                    <div className="bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-2">
+                      <div className="flex items-center gap-1 text-gray-400 mb-0.5">
                         <IconMapPin />
-                        <span className="text-[10px] sm:text-xs">Negara</span>
+                        <span className="text-[10px]">Negara</span>
                       </div>
-                      <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">{trip.trip_country}</p>
+                      <p className="text-xs font-semibold text-gray-900 truncate">{trip.trip_country}</p>
                     </div>
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 sm:px-4 py-2 sm:py-3">
-                      <div className="flex items-center gap-1 text-gray-400 mb-1">
+                    <div className="bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-2">
+                      <div className="flex items-center gap-1 text-gray-400 mb-0.5">
                         <IconPlane />
-                        <span className="text-[10px] sm:text-xs hidden xs:inline">Tiba</span>
+                        <span className="text-[10px]">Tiba</span>
                       </div>
-                      <p className={`text-[11px] sm:text-sm font-semibold leading-tight ${dl.urgent ? 'text-orange-500' : 'text-gray-900'}`}>
+                      <p className={`text-xs font-semibold leading-tight ${dl.urgent ? 'text-orange-500' : 'text-gray-900'}`}>
                         {formatDate(trip.arrival_date)}
                       </p>
                     </div>
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 sm:px-4 py-2 sm:py-3">
-                      <div className="flex items-center gap-1 text-gray-400 mb-1">
+                    <div className="bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-2">
+                      <div className="flex items-center gap-1 text-gray-400 mb-0.5">
                         <IconPackage />
-                        <span className="text-[10px] sm:text-xs">Produk</span>
+                        <span className="text-[10px]">Produk</span>
                       </div>
-                      <p className="text-xs sm:text-sm font-semibold text-gray-900">{trip.products.length} item</p>
+                      <p className="text-xs font-semibold text-gray-900">{trip.products.length} item</p>
                     </div>
                   </div>
 
                   {/* Deskripsi */}
                   {trip.description && (
-                    <div className="mb-3 sm:mb-4">
-                      <p className="text-xs text-gray-400 mb-1">Deskripsi</p>
-                      <p className="text-xs sm:text-sm text-gray-700 line-clamp-3 sm:line-clamp-none">{trip.description}</p>
+                    <div className="mb-3">
+                      <p className="text-[10px] text-gray-400 mb-0.5">Deskripsi</p>
+                      <p className="text-xs text-gray-700 line-clamp-2">{trip.description}</p>
                     </div>
                   )}
 
                   {/* Jastiper */}
                   {trip.jastiper && (
-                    <div className="flex items-center gap-2 pt-3 sm:pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-1.5 pt-3 border-t border-gray-100">
                       <span className="text-gray-400 shrink-0">
                         <IconUser />
                       </span>
                       {trip.jastiper.avatar_url ? (
-                        <img src={trip.jastiper.avatar_url} className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover shrink-0" />
+                        <img src={trip.jastiper.avatar_url} className="w-5 h-5 rounded-full object-cover shrink-0" />
                       ) : (
-                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase shrink-0">
+                        <div className="w-5 h-5 rounded-full bg-[#e6f7f3] flex items-center justify-center text-[10px] font-medium text-[#49BC9E] uppercase shrink-0">
                           {trip.jastiper.full_name?.[0] ?? '?'}
                         </div>
                       )}
@@ -664,7 +663,7 @@ export default function BrowseListingsPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
-                          className="flex items-center gap-1.5 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors shrink-0"
+                          className="flex items-center gap-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-md px-2 py-1 text-[10px] font-medium transition-colors shrink-0"
                         >
                           <IconWhatsapp />
                           WA
@@ -677,34 +676,33 @@ export default function BrowseListingsPage() {
                 {/* Products */}
                 <div className="divide-y divide-gray-100">
                   {trip.products.map(product => (
-                    <div key={product.id} className="flex gap-2 sm:gap-3 p-3 sm:p-4">
+                    <div key={product.id} className="flex gap-2.5 p-3">
                       {product.image_url ? (
-                        <img src={product.image_url} className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover shrink-0" />
+                        <img src={product.image_url} className="w-12 h-12 rounded-lg object-cover shrink-0" />
                       ) : (
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                           <IconImage />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2">{product.product_name}</p>
+                        <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-snug">{product.product_name}</p>
                         <button
                           onClick={() => router.push(`/trips/${trip.id}/products/${product.id}`)}
-                          className="text-[11px] text-[#49BC9E] hover:text-[#3da88d] hover:underline text-left transition-colors"
+                          className="text-[10px] text-[#49BC9E] hover:text-[#3da88d] hover:underline text-left transition-colors"
                         >
                           Lihat detail →
                         </button>
                         {product.description && (
-                          <p className="text-[11px] text-gray-400 italic mt-0.5 line-clamp-1">{product.description}</p>
+                          <p className="text-[10px] text-gray-400 italic mt-0.5 line-clamp-1">{product.description}</p>
                         )}
-                        <p className="text-[11px] text-gray-400 mt-0.5">Stok: {product.stock}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">Stok: {product.stock}</p>
                       </div>
-                      {/* ✅ FIX: kolom harga+tombol lebih rapat di mobile */}
-                      <div className="flex flex-col items-end gap-1.5 shrink-0">
-                        <p className="text-xs sm:text-sm font-bold text-gray-900 text-right">{formatRupiah(product.total_price_idr)}</p>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <p className="text-xs font-bold text-gray-900 text-right leading-snug">{formatRupiah(product.total_price_idr)}</p>
                         <p className="text-[10px] text-gray-400">+5% fee</p>
                         <button
                           onClick={() => { setSelectedProduct({ product, trip }); setOrderError('') }}
-                          className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium transition-colors"
+                          className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 py-1 text-[10px] font-medium transition-colors"
                         >
                           Order
                         </button>

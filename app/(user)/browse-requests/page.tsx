@@ -46,19 +46,19 @@ function daysLeft(deadline: string) {
 
 function IconSearch() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
   )
 }
-function IconX({ size = 20 }: { size?: number }) {
+function IconX({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
   )
 }
-function IconInfo({ size = 16, className = '' }: { size?: number; className?: string }) {
+function IconInfo({ size = 14, className = '' }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
@@ -67,21 +67,21 @@ function IconInfo({ size = 16, className = '' }: { size?: number; className?: st
 }
 function IconMapPin() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
     </svg>
   )
 }
 function IconCheckCircle() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-500">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-500">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
     </svg>
   )
 }
 function IconAlertTriangle() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-500">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-500">
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
     </svg>
   )
@@ -226,17 +226,17 @@ export default function BrowseRequestsPage() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1280px] mx-auto px-8 py-2">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-4 sm:py-2">
 
         {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#1E293B]">Cari Permintaan</h1>
-          <p className="mt-1 text-sm text-[#64748B]">Temukan permintaan titip yang bisa kamu ambil</p>
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl font-bold text-[#1E293B]">Cari Permintaan</h1>
+          <p className="mt-0.5 text-xs text-[#64748B]">Temukan permintaan titip yang bisa kamu ambil</p>
         </div>
 
         {/* SEARCH */}
-        <div className="relative mb-6">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2">
+        <div className="relative mb-4">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2">
             <IconSearch />
           </span>
           <input
@@ -244,21 +244,57 @@ export default function BrowseRequestsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Cari nama produk, URL, atau catatan..."
-            className="w-full h-[44px] rounded-xl border border-[#CBD5E1] bg-white pl-12 pr-4 text-sm text-[#1E293B] placeholder:text-[#94A3B8] outline-none focus:border-[#59D3B4]"
+            className="w-full h-10 rounded-xl border border-[#CBD5E1] bg-white pl-9 pr-4 text-sm text-[#1E293B] placeholder:text-[#94A3B8] outline-none focus:border-[#59D3B4]"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              <IconX size={16} />
+            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <IconX size={14} />
             </button>
           )}
         </div>
 
+        {/* FILTERS */}
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          <select
+            value={filterDelivery}
+            onChange={e => setFilterDelivery(e.target.value as any)}
+            className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0"
+          >
+            <option value="all">Semua pengiriman</option>
+            <option value="courier">Courier</option>
+            <option value="meetup">Meetup</option>
+          </select>
+          <select
+            value={filterDeadline}
+            onChange={e => setFilterDeadline(e.target.value as any)}
+            className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0"
+          >
+            <option value="all">Semua deadline</option>
+            <option value="urgent">Urgent (≤ 3 hari)</option>
+            <option value="week">Minggu ini</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as any)}
+            className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0"
+          >
+            <option value="newest">Terbaru</option>
+            <option value="budget_high">Budget tertinggi</option>
+            <option value="deadline_soon">Deadline terdekat</option>
+          </select>
+          <div className="flex items-center ml-auto shrink-0">
+            <p className="text-xs text-[#64748B] whitespace-nowrap">
+              {requests.length} request{requests.length !== allRequests.length ? ` dari ${allRequests.length}` : ''}
+            </p>
+          </div>
+        </div>
+
         {/* SUCCESS TOAST */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
-            <p className="text-sm text-green-700">{success}</p>
-            <button onClick={() => setSuccess('')} className="text-green-500 ml-4">
-              <IconX size={16} />
+          <div className="mb-4 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5 flex items-center justify-between">
+            <p className="text-xs text-green-700">{success}</p>
+            <button onClick={() => setSuccess('')} className="text-green-500 ml-3 shrink-0">
+              <IconX size={14} />
             </button>
           </div>
         )}
@@ -270,79 +306,79 @@ export default function BrowseRequestsPage() {
           </div>
         ) : requests.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
               <IconSearch />
             </div>
             <p className="text-sm text-[#64748B]">Belum ada request yang tersedia</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {requests.map(req => {
               const dl = daysLeft(req.deadline)
               return (
-                <div key={req.id} className="bg-white border border-[#CBD5E1] rounded-2xl p-5">
+                <div key={req.id} className="bg-white border border-[#CBD5E1] rounded-2xl p-4">
 
                   {/* Buyer info */}
                   <div className="flex items-center gap-2 mb-3">
                     {req.users?.avatar_url ? (
-                      <img src={req.users.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                      <img src={req.users.avatar_url} className="w-6 h-6 rounded-full object-cover" />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600 uppercase">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-medium text-blue-600 uppercase">
                         {req.users?.full_name?.[0] ?? '?'}
                       </div>
                     )}
-                    <p className="text-sm text-[#64748B]">{req.users?.full_name}</p>
+                    <p className="text-xs text-[#64748B]">{req.users?.full_name}</p>
                     <span className="text-[#CBD5E1]">·</span>
-                    <p className="text-xs text-[#94A3B8]">{formatDate(req.created_at)}</p>
+                    <p className="text-[10px] text-[#94A3B8]">{formatDate(req.created_at)}</p>
                   </div>
 
                   {/* TITLE */}
-                  <h2 className="font-bold text-[#0F172A] mb-2">{req.product_name}</h2>
+                  <h2 className="text-sm font-bold text-[#0F172A] mb-1">{req.product_name}</h2>
 
                   {/* LINK */}
                   <a
                     href={req.product_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-[#64748B] text-xs break-all hover:underline mb-5"
+                    className="inline-block text-[#64748B] text-[10px] break-all hover:underline mb-3"
                   >
                     {req.product_url}
                   </a>
 
                   {/* GRID */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    <div className="bg-[#F8FAFC] rounded-xl p-4">
-                      <p className="text-xs text-[#94A3B8] font-medium">Batas Waktu</p>
-                      <h3 className={`mt-1 text-sm font-bold ${dl.urgent ? 'text-red-500' : 'text-[#1E293B]'}`}>
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="bg-[#F8FAFC] rounded-xl p-2.5">
+                      <p className="text-[10px] text-[#94A3B8] font-medium">Batas Waktu</p>
+                      <h3 className={`mt-0.5 text-xs font-bold ${dl.urgent ? 'text-red-500' : 'text-[#1E293B]'}`}>
                         {formatDate(req.deadline)}
-                        {dl.urgent && <span className="text-xs font-normal ml-2">({dl.label})</span>}
+                        {dl.urgent && <span className="text-[10px] font-normal ml-1">({dl.label})</span>}
                       </h3>
                     </div>
-                    <div className="bg-[#F8FAFC] rounded-xl p-4">
-                      <p className="text-xs text-[#94A3B8] font-medium">Metode Pengiriman</p>
-                      <h3 className="mt-1 text-sm font-bold text-[#1E293B] capitalize">
+                    <div className="bg-[#F8FAFC] rounded-xl p-2.5">
+                      <p className="text-[10px] text-[#94A3B8] font-medium">Metode Pengiriman</p>
+                      <h3 className="mt-0.5 text-xs font-bold text-[#1E293B] capitalize">
                         {req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}
                       </h3>
                     </div>
-                    <div className="bg-[#F8FAFC] rounded-xl p-4">
-                      <p className="text-xs text-[#94A3B8] font-medium">Maksimal Budget (IDR)</p>
-                      <h3 className="mt-1 text-sm font-bold text-[#1E293B]">Rp {formatRupiahPlain(req.max_budget_idr)}</h3>
+                    <div className="bg-[#F8FAFC] rounded-xl p-2.5">
+                      <p className="text-[10px] text-[#94A3B8] font-medium">Maks. Budget</p>
+                      <h3 className="mt-0.5 text-xs font-bold text-[#1E293B]">Rp {formatRupiahPlain(req.max_budget_idr)}</h3>
                     </div>
-                    <div className="bg-[#F8FAFC] rounded-xl p-4">
-                      <p className="text-xs text-[#94A3B8] font-medium">Jumlah</p>
-                      <h3 className="mt-1 text-sm font-bold text-[#1E293B]">{req.quantity} Pcs</h3>
+                    <div className="bg-[#F8FAFC] rounded-xl p-2.5">
+                      <p className="text-[10px] text-[#94A3B8] font-medium">Jumlah</p>
+                      <h3 className="mt-0.5 text-xs font-bold text-[#1E293B]">{req.quantity} Pcs</h3>
                     </div>
                   </div>
 
                   {/* Delivery detail */}
                   {req.delivery_pref === 'courier' && req.shipping_address && (
-                    <div className="flex items-start gap-2 text-xs text-[#64748B] mt-4">
+                    <div className="flex items-start gap-1.5 text-[10px] text-[#64748B] mb-3">
                       <IconMapPin />
                       {req.shipping_address}
                     </div>
                   )}
                   {req.delivery_pref === 'meetup' && req.meetup_location && (
-                    <div className="flex items-start gap-2 text-xs text-[#64748B] mt-4">
+                    <div className="flex items-start gap-1.5 text-[10px] text-[#64748B] mb-3">
                       <IconMapPin />
                       {req.meetup_location}
                       {req.meetup_time && ` · ${new Date(req.meetup_time).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
@@ -350,16 +386,16 @@ export default function BrowseRequestsPage() {
                   )}
 
                   {/* NOTE + BUTTON */}
-                  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mt-3 pt-3 border-t border-gray-100">
                     {req.notes ? (
                       <div>
-                        <h3 className="text-[18px] font-bold text-[#0F172A]">Catatan:</h3>
-                        <p className="mt-2 text-[16px] text-[#64748B] leading-relaxed">{req.notes}</p>
+                        <p className="text-xs font-bold text-[#0F172A]">Catatan:</p>
+                        <p className="mt-1 text-xs text-[#64748B] leading-relaxed">{req.notes}</p>
                       </div>
                     ) : <div />}
                     <button
                       onClick={() => { setSelected(req); setFixedPrice(''); setError('') }}
-                      className="w-full md:w-auto bg-[#49BC9E] hover:bg-[#1b977f] transition-all text-white font-semibold text-[18px] px-8 py-4 rounded-xl shadow-lg shadow-teal-200"
+                      className="w-full sm:w-auto bg-[#49BC9E] hover:bg-[#1b977f] transition-all text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm shadow-teal-200 shrink-0"
                     >
                       Ambil Permintaan
                     </button>
@@ -372,32 +408,32 @@ export default function BrowseRequestsPage() {
 
         {/* MODAL AMBIL REQUEST */}
         {selected && (
-          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-3">
-            <div className="w-full max-w-[600px] bg-white rounded-3xl p-5 md:p-6">
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="w-full sm:max-w-[560px] bg-white rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
 
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[18px] font-bold text-[#0F172A]">Ambil Permintaan</h2>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+                <h2 className="text-sm font-bold text-[#0F172A]">Ambil Permintaan</h2>
                 <button onClick={() => { setSelected(null); setFixedPrice(''); setError('') }}>
-                  <IconX size={28} />
+                  <IconX size={20} />
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="px-4 py-4 space-y-3">
 
-                <div className="border border-[#E2E8F0] rounded-2xl px-3 py-2 bg-[#F8FAFC]">
-                  <p className="text-[14px] text-[#94A3B8] font-medium">Nama Barang</p>
-                  <h3 className="mt-1 text-[16px] font-bold text-[#1E293B]">{selected.product_name}</h3>
+                <div className="border border-[#E2E8F0] rounded-xl px-3 py-2 bg-[#F8FAFC]">
+                  <p className="text-[10px] text-[#94A3B8] font-medium">Nama Barang</p>
+                  <h3 className="mt-0.5 text-sm font-bold text-[#1E293B]">{selected.product_name}</h3>
                 </div>
 
-                <div className="border border-[#E2E8F0] rounded-2xl px-3 py-2 bg-[#F8FAFC]">
-                  <p className="text-[14px] text-[#94A3B8] font-medium">Batas Budget</p>
-                  <h3 className="mt-1 text-[16px] font-bold text-[#1E293B]">Rp {formatRupiahPlain(selected.max_budget_idr)}</h3>
+                <div className="border border-[#E2E8F0] rounded-xl px-3 py-2 bg-[#F8FAFC]">
+                  <p className="text-[10px] text-[#94A3B8] font-medium">Batas Budget</p>
+                  <h3 className="mt-0.5 text-sm font-bold text-[#1E293B]">Rp {formatRupiahPlain(selected.max_budget_idr)}</h3>
                 </div>
 
                 <div>
-                  <label className="text-[14px] font-medium text-[#1E293B]">Masukkan harga deal (IDR)</label>
-                  <div className="mt-2 relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] text-[16px]">Rp</span>
+                  <label className="text-xs font-medium text-[#1E293B]">Masukkan harga deal (IDR)</label>
+                  <div className="mt-1.5 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] text-sm">Rp</span>
                     <input
                       type="text"
                       value={fixedPrice}
@@ -406,49 +442,49 @@ export default function BrowseRequestsPage() {
                         setFixedPrice(rawValue ? Number(rawValue).toLocaleString('id-ID') : '')
                       }}
                       placeholder="Masukkan harga deal"
-                      className="w-full h-[42px] rounded-2xl border border-[#CBD5E1] bg-white pl-14 pr-4 text-[18px] text-[#1E293B] placeholder:text-[#94A3B8] outline-none focus:border-[#59D3B4]"
+                      className="w-full h-10 rounded-xl border border-[#CBD5E1] bg-white pl-10 pr-4 text-sm text-[#1E293B] placeholder:text-[#94A3B8] outline-none focus:border-[#59D3B4]"
                     />
                   </div>
-                  <div className="flex items-center gap-2 mt-2 text-[#64748B]">
-                    <IconInfo size={16} />
-                    <p className="text-[14px]">Harga tidak boleh melebihi budget pembeli</p>
+                  <div className="flex items-center gap-1.5 mt-1.5 text-[#64748B]">
+                    <IconInfo size={13} />
+                    <p className="text-xs">Harga tidak boleh melebihi budget pembeli</p>
                   </div>
                 </div>
 
                 {numericDealPrice > 0 && (
-                  <div className="border border-[#CBD5E1] rounded-2xl p-3">
-                    <h3 className="text-[18px] font-bold text-[#0F172A]">Ringkasan Harga</h3>
-                    <div className="mt-2 space-y-2">
+                  <div className="border border-[#CBD5E1] rounded-xl p-3">
+                    <h3 className="text-sm font-bold text-[#0F172A] mb-2">Ringkasan Harga</h3>
+                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-[16px] text-[#64748B]">Harga (Produk & Fee Jastiper)</p>
-                        <p className="text-[16px] font-medium text-[#1E293B]">Rp {formatRupiahPlain(numericDealPrice)}</p>
+                        <p className="text-xs text-[#64748B]">Harga (Produk & Fee Jastiper)</p>
+                        <p className="text-xs font-medium text-[#1E293B]">Rp {formatRupiahPlain(numericDealPrice)}</p>
                       </div>
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="text-[16px] text-[#64748B]">Platform Fee (5%)</p>
-                        <p className="text-[16px] font-medium text-[#1E293B]">Rp {formatRupiahPlain(platformFee)}</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs text-[#64748B]">Platform Fee (5%)</p>
+                        <p className="text-xs font-medium text-[#1E293B]">Rp {formatRupiahPlain(platformFee)}</p>
                       </div>
                     </div>
-                    <div className="border-t border-[#E2E8F0] mt-2 pt-2 flex items-center justify-between gap-4">
-                      <h3 className="text-[18px] font-bold text-[#0F172A]">Total Tagihan</h3>
-                      <h3 className="text-[18px] font-bold text-[#59D3B4]">IDR {formatRupiahPlain(totalInvoice)}</h3>
+                    <div className="border-t border-[#E2E8F0] mt-2 pt-2 flex items-center justify-between gap-3">
+                      <h3 className="text-sm font-bold text-[#0F172A]">Total Tagihan</h3>
+                      <h3 className="text-sm font-bold text-[#59D3B4]">IDR {formatRupiahPlain(totalInvoice)}</h3>
                     </div>
                   </div>
                 )}
 
-                <div className="bg-[#EEF4FF] border border-[#D6E4FF] rounded-2xl p-4 flex items-start gap-3">
-                  <IconInfo size={22} className="text-[#1D4ED8] flex-shrink-0 mt-1" />
-                  <p className="text-[15px] text-[#1D4ED8] leading-relaxed">
+                <div className="bg-[#EEF4FF] border border-[#D6E4FF] rounded-xl p-3 flex items-start gap-2.5">
+                  <IconInfo size={15} className="text-[#1D4ED8] flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-[#1D4ED8] leading-relaxed">
                     Tagihan akan otomatis dikirim ke pembeli setelah request diambil,
                     dan pembayaran harus diselesaikan dalam 24 jam sebelum order dibatalkan otomatis.
                   </p>
                 </div>
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && <p className="text-red-500 text-xs">{error}</p>}
 
-                <div className="flex flex-col-reverse md:flex-row justify-end gap-4 pt-2">
+                <div className="flex gap-2 pb-1">
                   <button
                     onClick={() => { setSelected(null); setFixedPrice(''); setError('') }}
-                    className="w-full md:w-[160px] h-[52px] rounded-2xl border border-[#CBD5E1] text-[#64748B] text-[18px] font-medium hover:bg-gray-50 transition-all"
+                    className="flex-1 h-10 rounded-xl border border-[#CBD5E1] text-[#64748B] text-sm font-medium hover:bg-gray-50 transition-all"
                   >
                     Kembali
                   </button>
@@ -461,7 +497,7 @@ export default function BrowseRequestsPage() {
                       handleTakeRequest()
                     }}
                     disabled={takingLoading}
-                    className="w-full md:w-[160px] h-[46px] rounded-2xl bg-[#59D3B4] hover:bg-[#4CC2A5] text-white text-[18px] font-semibold shadow-lg shadow-teal-100 transition-all disabled:opacity-50"
+                    className="flex-1 h-10 rounded-xl bg-[#59D3B4] hover:bg-[#4CC2A5] text-white text-sm font-semibold transition-all disabled:opacity-50"
                   >
                     {takingLoading ? 'Memproses...' : 'Ambil'}
                   </button>
@@ -477,17 +513,17 @@ export default function BrowseRequestsPage() {
       {/* SUCCESS POPUP */}
       {showSuccessPopup && (
         <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-4">
-          <div className="w-full max-w-[340px] bg-white rounded-2xl p-5 text-center">
-            <div className="w-14 h-14 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto">
+          <div className="w-full max-w-[300px] bg-white rounded-2xl p-5 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto">
               <IconCheckCircle />
             </div>
-            <h2 className="mt-4 text-[20px] font-bold text-[#0F172A]">Permintaan Berhasil Diambil</h2>
-            <p className="mt-2 text-[14px] text-[#64748B] leading-relaxed">
+            <h2 className="mt-3 text-base font-bold text-[#0F172A]">Permintaan Berhasil Diambil</h2>
+            <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed">
               Tagihan otomatis akan dikirim ke pembeli dan menunggu pembayaran.
             </p>
             <button
               onClick={() => setShowSuccessPopup(false)}
-              className="mt-5 w-full h-[42px] rounded-xl bg-[#59D3B4] hover:bg-[#4CC2A5] text-white font-semibold transition-all"
+              className="mt-4 w-full h-10 rounded-xl bg-[#59D3B4] hover:bg-[#4CC2A5] text-white text-sm font-semibold transition-all"
             >
               Oke
             </button>
@@ -498,17 +534,17 @@ export default function BrowseRequestsPage() {
       {/* VALIDATION POPUP */}
       {showValidationPopup && (
         <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-4">
-          <div className="w-full max-w-[320px] bg-white rounded-2xl p-5 text-center">
-            <div className="w-14 h-14 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto">
+          <div className="w-full max-w-[300px] bg-white rounded-2xl p-5 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto">
               <IconAlertTriangle />
             </div>
-            <h2 className="mt-4 text-[18px] font-bold text-[#0F172A]">Harga Deal Tidak Valid</h2>
-            <p className="mt-2 text-[14px] text-[#64748B] leading-relaxed">
+            <h2 className="mt-3 text-base font-bold text-[#0F172A]">Harga Deal Tidak Valid</h2>
+            <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed">
               Pastikan harga deal sudah diisi dan tidak melebihi budget pembeli.
             </p>
             <button
               onClick={() => setShowValidationPopup(false)}
-              className="mt-5 w-full h-[42px] rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white font-semibold transition-all"
+              className="mt-4 w-full h-10 rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white text-sm font-semibold transition-all"
             >
               Mengerti
             </button>

@@ -166,7 +166,7 @@ export default function AddProductPage() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-2">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-2 sm:py-2">
 
         {/* BACK */}
         <button
