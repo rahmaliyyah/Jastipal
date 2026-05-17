@@ -34,25 +34,22 @@ export default function FormRequestSlicing() {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-8 py-8">
 
-        {/* Form Card */}
-        <div className="bg-white rounded-xl border-2 border-blue-300 border-dashed p-8">
+        {/* Back + Title */}
+        <a href="#" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali
+        </a>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Buat Permintaan</h1>
+          <p className="text-sm text-gray-500">Kasih tahu kami barang apa yang ingin kamu beli dari luar negeri.</p>
+        </div>
 
-          {/* Back */}
-          <a href="#" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Kembali
-          </a>
+        <div className="flex flex-col gap-4">
 
-          {/* Title */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Buat Permintaan</h1>
-            <p className="text-sm text-gray-500">Kasih tahu kami barang apa yang ingin kamu beli dari luar negeri.</p>
-          </div>
-
-          {/* Section: Detail Produk */}
-          <div className="border-t border-gray-200 pt-6 mb-6">
+          {/* Card: Detail Produk */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">Detail Produk</h2>
 
             {/* Link Produk */}
@@ -92,8 +89,8 @@ export default function FormRequestSlicing() {
             </div>
           </div>
 
-          {/* Section: Budget & Tenggat Waktu */}
-          <div className="border-t border-gray-200 pt-6 mb-6">
+          {/* Card: Budget & Tenggat Waktu */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">Budget & Tenggat Waktu</h2>
 
             {/* Maksimal Budget */}
@@ -129,20 +126,17 @@ export default function FormRequestSlicing() {
             </div>
           </div>
 
-          {/* Section: Pengiriman */}
-          <div className="border-t border-gray-200 pt-6 mb-6">
+          {/* Card: Pengiriman */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">Pengiriman</h2>
-
             <label className="block text-sm font-medium text-gray-700 mb-2">Metode Pengiriman</label>
             <div className="grid grid-cols-2 gap-3">
-              {/* Kirim Paket */}
               <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-3 cursor-pointer hover:border-[#49BC9E] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
                 </svg>
                 <span className="text-sm text-gray-700">Kirim Paket</span>
               </div>
-              {/* Meetup */}
               <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-3 cursor-pointer hover:border-[#49BC9E] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -152,8 +146,8 @@ export default function FormRequestSlicing() {
             </div>
           </div>
 
-          {/* Section: Catatan */}
-          <div className="border-t border-gray-200 pt-6 mb-6">
+          {/* Card: Catatan */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">Catatan untuk Jastiper</h2>
             <textarea
               placeholder="Tambahkan catatan khusus (misalnya: packaging, struk, warna, dll.)"
@@ -162,14 +156,15 @@ export default function FormRequestSlicing() {
             />
           </div>
 
-          {/* Submit */}
-          <div className="flex justify-end">
-            <button className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg">
-              Kirm Request
-            </button>
-          </div>
-
         </div>
+
+        {/* Submit */}
+        <div className="flex justify-end mt-4">
+          <button className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg">
+            Kirim Request
+          </button>
+        </div>
+
       </div>
     </div>
   )
