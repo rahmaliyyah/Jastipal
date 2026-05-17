@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { ChevronLeft, ImagePlus, Calendar } from 'lucide-react'
 
 export default function NewTripPage() {
   const supabase = createClient()
@@ -60,7 +61,6 @@ export default function NewTripPage() {
 
     let imageUrl = null
 
-    // upload foto trip
     if (imageFile) {
       const ext = imageFile.name.split('.').pop()
       const path = `trips/${userId}/${Date.now()}.${ext}`
@@ -99,133 +99,166 @@ export default function NewTripPage() {
       return
     }
 
-    // redirect ke halaman tambah produk
     router.push(`/trips/${tripData.id}/products/new`)
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="mb-6">
-        <button onClick={() => router.back()} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 flex items-center gap-1 transition-all">
-          ← Kembali
+    <main className="min-h-screen bg-[#F8FAFC]">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-2">
+
+        {/* BACK */}
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-1 text-[#64748B] text-[15px] hover:text-[#0F172A] transition-colors mb-4"
+        >
+          <ChevronLeft size={18} />
+          Kembali
         </button>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Buat Trip</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Informasi perjalanan kamu</p>
-      </div>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3 mb-5">
-          <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
-        </div>
-      )}
+        {/* HEADER */}
+        <h1 className="text-[28px] font-bold text-[#0F172A]">Buat Perjalanan</h1>
+        <p className="mt-1 text-[14px] text-[#94A3B8] mb-6">Informasi perjalanan Anda</p>
 
-      <div className="space-y-5">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
+        {/* Error */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
 
-          {/* Foto trip */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Foto trip <span className="text-gray-400 text-xs font-normal">(opsional)</span>
-            </label>
-            <div
-              onClick={() => imageRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden cursor-pointer hover:border-gray-400 transition-all"
-            >
-              {imagePreview ? (
-                <div className="relative">
-                  <img src={imagePreview} className="w-full h-48 object-cover" />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-all">
-                    <p className="text-white text-sm font-medium">Ganti foto</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-36 flex flex-col items-center justify-center gap-2">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                  </svg>
-                  <p className="text-sm text-gray-400">Klik untuk upload foto trip</p>
-                  <p className="text-xs text-gray-400">JPG, PNG — maks 5MB</p>
-                </div>
-              )}
-            </div>
-            <input ref={imageRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+        {/* FORM CARD */}
+        <div className="bg-white border border-[#CBD5E1] rounded-2xl p-6 sm:p-8">
+          <h2 className="text-[20px] font-bold text-[#0F172A] mb-6">Detail Perjalanan</h2>
+
+          {/* FOTO */}
+          <div className="mb-6">
+            <p className="text-[14px] font-medium text-[#1E293B] mb-2">
+              Foto Perjalanan <span className="italic font-normal text-[#94A3B8]">(opsional)</span>
+            </p>
+
+            {imagePreview ? (
+              <div className="relative rounded-xl overflow-hidden">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-[280px] object-cover"
+                />
+                <button
+                  onClick={() => { setImagePreview(null); setImageFile(null) }}
+                  className="absolute top-3 right-3 bg-white/80 hover:bg-white text-[#DC2626] text-[13px] font-semibold px-3 py-1 rounded-lg transition-all"
+                >
+                  Ganti
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => imageRef.current?.click()}
+                className="w-full h-[160px] border-2 border-dashed border-[#CBD5E1] rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#49BC9E] transition-colors"
+              >
+                <ImagePlus size={28} className="text-[#94A3B8]" />
+                <p className="text-[14px]">
+                  <span className="text-[#49BC9E] font-medium">Upload a file</span>
+                  <span className="text-[#64748B]"> or drag and drop</span>
+                </p>
+                <p className="text-[12px] text-[#94A3B8]">PNG, JPG, GIF up to 10MB</p>
+              </div>
+            )}
+
+            <input
+              ref={imageRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </div>
 
-          {/* Judul */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Judul trip <span className="text-red-400">*</span>
+          {/* JUDUL */}
+          <div className="mb-5">
+            <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+              Judul Perjalanan <span className="text-red-400">*</span>
             </label>
             <input
-              placeholder="Contoh: Tokyo & Osaka, April 2026"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              type="text"
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
+              placeholder="Contoh: Tokyo & Osaka, April 2026"
+              className="w-full h-[48px] px-4 rounded-xl border border-[#E2E8F0] text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#49BC9E] transition-colors"
             />
           </div>
 
-          {/* Deskripsi */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Deskripsi <span className="text-gray-400 text-xs font-normal">(opsional)</span>
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Ceritakan detail tripmu, bisa titip barang apa, area mana yang dikunjungi, dsb..."
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
-              value={form.description}
-              onChange={e => setForm({ ...form, description: e.target.value })}
-            />
-          </div>
-
-          {/* Negara & tanggal */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* NEGARA + TANGGAL */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                Negara tujuan <span className="text-red-400">*</span>
+              <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+                Negara Tujuan <span className="text-red-400">*</span>
               </label>
               <input
-                placeholder="Contoh: Jepang"
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                type="text"
                 value={form.trip_country}
                 onChange={e => setForm({ ...form, trip_country: e.target.value })}
+                placeholder="Contoh: Jepang"
+                className="w-full h-[48px] px-4 rounded-xl border border-[#E2E8F0] text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#49BC9E] transition-colors"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                Tanggal tiba di Indonesia <span className="text-red-400">*</span>
+              <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+                Tanggal Tiba di Indonesia <span className="text-red-400">*</span>
               </label>
-              <input
-                type="date"
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                value={form.arrival_date}
-                onChange={e => setForm({ ...form, arrival_date: e.target.value })}
-              />
+              <div className="relative">
+                <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <input
+                  type="date"
+                  value={form.arrival_date}
+                  onChange={e => setForm({ ...form, arrival_date: e.target.value })}
+                  className="w-full h-[48px] pl-10 pr-4 rounded-xl border border-[#E2E8F0] text-[14px] text-[#0F172A] outline-none focus:border-[#49BC9E] transition-colors"
+                />
+              </div>
             </div>
+          </div>
+
+          {/* DESKRIPSI */}
+          <div className="mb-5">
+            <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+              Deskripsi <span className="italic font-normal text-[#94A3B8]">(Opsional)</span>
+            </label>
+            <textarea
+              value={form.description}
+              onChange={e => setForm({ ...form, description: e.target.value })}
+              placeholder="Ceritakan detail tripmu, bisa titip barang apa, area mana yang dikunjungi, dsb..."
+              rows={4}
+              className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] resize-none outline-none focus:border-[#49BC9E] transition-colors"
+            />
+          </div>
+
+          {/* KOTA */}
+          <div>
+            <label className="block text-[14px] font-medium text-[#1E293B] mb-2">
+              Kota Kedatangan di Indonesia <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.arrival_city}
+              onChange={e => setForm({ ...form, arrival_city: e.target.value })}
+              placeholder="Contoh: Malang, Jakarta, Surabaya"
+              className="w-full h-[48px] px-4 rounded-xl border border-[#E2E8F0] text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#49BC9E] transition-colors"
+            />
+            <p className="text-[12px] text-[#94A3B8] mt-1">Kota ini digunakan untuk menghitung ongkir domestik ke buyer</p>
           </div>
         </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-              Kota tiba di Indonesia <span className="text-red-400">*</span>
-            </label>
-            <input
-              placeholder="Contoh: Malang, Jakarta, Surabaya"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={form.arrival_city}
-              onChange={e => setForm({ ...form, arrival_city: e.target.value })}
-            />
-            <p className="text-xs text-gray-400 mt-1">Kota ini digunakan untuk menghitung ongkir domestik ke buyer</p>
-          </div>
+        {/* SUBMIT */}
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="h-[52px] px-8 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[16px] disabled:opacity-50 transition-all shadow-lg shadow-teal-100"
+          >
+            {loading ? 'Membuat trip...' : 'Lanjut Tambah Produk'}
+          </button>
+        </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
-        >
-          {loading ? 'Membuat trip...' : 'Lanjut → Tambah Produk'}
-        </button>
       </div>
-    </div>
+    </main>
   )
 }

@@ -20,11 +20,6 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-const statusConfig = {
-  open: { label: 'Aktif', color: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300' },
-  closed: { label: 'Ditutup', color: 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400' },
-}
-
 export default function MyTripsPage() {
   const supabase = createClient()
   const router = useRouter()
@@ -69,8 +64,7 @@ export default function MyTripsPage() {
       .select('id, title, description, trip_country, arrival_date, image_url, status, created_at')
       .eq('jastiper_id', userId)
       .order('created_at', { ascending: false })
-    
-    // filter berdasarkan tab
+
     const filtered = (data ?? []).filter((t: any) => {
       if (tab === 'closed') return t.status === 'closed'
       return t.status === 'open'
@@ -79,11 +73,10 @@ export default function MyTripsPage() {
 
     if (!filteredData) { setTrips([]); setLoading(false); return }
 
-    // hitung produk dengan satu query
     const tripIds = filteredData.map((t: any) => t.id)
     let countMap: Record<string, number> = {}
-
     let activeOrdersMap: Record<string, boolean> = {}
+
     if (tripIds.length > 0) {
       const { data: listings } = await supabase
         .from('listings')
@@ -94,7 +87,6 @@ export default function MyTripsPage() {
         countMap[l.trip_id] = (countMap[l.trip_id] ?? 0) + 1
       })
 
-      // cek apakah ada order aktif per trip
       const listingIds = (await supabase
         .from('listings')
         .select('id, trip_id')
@@ -116,11 +108,11 @@ export default function MyTripsPage() {
       })
     }
 
-    setTrips(filteredData.map((t: any) => ({ 
-      ...t, 
+    setTrips(filteredData.map((t: any) => ({
+      ...t,
       product_count: countMap[t.id] ?? 0,
       has_active_orders: activeOrdersMap[t.id] ?? false,
-    }))    )
+    })))
     setLoading(false)
   }
 
@@ -142,7 +134,6 @@ export default function MyTripsPage() {
 
   async function handleDelete(id: string) {
     setActionLoading(id)
-    // listings akan terhapus otomatis karena ON DELETE CASCADE
     await supabase.from('trips').delete().eq('id', id)
     setSuccess('Trip berhasil dihapus')
     setActionLoading(null)
@@ -150,170 +141,181 @@ export default function MyTripsPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Trip Saya</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola trip dan katalog produkmu</p>
-        </div>
-        <button
-          onClick={() => router.push('/trips/new')}
-          className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 transition-all flex items-center gap-2"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Buat Trip
-        </button>
-      </div>
+    <main className="min-h-screen bg-[#F8FAFC]">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-2">
 
-      {/* Success toast */}
-      {success && (
-        <div className="mb-5 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-green-700 dark:text-green-300">{success}</p>
-          <button onClick={() => setSuccess('')} className="text-green-500 ml-4">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
-        {(['open', 'closed'] as const).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === t
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-          >
-            {t === 'open' ? 'Aktif' : 'Ditutup'}
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
-        </div>
-      ) : trips.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-            </svg>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-[28px] font-bold text-[#0F172A]">Perjalanan Saya</h1>
+            <p className="mt-1 text-[15px] text-[#64748B]">Kelola perjalanan dan produk jastip Anda</p>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            {tab === 'open' ? 'Belum ada trip aktif' : 'Belum ada trip yang ditutup'}
-          </p>
-          {tab === 'open' && (
-            <button
-              onClick={() => router.push('/trips/new')}
-              className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 transition-all"
-            >
-              Buat Trip Pertama
-            </button>
-          )}
+          <button
+            onClick={() => router.push('/trips/new')}
+            className="h-[44px] px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[15px] transition-all shadow-md shadow-teal-100 whitespace-nowrap"
+          >
+            + Buat Perjalanan
+          </button>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {trips.map(trip => (
-            <div key={trip.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-              {/* Foto trip */}
-              {trip.image_url && (
-                <img src={trip.image_url} className="w-full h-40 object-cover" alt={trip.title} />
-              )}
 
-              <div className="p-5">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">{trip.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{formatDate(trip.created_at)}</p>
-                  </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${statusConfig[trip.status].color}`}>
-                    {statusConfig[trip.status].label}
-                  </span>
-                </div>
+        {/* Success toast */}
+        {success && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
+            <p className="text-[14px] text-green-700 font-medium">{success}</p>
+            <button onClick={() => setSuccess('')} className="text-green-400 ml-4">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        )}
 
-                {/* Info */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
-                    <p className="text-xs text-gray-400 mb-0.5">Negara</p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{trip.trip_country}</p>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
-                    <p className="text-xs text-gray-400 mb-0.5">Tiba</p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{formatDate(trip.arrival_date)}</p>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
-                    <p className="text-xs text-gray-400 mb-0.5">Produk</p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{trip.product_count} item</p>
-                  </div>
-                </div>
-
-                {trip.description && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 italic mb-4">"{trip.description}"</p>
-                )}
-
-                {/* Active orders warning */}
-                {trip.has_active_orders && tab === 'open' && (
-                  <p className="text-xs text-orange-500 mt-2">⚠️ Ada order aktif — trip tidak bisa ditutup</p>
-                )}
-
-                {/* Actions */}
-                <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                  <button
-                    onClick={() => router.push(`/trips/${trip.id}`)}
-                    className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2 text-xs font-medium hover:opacity-90 transition-all"
-                  >
-                    Lihat Detail
-                  </button>
-                  {tab === 'open' && (
-                    <button
-                      onClick={() => router.push(`/trips/${trip.id}/products/new`)}
-                      className="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-2 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                    >
-                      + Produk
-                    </button>
-                  )}
-                  {tab === 'open' && !trip.has_active_orders && (
-                    <button
-                      onClick={() => handleClose(trip.id)}
-                      disabled={actionLoading === trip.id}
-                      className="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg px-3 py-2 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-all"
-                    >
-                      Tutup
-                    </button>
-                  )}
-                  {tab === 'closed' && (
-                    <button
-                      onClick={() => handleReopen(trip.id)}
-                      disabled={actionLoading === trip.id}
-                      className="border border-green-300 dark:border-green-700 text-green-600 dark:text-green-400 rounded-lg px-3 py-2 text-xs font-medium hover:bg-green-50 dark:hover:bg-green-950 disabled:opacity-50 transition-all"
-                    >
-                      Buka
-                    </button>
-                  )}
-                  {!trip.has_active_orders && (
-                    <button
-                      onClick={() => handleDelete(trip.id)}
-                      disabled={actionLoading === trip.id}
-                      className="border border-red-200 dark:border-red-800 text-red-500 rounded-lg px-3 py-2 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-all"
-                    >
-                      Hapus
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
+        {/* Toggle Tabs */}
+        <div className="inline-flex bg-[#1E293B] rounded-xl p-1 mb-6">
+          {(['open', 'closed'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-5 py-2 rounded-lg text-[14px] font-semibold capitalize transition-all ${
+                tab === t
+                  ? 'bg-white text-[#0F172A]'
+                  : 'text-[#94A3B8] hover:text-white'
+              }`}
+            >
+              {t === 'open' ? 'Aktif' : 'Ditutup'}
+            </button>
           ))}
         </div>
-      )}
-    </div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-6 h-6 border-2 border-[#CBD5E1] border-t-[#49BC9E] rounded-full animate-spin"></div>
+          </div>
+        ) : trips.length === 0 ? (
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-12 flex flex-col items-center gap-3">
+            <p className="text-[16px] text-[#94A3B8]">
+              {tab === 'open' ? 'Belum ada perjalanan aktif.' : 'Belum ada perjalanan yang ditutup.'}
+            </p>
+            {tab === 'open' && (
+              <button
+                onClick={() => router.push('/trips/new')}
+                className="mt-2 h-[44px] px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[15px] transition-all"
+              >
+                Buat Perjalanan
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {trips.map(trip => (
+              <div key={trip.id} className="bg-white border border-[#CBD5E1] rounded-2xl overflow-hidden">
+
+                {/* Cover image */}
+                <div className="h-[240px] w-full bg-[#CBD5E1] overflow-hidden">
+                  {trip.image_url ? (
+                    <img
+                      src={trip.image_url}
+                      alt={trip.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget
+                        target.style.display = 'none'
+                        target.parentElement!.style.background = 'linear-gradient(135deg, #49BC9E 0%, #2563EB 100%)'
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #49BC9E 0%, #2563EB 100%)' }} />
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <h2 className="text-[22px] font-bold text-[#0F172A] mb-4">{trip.title}</h2>
+
+                  {/* Info grid */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="bg-[#F8FAFC] rounded-xl p-3">
+                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Negara</p>
+                      <p className="text-[15px] font-semibold text-[#0F172A]">{trip.trip_country}</p>
+                    </div>
+                    <div className="bg-[#F8FAFC] rounded-xl p-3">
+                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Tanggal Tiba</p>
+                      <p className="text-[15px] font-semibold text-[#0F172A]">{formatDate(trip.arrival_date)}</p>
+                    </div>
+                    <div className="bg-[#F8FAFC] rounded-xl p-3">
+                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Produk</p>
+                      <p className="text-[15px] font-semibold text-[#0F172A]">{trip.product_count} item</p>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {trip.description && (
+                    <div className="bg-[#F8FAFC] rounded-xl p-3 mb-5">
+                      <p className="text-[12px] text-[#94A3B8] font-medium mb-1">Deskripsi</p>
+                      <p className="text-[14px] text-[#1E293B]">{trip.description}</p>
+                    </div>
+                  )}
+
+                  {/* Active orders warning */}
+                  {trip.has_active_orders && tab === 'open' && (
+                    <p className="text-[13px] text-red-500 font-semibold mb-4">Ada order aktif, trip tidak bisa ditutup</p>
+                  )}
+
+                  {/* Actions */}
+                  <div className={`grid gap-3 ${trip.has_active_orders ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                    <button
+                      onClick={() => router.push(`/trips/${trip.id}`)}
+                      className="h-[48px] rounded-xl bg-[#49BC9E] hover:bg-[#3da88d] text-white font-semibold text-[15px] transition-all"
+                    >
+                      Lihat Detail
+                    </button>
+
+                    {tab === 'open' ? (
+                      <button
+                        onClick={() => router.push(`/trips/${trip.id}/products/new`)}
+                        className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] font-semibold text-[15px] transition-all"
+                      >
+                        Tambah Produk
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleReopen(trip.id)}
+                        disabled={actionLoading === trip.id}
+                        className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                      >
+                        {actionLoading === trip.id ? '...' : 'Buka Kembali'}
+                      </button>
+                    )}
+
+                    {!trip.has_active_orders && (
+                      tab === 'open' ? (
+                        <button
+                          onClick={() => handleClose(trip.id)}
+                          disabled={actionLoading === trip.id}
+                          className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                        >
+                          {actionLoading === trip.id ? '...' : 'Tutup'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleDelete(trip.id)}
+                          disabled={actionLoading === trip.id}
+                          className="h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                        >
+                          {actionLoading === trip.id ? '...' : 'Hapus'}
+                        </button>
+                      )
+                    )}
+                  </div>
+
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div>
+    </main>
   )
 }

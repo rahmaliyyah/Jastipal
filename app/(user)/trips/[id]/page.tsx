@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
+import { ChevronLeft } from 'lucide-react'
 
 type Trip = {
   id: string
@@ -53,7 +54,6 @@ export default function TripDetailPage() {
   const [success, setSuccess] = useState('')
   const [userId, setUserId] = useState('')
 
-  // edit modal state
   const [editProduct, setEditProduct] = useState<Product | null>(null)
   const [editForm, setEditForm] = useState({ product_name: '', description: '', product_price_idr: '', service_fee_idr: '', shipping_fee_idr: '', stock: '' })
   const [editLoading, setEditLoading] = useState(false)
@@ -88,7 +88,6 @@ export default function TripDetailPage() {
 
     if (!data) { setProducts([]); return }
 
-    // cek produk mana yang sudah ada order
     const productIds = data.map((p: any) => p.id)
     let orderMap: Record<string, boolean> = {}
     if (productIds.length > 0) {
@@ -138,7 +137,7 @@ export default function TripDetailPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+      <div className="w-6 h-6 border-2 border-[#CBD5E1] border-t-[#49BC9E] rounded-full animate-spin"></div>
     </div>
   )
 
@@ -149,236 +148,288 @@ export default function TripDetailPage() {
   const soldOutCount = products.filter(p => p.stock === 0).length
 
   return (
-    <div className="max-w-2xl">
-      {/* Edit modal */}
-      {editProduct && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md shadow-2xl">
-            <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Edit Produk</h2>
-              <button onClick={() => setEditProduct(null)} className="text-gray-400 hover:text-gray-600">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            <div className="p-5 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Nama produk</label>
-                <input
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  value={editForm.product_name}
-                  onChange={e => setEditForm({ ...editForm, product_name: e.target.value })}
-                />
+    <main className="min-h-screen bg-[#F8FAFC]">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-2">
+
+        {/* Edit modal */}
+        {editProduct && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl border border-[#CBD5E1] w-full max-w-md shadow-2xl">
+              <div className="p-5 border-b border-[#F1F5F9] flex items-center justify-between">
+                <h2 className="text-[18px] font-bold text-[#0F172A]">Edit Produk</h2>
+                <button onClick={() => setEditProduct(null)} className="text-[#94A3B8] hover:text-[#64748B] transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
               </div>
-              <div>
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">Deskripsi</label>
-                <textarea
-                  rows={2}
-                  placeholder="Warna, ukuran, varian..."
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
-                  value={editForm.description}
-                  onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { key: 'product_price_idr', label: 'Harga produk' },
-                  { key: 'service_fee_idr', label: 'Service fee' },
-                  { key: 'shipping_fee_idr', label: 'Ongkir' },
-                  { key: 'stock', label: 'Stok' },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 block">{f.label}</label>
-                    <input
-                      type="number"
-                      min="0"
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      value={(editForm as any)[f.key]}
-                      onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })}
-                    />
+              <div className="p-5 space-y-4">
+                <div>
+                  <label className="text-[13px] font-medium text-[#1E293B] mb-1.5 block">Nama produk</label>
+                  <input
+                    className="w-full border border-[#CBD5E1] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] bg-white text-[#1E293B] transition-colors"
+                    value={editForm.product_name}
+                    onChange={e => setEditForm({ ...editForm, product_name: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="text-[13px] font-medium text-[#1E293B] mb-1.5 block">Deskripsi</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Warna, ukuran, varian..."
+                    className="w-full border border-[#CBD5E1] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] bg-white text-[#1E293B] resize-none transition-colors"
+                    value={editForm.description}
+                    onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { key: 'product_price_idr', label: 'Harga produk' },
+                    { key: 'service_fee_idr', label: 'Service fee' },
+                    { key: 'shipping_fee_idr', label: 'Ongkir' },
+                    { key: 'stock', label: 'Stok' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label className="text-[13px] font-medium text-[#1E293B] mb-1.5 block">{f.label}</label>
+                      <input
+                        type="number"
+                        min="0"
+                        className="w-full border border-[#CBD5E1] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#49BC9E] bg-white text-[#1E293B] transition-colors"
+                        value={(editForm as any)[f.key]}
+                        onChange={e => setEditForm({ ...editForm, [f.key]: e.target.value })}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-[#F8FAFC] rounded-xl p-3">
+                  <div className="flex justify-between text-[15px] font-semibold text-[#0F172A]">
+                    <span>Total listing</span>
+                    <span>{formatRupiah((parseFloat(editForm.product_price_idr) || 0) + (parseFloat(editForm.service_fee_idr) || 0) + (parseFloat(editForm.shipping_fee_idr) || 0))}</span>
                   </div>
-                ))}
-              </div>
-              {/* Total preview */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                <div className="flex justify-between text-sm font-semibold text-gray-900 dark:text-white">
-                  <span>Total listing</span>
-                  <span>{formatRupiah((parseFloat(editForm.product_price_idr) || 0) + (parseFloat(editForm.service_fee_idr) || 0) + (parseFloat(editForm.shipping_fee_idr) || 0))}</span>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setEditProduct(null)}
+                    className="flex-1 h-[44px] border border-[#CBD5E1] text-[#64748B] rounded-xl text-[15px] font-semibold hover:bg-[#F8FAFC] transition-all"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={editLoading}
+                    className="flex-1 h-[44px] bg-[#49BC9E] hover:bg-[#3dab8e] text-white rounded-xl text-[15px] font-semibold disabled:opacity-50 transition-all"
+                  >
+                    {editLoading ? 'Menyimpan...' : 'Simpan'}
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => setEditProduct(null)} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
-                  Batal
-                </button>
-                <button onClick={handleSaveEdit} disabled={editLoading} className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all">
-                  {editLoading ? 'Menyimpan...' : 'Simpan'}
-                </button>
+            </div>
+          </div>
+        )}
+
+        {/* BACK */}
+        <button
+          onClick={() => router.push('/trips')}
+          className="flex items-center gap-1 text-[#64748B] text-[15px] hover:text-[#0F172A] transition-colors mb-4"
+        >
+          <ChevronLeft size={18} />
+          Kembali
+        </button>
+
+        {/* TRIP CARD */}
+        <div className="bg-white border border-[#CBD5E1] rounded-2xl overflow-hidden mb-8">
+
+          {/* COVER */}
+          <div className="h-[280px] w-full bg-[#CBD5E1] overflow-hidden">
+            {trip.image_url && (
+              <img
+                src={trip.image_url}
+                alt={trip.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.parentElement!.style.background = 'linear-gradient(135deg, #49BC9E 0%, #2563EB 100%)'
+                }}
+              />
+            )}
+          </div>
+
+          {/* INFO */}
+          <div className="p-6">
+            <h1 className="text-[24px] font-bold text-[#0F172A] mb-4">{trip.title}</h1>
+
+            {/* INFO GRID */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="bg-[#F8FAFC] rounded-xl p-3">
+                <p className="text-[12px] text-[#94A3B8] mb-1">Negara</p>
+                <p className="text-[15px] font-semibold text-[#0F172A]">{trip.trip_country}</p>
+              </div>
+              <div className="bg-[#F8FAFC] rounded-xl p-3">
+                <p className="text-[12px] text-[#94A3B8] mb-1">Tanggal Tiba</p>
+                <p className="text-[15px] font-semibold text-[#0F172A]">{formatDate(trip.arrival_date)}</p>
+              </div>
+              <div className="bg-[#F8FAFC] rounded-xl p-3">
+                <p className="text-[12px] text-[#94A3B8] mb-1">Produk</p>
+                <p className="text-[15px] font-semibold text-[#0F172A]">{openCount} ada · {soldOutCount} habis</p>
               </div>
             </div>
+
+            {/* DESCRIPTION */}
+            {trip.description && (
+              <div className="bg-[#F8FAFC] rounded-xl p-3">
+                <p className="text-[12px] text-[#94A3B8] mb-1">Deskripsi</p>
+                <p className="text-[14px] text-[#1E293B]">{trip.description}</p>
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Back */}
-      <button onClick={() => router.push('/trips')} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 flex items-center gap-1 transition-all">
-        ← Kembali ke trip
-      </button>
-
-      {/* Trip header */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-6">
-        {trip.image_url && (
-          <img src={trip.image_url} className="w-full h-44 object-cover" alt={trip.title} />
+        {/* Success toast */}
+        {success && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
+            <p className="text-[14px] text-green-700 font-medium">{success}</p>
+            <button onClick={() => setSuccess('')} className="text-green-400 ml-4">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
         )}
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{trip.title}</h1>
-              {trip.description && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{trip.description}</p>
-              )}
-            </div>
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
-              expired
-                ? 'bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400'
-                : 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300'
-            }`}>
-              {expired ? 'Kadaluarsa' : 'Aktif'}
-            </span>
-          </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
-              <p className="text-xs text-gray-400 mb-0.5">Negara</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{trip.trip_country}</p>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
-              <p className="text-xs text-gray-400 mb-0.5">Tiba</p>
-              <p className={`text-sm font-medium ${expired ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>{formatDate(trip.arrival_date)}</p>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5">
-              <p className="text-xs text-gray-400 mb-0.5">Produk</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{openCount} ada · {soldOutCount} habis</p>
-            </div>
-          </div>
-
-          {expired && (
-            <div className="mt-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-              <p className="text-xs text-red-600 dark:text-red-400">Trip ini sudah melewati tanggal tiba — produk tidak bisa dipesan oleh buyer.</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Success toast */}
-      {success && (
-        <div className="mb-5 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3">
-          <p className="text-sm text-green-700 dark:text-green-300">{success}</p>
-        </div>
-      )}
-
-      {/* Products header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          Katalog Produk ({products.length})
-        </h2>
-        {!expired && (
-          <button
-            onClick={() => router.push(`/trips/${tripId}/products/new`)}
-            className="text-sm text-blue-500 hover:text-blue-600 font-medium transition-all"
-          >
-            + Tambah Produk
-          </button>
-        )}
-      </div>
-
-      {/* Products list */}
-      {products.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-          <p className="text-sm text-gray-400 mb-3">Belum ada produk di trip ini</p>
+        {/* KATALOG PRODUK */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[20px] font-bold text-[#0F172A]">Katalog Produk</h2>
           {!expired && (
-            <button onClick={() => router.push(`/trips/${tripId}/products/new`)} className="text-sm text-blue-500 hover:text-blue-600 font-medium">
-              + Tambah produk pertama
+            <button
+              onClick={() => router.push(`/trips/${tripId}/products/new`)}
+              className="text-[14px] font-semibold text-[#49BC9E] hover:text-[#3dab8e] transition-colors"
+            >
+              + Tambah Produk
             </button>
           )}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {products.map(product => (
-            <div key={product.id} className={`bg-white dark:bg-gray-900 border rounded-xl overflow-hidden ${
-              product.stock === 0 ? 'border-gray-200 dark:border-gray-800 opacity-60' : 'border-gray-200 dark:border-gray-700'
-            }`}>
-              <div className="flex gap-4 p-4">
-                {/* Foto */}
-                {product.image_url ? (
-                  <img src={product.image_url} className="w-16 h-16 rounded-lg object-cover shrink-0" />
-                ) : (
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                  </div>
-                )}
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.product_name}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${
-                      product.stock === 0
-                        ? 'bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400'
-                        : 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300'
-                    }`}>
-                      {product.stock === 0 ? 'Stok Habis' : `Stok: ${product.stock}`}
-                    </span>
+        {products.length === 0 ? (
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-12 flex flex-col items-center gap-3">
+            <p className="text-[15px] text-[#94A3B8]">Belum ada produk di trip ini.</p>
+            {!expired && (
+              <button
+                onClick={() => router.push(`/trips/${tripId}/products/new`)}
+                className="mt-2 h-[44px] px-6 rounded-xl bg-[#49BC9E] hover:bg-[#3dab8e] text-white font-semibold text-[15px] transition-all"
+              >
+                Tambah Produk Pertama
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {products.map(product => (
+              <div
+                key={product.id}
+                className="bg-white border border-[#CBD5E1] rounded-2xl overflow-hidden"
+              >
+                <div className="p-5">
+                  {/* PRODUCT TOP */}
+                  <div className="flex gap-4">
+                    {/* IMAGE */}
+                    <div className="w-[100px] h-[100px] rounded-xl bg-[#F1F5F9] flex-shrink-0 overflow-hidden">
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.product_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#94A3B8]">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* INFO */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-[15px] font-bold text-[#0F172A] leading-snug">
+                          {product.product_name}
+                        </h3>
+                        <span className={`flex-shrink-0 text-[12px] font-semibold px-3 py-1 rounded-full ${
+                          product.stock === 0
+                            ? 'bg-red-50 text-red-500 border border-red-200'
+                            : 'bg-[#ECFDF5] text-[#059669]'
+                        }`}>
+                          {product.stock === 0 ? 'Stok Habis' : `Stok: ${product.stock}`}
+                        </span>
+                      </div>
+
+                      {product.description && (
+                        <ul className="mt-2 space-y-1">
+                          {product.description.split('\n').map((line, i) => (
+                            <li key={i} className="text-[13px] text-[#64748B] flex gap-2">
+                              <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-[#94A3B8] flex-shrink-0" />
+                              {line}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="mt-1 space-y-0.5">
-                    {product.description && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 italic mb-1">{product.description}</p>
+                  {/* PRICE GRID */}
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    <div className="bg-[#F8FAFC] rounded-xl p-3">
+                      <p className="text-[12px] text-[#94A3B8] mb-1">Harga Produk</p>
+                      <p className="text-[14px] font-semibold text-[#0F172A]">{formatRupiah(product.product_price_idr)}</p>
+                    </div>
+                    <div className="bg-[#F8FAFC] rounded-xl p-3">
+                      <p className="text-[12px] text-[#94A3B8] mb-1">Service Fee</p>
+                      <p className="text-[14px] font-semibold text-[#0F172A]">{formatRupiah(product.service_fee_idr)}</p>
+                    </div>
+                    <div className="bg-[#F8FAFC] rounded-xl p-3">
+                      <p className="text-[12px] text-[#94A3B8] mb-1">Ongkos Kirim</p>
+                      <p className="text-[14px] font-semibold text-[#0F172A]">{formatRupiah(product.shipping_fee_idr)}</p>
+                    </div>
+                  </div>
+
+                  {/* PRODUCT ACTIONS — dinamis 1 atau 2 kolom */}
+                  <div className={`grid gap-3 mt-4 ${!product.has_orders ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    <button
+                      onClick={() => {
+                        setEditProduct(product)
+                        setEditForm({
+                          product_name: product.product_name,
+                          description: product.description ?? '',
+                          product_price_idr: product.product_price_idr.toString(),
+                          service_fee_idr: product.service_fee_idr.toString(),
+                          shipping_fee_idr: product.shipping_fee_idr.toString(),
+                          stock: product.stock.toString(),
+                        })
+                      }}
+                      disabled={actionLoading === product.id}
+                      className="w-full h-[48px] rounded-xl bg-[#49BC9E] hover:bg-[#3dab8e] text-white font-semibold text-[15px] disabled:opacity-50 transition-all"
+                    >
+                      Edit
+                    </button>
+
+                    {!product.has_orders && (
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        disabled={actionLoading === product.id}
+                        className="w-full h-[48px] rounded-xl border border-[#CBD5E1] hover:bg-[#FEF2F2] hover:border-[#FECACA] text-[#64748B] hover:text-[#DC2626] font-semibold text-[15px] disabled:opacity-50 transition-all"
+                      >
+                        {actionLoading === product.id ? '...' : 'Hapus'}
+                      </button>
                     )}
-                    {product.service_fee_idr > 0 && (
-                      <p className="text-xs text-gray-400">Service fee: {formatRupiah(product.service_fee_idr)}</p>
-                    )}
-                    {product.shipping_fee_idr > 0 && (
-                      <p className="text-xs text-gray-400">Ongkir: {formatRupiah(product.shipping_fee_idr)}</p>
-                    )}
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatRupiah(product.total_price_idr)}</p>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
 
-              {/* Actions */}
-              <div className="flex gap-2 px-4 pb-4">
-                <button
-                  onClick={() => {
-                    setEditProduct(product)
-                    setEditForm({
-                      product_name: product.product_name,
-                      description: product.description ?? '',
-                      product_price_idr: product.product_price_idr.toString(),
-                      service_fee_idr: product.service_fee_idr.toString(),
-                      shipping_fee_idr: product.shipping_fee_idr.toString(),
-                      stock: product.stock.toString(),
-                    })
-                  }}
-                  disabled={actionLoading === product.id}
-                  className="flex-1 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 rounded-lg py-1.5 text-xs font-medium hover:bg-blue-50 dark:hover:bg-blue-950 disabled:opacity-50 transition-all"
-                >
-                  Edit
-                </button>
-                {!product.has_orders && (
-                  <button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    disabled={actionLoading === product.id}
-                    className="border border-red-200 dark:border-red-800 text-red-500 rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-50 transition-all"
-                  >
-                    {actionLoading === product.id ? '...' : 'Hapus'}
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      </div>
+    </main>
   )
 }

@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <p className="font-bold text-gray-900 mb-1">Jelajahi Produk</p>
-              <p className="text-sm text-gray-500">Cari produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
+              <p className="text-sm text-gray-500">Cari produk yang telah disediakan oleh jastiper di seluruh negeri</p>
             </div>
 
             {/* Buat Request */}
@@ -194,8 +194,8 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <p className="font-bold text-gray-900 mb-1">Buat Trip</p>
-              <p className="text-sm text-gray-500">Upload trip & katalog produkmu</p>
+              <p className="font-bold text-gray-900 mb-1">Buat Perjalanan</p>
+              <p className="text-sm text-gray-500">Upload perjalanan dan katalog produkmu</p>
             </div>
           </div>
 
@@ -220,7 +220,7 @@ export default function DashboardPage() {
           {/* Trip Saya */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-gray-900">Trip Saya</h2>
+              <h2 className="text-base font-semibold text-gray-900">Perjalanan Saya</h2>
               <button onClick={() => router.push('/trips')} className="text-xs text-[#49BC9E] hover:underline">Lihat semua →</button>
             </div>
             <div
@@ -231,7 +231,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{openTrips}</p>
-                    <p className="text-sm text-gray-500">trip aktif</p>
+                    <p className="text-sm text-gray-500">perjalanan aktif</p>
                   </div>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
                     <polyline points="9 18 15 12 9 6"/>
@@ -239,12 +239,12 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-400 text-sm mb-2">Belum ada trip aktif</p>
+                  <p className="text-gray-400 text-sm mb-2">Belum ada perjalanan aktif</p>
                   <button
                     onClick={e => { e.stopPropagation(); router.push('/trips/new') }}
                     className="text-xs text-[#49BC9E] hover:underline font-medium"
                   >
-                    + Buat trip baru
+                    + Buat perjalanan
                   </button>
                 </div>
               )}
