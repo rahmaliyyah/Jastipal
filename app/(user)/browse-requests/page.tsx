@@ -26,15 +26,12 @@ type Request = {
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
 }
-
 function formatRupiahPlain(n: number) {
   return new Intl.NumberFormat('id-ID').format(n)
 }
-
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
 }
-
 function daysLeft(deadline: string) {
   const diff = new Date(deadline).getTime() - Date.now()
   const days = Math.ceil(diff / 1000 / 60 / 60 / 24)
@@ -104,9 +101,48 @@ export default function BrowseRequestsPage() {
   const [filterDelivery, setFilterDelivery] = useState<'all' | 'courier' | 'meetup'>('all')
   const [filterDeadline, setFilterDeadline] = useState<'all' | 'urgent' | 'week'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'budget_high' | 'deadline_soon'>('newest')
-
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [showValidationPopup, setShowValidationPopup] = useState(false)
+
+  // ✅ TAMBAHAN: filter & sort setiap kali search/filter/sort/allRequests berubah
+  useEffect(() => {
+    let filtered = [...allRequests]
+
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      filtered = filtered.filter(r =>
+        r.product_name?.toLowerCase().includes(q) ||
+        r.product_url?.toLowerCase().includes(q) ||
+        r.notes?.toLowerCase().includes(q)
+      )
+    }
+
+    if (filterDelivery !== 'all') {
+      filtered = filtered.filter(r => r.delivery_pref === filterDelivery)
+    }
+
+    if (filterDeadline === 'urgent') {
+      filtered = filtered.filter(r => {
+        const diff = new Date(r.deadline).getTime() - Date.now()
+        return Math.ceil(diff / 1000 / 60 / 60 / 24) <= 3
+      })
+    } else if (filterDeadline === 'week') {
+      filtered = filtered.filter(r => {
+        const diff = new Date(r.deadline).getTime() - Date.now()
+        return Math.ceil(diff / 1000 / 60 / 60 / 24) <= 7
+      })
+    }
+
+    if (sortBy === 'budget_high') {
+      filtered.sort((a, b) => b.max_budget_idr - a.max_budget_idr)
+    } else if (sortBy === 'deadline_soon') {
+      filtered.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+    } else {
+      filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+
+    setRequests(filtered)
+  }, [search, filterDelivery, filterDeadline, sortBy, allRequests])
 
   useEffect(() => {
     async function init() {
@@ -228,13 +264,11 @@ export default function BrowseRequestsPage() {
     <main className="min-h-screen bg-[#F8FAFC]">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-4 sm:py-2">
 
-        {/* HEADER */}
         <div className="mb-4 sm:mb-6">
           <h1 className="text-xl font-bold text-[#1E293B]">Cari Permintaan</h1>
           <p className="mt-0.5 text-xs text-[#64748B]">Temukan permintaan titip yang bisa kamu ambil</p>
         </div>
 
-        {/* SEARCH */}
         <div className="relative mb-4">
           <span className="absolute left-3 top-1/2 -translate-y-1/2">
             <IconSearch />
@@ -253,31 +287,18 @@ export default function BrowseRequestsPage() {
           )}
         </div>
 
-        {/* FILTERS */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          <select
-            value={filterDelivery}
-            onChange={e => setFilterDelivery(e.target.value as any)}
-            className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0"
-          >
+          <select value={filterDelivery} onChange={e => setFilterDelivery(e.target.value as any)} className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0">
             <option value="all">Semua pengiriman</option>
             <option value="courier">Courier</option>
             <option value="meetup">Meetup</option>
           </select>
-          <select
-            value={filterDeadline}
-            onChange={e => setFilterDeadline(e.target.value as any)}
-            className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0"
-          >
+          <select value={filterDeadline} onChange={e => setFilterDeadline(e.target.value as any)} className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0">
             <option value="all">Semua deadline</option>
             <option value="urgent">Urgent (≤ 3 hari)</option>
             <option value="week">Minggu ini</option>
           </select>
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value as any)}
-            className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0"
-          >
+          <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} className="text-xs border border-[#CBD5E1] rounded-lg px-3 py-2 bg-white text-[#475569] outline-none focus:border-[#59D3B4] shrink-0">
             <option value="newest">Terbaru</option>
             <option value="budget_high">Budget tertinggi</option>
             <option value="deadline_soon">Deadline terdekat</option>
@@ -289,26 +310,20 @@ export default function BrowseRequestsPage() {
           </div>
         </div>
 
-        {/* SUCCESS TOAST */}
         {success && (
           <div className="mb-4 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5 flex items-center justify-between">
             <p className="text-xs text-green-700">{success}</p>
-            <button onClick={() => setSuccess('')} className="text-green-500 ml-3 shrink-0">
-              <IconX size={14} />
-            </button>
+            <button onClick={() => setSuccess('')} className="text-green-500 ml-3 shrink-0"><IconX size={14} /></button>
           </div>
         )}
 
-        {/* CONTENT */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-6 h-6 border-2 border-gray-200 border-t-[#59D3B4] rounded-full animate-spin"></div>
           </div>
         ) : requests.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-              <IconSearch />
-            </div>
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3"><IconSearch /></div>
             <p className="text-sm text-[#64748B]">Belum ada request yang tersedia</p>
           </div>
         ) : (
@@ -317,8 +332,6 @@ export default function BrowseRequestsPage() {
               const dl = daysLeft(req.deadline)
               return (
                 <div key={req.id} className="bg-white border border-[#CBD5E1] rounded-2xl p-4">
-
-                  {/* Buyer info */}
                   <div className="flex items-center gap-2 mb-3">
                     {req.users?.avatar_url ? (
                       <img src={req.users.avatar_url} className="w-6 h-6 rounded-full object-cover" />
@@ -331,21 +344,8 @@ export default function BrowseRequestsPage() {
                     <span className="text-[#CBD5E1]">·</span>
                     <p className="text-[10px] text-[#94A3B8]">{formatDate(req.created_at)}</p>
                   </div>
-
-                  {/* TITLE */}
                   <h2 className="text-sm font-bold text-[#0F172A] mb-1">{req.product_name}</h2>
-
-                  {/* LINK */}
-                  <a
-                    href={req.product_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-[#64748B] text-[10px] break-all hover:underline mb-3"
-                  >
-                    {req.product_url}
-                  </a>
-
-                  {/* GRID */}
+                  <a href={req.product_url} target="_blank" rel="noopener noreferrer" className="inline-block text-[#64748B] text-[10px] break-all hover:underline mb-3">{req.product_url}</a>
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     <div className="bg-[#F8FAFC] rounded-xl p-2.5">
                       <p className="text-[10px] text-[#94A3B8] font-medium">Batas Waktu</p>
@@ -356,9 +356,7 @@ export default function BrowseRequestsPage() {
                     </div>
                     <div className="bg-[#F8FAFC] rounded-xl p-2.5">
                       <p className="text-[10px] text-[#94A3B8] font-medium">Metode Pengiriman</p>
-                      <h3 className="mt-0.5 text-xs font-bold text-[#1E293B] capitalize">
-                        {req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}
-                      </h3>
+                      <h3 className="mt-0.5 text-xs font-bold text-[#1E293B] capitalize">{req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}</h3>
                     </div>
                     <div className="bg-[#F8FAFC] rounded-xl p-2.5">
                       <p className="text-[10px] text-[#94A3B8] font-medium">Maks. Budget</p>
@@ -369,23 +367,15 @@ export default function BrowseRequestsPage() {
                       <h3 className="mt-0.5 text-xs font-bold text-[#1E293B]">{req.quantity} Pcs</h3>
                     </div>
                   </div>
-
-                  {/* Delivery detail */}
                   {req.delivery_pref === 'courier' && req.shipping_address && (
-                    <div className="flex items-start gap-1.5 text-[10px] text-[#64748B] mb-3">
-                      <IconMapPin />
-                      {req.shipping_address}
-                    </div>
+                    <div className="flex items-start gap-1.5 text-[10px] text-[#64748B] mb-3"><IconMapPin />{req.shipping_address}</div>
                   )}
                   {req.delivery_pref === 'meetup' && req.meetup_location && (
                     <div className="flex items-start gap-1.5 text-[10px] text-[#64748B] mb-3">
-                      <IconMapPin />
-                      {req.meetup_location}
+                      <IconMapPin />{req.meetup_location}
                       {req.meetup_time && ` · ${new Date(req.meetup_time).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
                     </div>
                   )}
-
-                  {/* NOTE + BUTTON */}
                   <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mt-3 pt-3 border-t border-gray-100">
                     {req.notes ? (
                       <div>
@@ -406,30 +396,22 @@ export default function BrowseRequestsPage() {
           </div>
         )}
 
-        {/* MODAL AMBIL REQUEST */}
         {selected && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
             <div className="w-full sm:max-w-[560px] bg-white rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-10">
                 <h2 className="text-sm font-bold text-[#0F172A]">Ambil Permintaan</h2>
-                <button onClick={() => { setSelected(null); setFixedPrice(''); setError('') }}>
-                  <IconX size={20} />
-                </button>
+                <button onClick={() => { setSelected(null); setFixedPrice(''); setError('') }}><IconX size={20} /></button>
               </div>
-
               <div className="px-4 py-4 space-y-3">
-
                 <div className="border border-[#E2E8F0] rounded-xl px-3 py-2 bg-[#F8FAFC]">
                   <p className="text-[10px] text-[#94A3B8] font-medium">Nama Barang</p>
                   <h3 className="mt-0.5 text-sm font-bold text-[#1E293B]">{selected.product_name}</h3>
                 </div>
-
                 <div className="border border-[#E2E8F0] rounded-xl px-3 py-2 bg-[#F8FAFC]">
                   <p className="text-[10px] text-[#94A3B8] font-medium">Batas Budget</p>
                   <h3 className="mt-0.5 text-sm font-bold text-[#1E293B]">Rp {formatRupiahPlain(selected.max_budget_idr)}</h3>
                 </div>
-
                 <div>
                   <label className="text-xs font-medium text-[#1E293B]">Masukkan harga deal (IDR)</label>
                   <div className="mt-1.5 relative">
@@ -450,7 +432,6 @@ export default function BrowseRequestsPage() {
                     <p className="text-xs">Harga tidak boleh melebihi budget pembeli</p>
                   </div>
                 </div>
-
                 {numericDealPrice > 0 && (
                   <div className="border border-[#CBD5E1] rounded-xl p-3">
                     <h3 className="text-sm font-bold text-[#0F172A] mb-2">Ringkasan Harga</h3>
@@ -470,7 +451,6 @@ export default function BrowseRequestsPage() {
                     </div>
                   </div>
                 )}
-
                 <div className="bg-[#EEF4FF] border border-[#D6E4FF] rounded-xl p-3 flex items-start gap-2.5">
                   <IconInfo size={15} className="text-[#1D4ED8] flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-[#1D4ED8] leading-relaxed">
@@ -478,16 +458,9 @@ export default function BrowseRequestsPage() {
                     dan pembayaran harus diselesaikan dalam 24 jam sebelum order dibatalkan otomatis.
                   </p>
                 </div>
-
                 {error && <p className="text-red-500 text-xs">{error}</p>}
-
                 <div className="flex gap-2 pb-1">
-                  <button
-                    onClick={() => { setSelected(null); setFixedPrice(''); setError('') }}
-                    className="flex-1 h-10 rounded-xl border border-[#CBD5E1] text-[#64748B] text-sm font-medium hover:bg-gray-50 transition-all"
-                  >
-                    Kembali
-                  </button>
+                  <button onClick={() => { setSelected(null); setFixedPrice(''); setError('') }} className="flex-1 h-10 rounded-xl border border-[#CBD5E1] text-[#64748B] text-sm font-medium hover:bg-gray-50 transition-all">Kembali</button>
                   <button
                     onClick={() => {
                       if (!numericDealPrice || numericDealPrice > selected.max_budget_idr) {
@@ -502,56 +475,33 @@ export default function BrowseRequestsPage() {
                     {takingLoading ? 'Memproses...' : 'Ambil'}
                   </button>
                 </div>
-
               </div>
             </div>
           </div>
         )}
-
       </div>
 
-      {/* SUCCESS POPUP */}
       {showSuccessPopup && (
         <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-4">
           <div className="w-full max-w-[300px] bg-white rounded-2xl p-5 text-center">
-            <div className="w-12 h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto">
-              <IconCheckCircle />
-            </div>
+            <div className="w-12 h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center mx-auto"><IconCheckCircle /></div>
             <h2 className="mt-3 text-base font-bold text-[#0F172A]">Permintaan Berhasil Diambil</h2>
-            <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed">
-              Tagihan otomatis akan dikirim ke pembeli dan menunggu pembayaran.
-            </p>
-            <button
-              onClick={() => setShowSuccessPopup(false)}
-              className="mt-4 w-full h-10 rounded-xl bg-[#59D3B4] hover:bg-[#4CC2A5] text-white text-sm font-semibold transition-all"
-            >
-              Oke
-            </button>
+            <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed">Tagihan otomatis akan dikirim ke pembeli dan menunggu pembayaran.</p>
+            <button onClick={() => setShowSuccessPopup(false)} className="mt-4 w-full h-10 rounded-xl bg-[#59D3B4] hover:bg-[#4CC2A5] text-white text-sm font-semibold transition-all">Oke</button>
           </div>
         </div>
       )}
 
-      {/* VALIDATION POPUP */}
       {showValidationPopup && (
         <div className="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-4">
           <div className="w-full max-w-[300px] bg-white rounded-2xl p-5 text-center">
-            <div className="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto">
-              <IconAlertTriangle />
-            </div>
+            <div className="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto"><IconAlertTriangle /></div>
             <h2 className="mt-3 text-base font-bold text-[#0F172A]">Harga Deal Tidak Valid</h2>
-            <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed">
-              Pastikan harga deal sudah diisi dan tidak melebihi budget pembeli.
-            </p>
-            <button
-              onClick={() => setShowValidationPopup(false)}
-              className="mt-4 w-full h-10 rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white text-sm font-semibold transition-all"
-            >
-              Mengerti
-            </button>
+            <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed">Pastikan harga deal sudah diisi dan tidak melebihi budget pembeli.</p>
+            <button onClick={() => setShowValidationPopup(false)} className="mt-4 w-full h-10 rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white text-sm font-semibold transition-all">Mengerti</button>
           </div>
         </div>
       )}
-
     </main>
   )
 }
