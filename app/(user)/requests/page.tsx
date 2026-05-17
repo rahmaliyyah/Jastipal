@@ -414,8 +414,8 @@ export default function MyRequestsPage() {
                       {/* Tombol bayar */}
                       {req.payment_proof_url ? (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 text-center">
-                          <p className="text-sm font-medium text-orange-700">⏳ Bukti transfer sedang direview admin</p>
-                          <p className="text-xs text-orange-500 mt-1">Biasanya selesai dalam 1x24 jam</p>
+                          <p className="text-sm font-medium text-orange-700">Bukti transfer sedang direview admin</p>
+                          <p className="text-xs text-orange-500 mt-1">Review akan selesai dalam 1x24 jam</p>
                         </div>
                       ) : (
                         <>

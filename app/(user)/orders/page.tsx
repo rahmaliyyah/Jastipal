@@ -43,14 +43,12 @@ type Order = {
 }
 
 const statusConfig: Record<string, { label: string; color: string; step: number }> = {
-  waiting_payment: { label: 'Menunggu Pembayaran', color: 'bg-yellow-50 text-yellow-700 border border-yellow-200',   step: 1 },
-  processing:      { label: 'Diproses Jastiper',   color: 'bg-blue-50 text-blue-700 border border-blue-200',         step: 2 },
-  shipped:         { label: 'Dikirim',              color: 'bg-purple-50 text-purple-700 border border-purple-200',   step: 3 },
-  delivered:       { label: 'Selesai',              color: 'bg-[#e6f7f3] text-[#2d9b7f] border border-[#b3e8d9]',    step: 4 },
-  cancelled:       { label: 'Dibatalkan',           color: 'bg-gray-100 text-gray-500 border border-gray-200',        step: 0 },
+  waiting_payment: { label: 'Menunggu Pembayaran', color: 'text-orange-400',                step: 1 },
+  processing:      { label: 'Diproses Jastiper',   color: 'text-blue-500',                  step: 2 },
+  shipped:         { label: 'Dikirim',              color: 'text-purple-500',                step: 3 },
+  delivered:       { label: 'Selesai',              color: 'text-[#49BC9E]',                 step: 4 },
+  cancelled:       { label: 'Dibatalkan',           color: 'text-gray-400',                  step: 0 },
 }
-
-const steps = ['Menunggu Bayar', 'Diproses', 'Dikirim', 'Selesai']
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
@@ -265,21 +263,20 @@ export default function OrdersPage() {
   function renderActions(order: Order) {
     if (order.status === 'cancelled' || order.status === 'delivered') return null
 
-    // buyer actions
     if (activeRole === 'buyer') {
       if (order.status === 'shipped') {
         return (
           <div className="space-y-2">
             <button
               onClick={() => { setSelected(order) }}
-              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-medium transition-colors"
+              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
             >
               Konfirmasi Terima Barang
             </button>
             {!order.dispute && (
               <button
                 onClick={() => router.push(`/orders/${order.id}/dispute`)}
-                className="w-full border border-red-300 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 transition-colors"
+                className="w-full border border-red-200 text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 transition-colors"
               >
                 Ada Masalah? Buka Dispute
               </button>
@@ -291,7 +288,7 @@ export default function OrdersPage() {
         return !order.dispute ? (
           <button
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
-            className="w-full border border-red-300 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 transition-colors"
+            className="w-full border border-red-200 text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 transition-colors"
           >
             Ada Masalah? Buka Dispute
           </button>
@@ -302,38 +299,37 @@ export default function OrdersPage() {
         if (order.payment_proof_url) {
           return (
             <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 text-center">
-              <p className="text-sm font-medium text-orange-700">⏳ Bukti transfer sedang direview admin</p>
-              <p className="text-xs text-orange-500 mt-1">Biasanya selesai dalam 1x24 jam</p>
+              <p className="text-sm font-medium text-orange-700">Bukti transfer sedang direview admin</p>
+              <p className="text-xs text-orange-400 mt-1">Review akan selesai dalam 1x24 jam</p>
             </div>
           )
         }
         return (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => router.push(`/orders/${order.id}/pay`)}
-              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-medium transition-colors"
+              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
             >
-              Bayar Sekarang
+              Bayar
             </button>
             <button
               onClick={() => handleCancel(order)}
               disabled={actionLoading}
-              className="w-full border border-red-300 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
+              className="border border-gray-200 text-gray-500 rounded-lg py-3 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 transition-colors"
             >
-              Batalkan Pesanan
+              Batalkan
             </button>
           </div>
         )
       }
     }
 
-    // jastiper actions
     if (activeRole === 'jastiper') {
       if (order.status === 'processing') {
         return (
           <button
             onClick={() => router.push(`/orders/${order.id}/proof`)}
-            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-medium transition-colors"
+            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
           >
             {order.delivery_pref === 'courier' ? 'Upload Struk & Input Nomor Resi' : 'Upload Struk & Konfirmasi Meetup'}
           </button>
@@ -343,7 +339,7 @@ export default function OrdersPage() {
         return !order.dispute ? (
           <button
             onClick={() => router.push(`/orders/${order.id}/dispute`)}
-            className="w-full border border-red-300 text-red-500 rounded-lg py-2 text-xs font-medium hover:bg-red-50 transition-colors"
+            className="w-full border border-red-200 text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 transition-colors"
           >
             Buyer Tidak Konfirmasi? Buka Dispute
           </button>
@@ -355,14 +351,12 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl pb-12">
 
       {/* Modal konfirmasi */}
       {selected && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl p-6">
-
-            {/* Buyer: konfirmasi terima barang */}
             {activeRole === 'buyer' && selected.status === 'shipped' && (
               <>
                 <h2 className="text-base font-bold text-gray-900 mb-2">Konfirmasi Terima Barang</h2>
@@ -386,7 +380,6 @@ export default function OrdersPage() {
                 </div>
               </>
             )}
-
           </div>
         </div>
       )}
@@ -394,10 +387,10 @@ export default function OrdersPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             {activeRole === 'buyer' ? 'Pesanan Saya' : 'Order Masuk'}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-400 mt-1">
             {activeRole === 'buyer' ? 'Pantau status pesanan kamu' : 'Kelola order yang sedang kamu handle'}
           </p>
         </div>
@@ -453,7 +446,7 @@ export default function OrdersPage() {
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-400">
             {tab === 'waiting'    ? (activeRole === 'buyer' ? 'Tidak ada order menunggu pembayaran' : 'Tidak ada order yang perlu diproses')
             : tab === 'processing' ? (activeRole === 'buyer' ? 'Tidak ada order yang sedang diproses' : 'Tidak ada order yang sedang dikirim')
             : tab === 'delivered'  ? 'Belum ada order yang selesai'
@@ -466,74 +459,121 @@ export default function OrdersPage() {
             const cfg = statusConfig[order.status]
             const step = cfg?.step ?? 0
             return (
-              <div key={order.id} className="bg-white border border-gray-200 rounded-xl p-5">
+              <div key={order.id} className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6">
 
-                {/* Header */}
+                {/* Card Header */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{order.product_name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {formatDate(order.created_at)} · {order.flow_type === 'flow_a' ? 'Request' : 'Listing'}
-                    </p>
+                    <p className="font-bold text-gray-900 truncate">{order.product_name}</p>
+                    <p className="text-sm text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
                   </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
+                  <span className={`text-sm font-semibold shrink-0 ${
                     order.status === 'waiting_payment' && order.payment_proof_url
-                      ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                      ? 'text-orange-500'
                       : cfg?.color
                   }`}>
                     {order.status === 'waiting_payment' && order.payment_proof_url
-                      ? 'Bukti Direview Admin'
+                      ? 'Direview Admin'
                       : cfg?.label}
                   </span>
                 </div>
 
-                {/* Progress steps — hanya untuk order aktif */}
+                {/* Progress Steps — icon based */}
                 {order.status !== 'cancelled' && order.status !== 'delivered' && (
-                  <div className="flex items-center gap-0 mb-4">
-                    {steps.map((s, i) => (
-                      <div key={s} className="flex items-center flex-1">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                          i + 1 <= step
-                            ? 'bg-[#49BC9E] text-white'
-                            : 'bg-gray-100 text-gray-400'
-                        }`}>
-                          {i + 1 <= step ? '✓' : i + 1}
-                        </div>
-                        {i < steps.length - 1 && (
-                          <div className={`flex-1 h-0.5 mx-1 ${i + 1 < step ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
-                        )}
-                      </div>
-                    ))}
+                  <div className="flex items-center mb-6">
+
+                    {/* Step 1: Bayar */}
+                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      step >= 1 ? 'border-[#49BC9E]' : 'border-gray-200'
+                    }`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 1 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+
+                    <div className={`flex-1 h-px mx-2 ${step > 1 ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
+
+                    {/* Step 2: Diproses */}
+                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      step >= 2 ? 'border-[#49BC9E]' : 'border-gray-200'
+                    }`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 2 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                    </div>
+
+                    <div className={`flex-1 h-px mx-2 ${step > 2 ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
+
+                    {/* Step 3: Dikirim */}
+                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      step >= 3 ? 'border-[#49BC9E]' : 'border-gray-200'
+                    }`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 3 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                      </svg>
+                    </div>
+
+                    <div className={`flex-1 h-px mx-2 ${step > 3 ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
+
+                    {/* Step 4: Selesai */}
+                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      step >= 4 ? 'border-[#49BC9E]' : 'border-gray-200'
+                    }`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 4 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+
                   </div>
                 )}
 
+                {/* Delivery info */}
+                <div className="mb-4">
+                  {order.delivery_pref === 'courier' ? (
+                    <>
+                      <p className="text-sm font-semibold text-gray-900 mb-1">Pengiriman:</p>
+                      <p className="text-sm text-gray-500">{order.shipping_address ?? '-'}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-gray-900 mb-1">Lokasi Meetup:</p>
+                      <p className="text-sm text-gray-500">{order.meetup_location ?? '-'}</p>
+                      {order.meetup_time && (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {new Date(order.meetup_time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
+                    </>
+                  )}
+                  {order.tracking_number && (
+                    <p className="text-sm text-gray-500 mt-1">Resi: <span className="font-medium text-gray-700">{order.tracking_number}</span></p>
+                  )}
+                </div>
+
                 {/* Counterpart info */}
                 {order.counterpart && (
-                  <div className="flex items-center gap-2 mb-4">
-                    {order.counterpart.avatar_url ? (
-                      <img src={order.counterpart.avatar_url} className="w-7 h-7 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
-                        {order.counterpart.full_name?.[0] ?? '?'}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      {order.counterpart.avatar_url ? (
+                        <img src={order.counterpart.avatar_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-[#e6f7f3] flex items-center justify-center text-sm font-semibold text-[#49BC9E] uppercase shrink-0">
+                          {order.counterpart.full_name?.[0] ?? '?'}
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{order.counterpart.full_name}</p>
+                        <p className="text-xs text-gray-400">{activeRole === 'buyer' ? 'Jastiper' : 'Buyer'}</p>
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-500">
-                        {activeRole === 'buyer' ? 'Jastiper' : 'Buyer'}:{' '}
-                        <span className="font-medium text-gray-900">{order.counterpart.full_name}</span>
-                      </p>
                     </div>
                     {order.counterpart.whatsapp_number && (
                       <a
                         href={`https://wa.me/${order.counterpart.whatsapp_number.replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 py-1 text-xs font-medium transition-colors"
+                        className="bg-[#49BC9E] hover:bg-[#3da88d] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shrink-0"
                       >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                        </svg>
-                        WA
+                        Hubungi
                       </a>
                     )}
                   </div>
@@ -541,44 +581,23 @@ export default function OrdersPage() {
 
                 {/* Pricing */}
                 {order.pricing && (
-                  <div className="bg-gray-50 rounded-lg p-3 mb-4 space-y-1">
-                    <div className="flex justify-between text-xs text-gray-500">
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4 space-y-1.5">
+                    <div className="flex justify-between text-sm text-gray-500">
                       <span>Harga fix (all-in)</span>
                       <span>{formatRupiah(order.pricing.product_price_idr)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-sm text-gray-500">
                       <span>Platform fee (5%)</span>
                       <span>{formatRupiah(order.pricing.platform_fee_idr)}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-semibold text-gray-900 pt-1 border-t border-gray-200">
+                    <div className="flex justify-between text-sm font-bold text-gray-900 pt-1.5 border-t border-gray-200">
                       <span>Total</span>
                       <span>{formatRupiah(order.pricing.total_idr)}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Delivery info */}
-                <div className="text-xs text-gray-500 mb-4 space-y-1">
-                  {order.delivery_pref === 'courier' ? (
-                    <p>📦 Courier → {order.shipping_address ?? '-'}</p>
-                  ) : (
-                    <>
-                      <p>🤝 Meetup → {order.meetup_location ?? '-'}</p>
-                      {order.meetup_time && (
-                        <p>🕐 Waktu meetup:{' '}
-                          <span className="font-medium text-gray-700">
-                            {new Date(order.meetup_time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </p>
-                      )}
-                    </>
-                  )}
-                  {order.tracking_number && (
-                    <p>🚚 Resi: <span className="font-medium text-gray-700">{order.tracking_number}</span></p>
-                  )}
-                </div>
-
-                {/* Bukti pembelian — tampil ke buyer jika sudah ada */}
+                {/* Bukti pembelian */}
                 {activeRole === 'buyer' && order.proof && (
                   <div className="bg-gray-50 rounded-lg p-3 mb-4">
                     <p className="text-xs font-medium text-gray-600 mb-2">Bukti Pembelian dari Jastiper</p>
@@ -625,14 +644,15 @@ export default function OrdersPage() {
                         <span className="font-medium">Keputusan admin:</span> {order.dispute.resolution}
                       </p>
                     )}
-                    <p className="text-xs text-red-500 mt-1">
-                      {order.dispute.status === 'resolved' ? '💰 Dana dikembalikan ke buyer' : ''}
-                    </p>
+                    {order.dispute.status === 'resolved' && (
+                      <p className="text-xs text-red-500 mt-1">💰 Dana dikembalikan ke buyer</p>
+                    )}
                   </div>
                 )}
 
                 {/* Actions */}
                 {renderActions(order)}
+
               </div>
             )
           })}
