@@ -10,11 +10,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/orders?error=MissingOrderId', request.url))
   }
 
-  // Jika pembayaran berhasil (atau simulasi lokal iPaymu return)
   if (status === 'berhasil') {
     const supabase = await createClient()
 
-    // 1. Perbarui status order menjadi 'processing' (Diproses Jastiper)
     const { error: orderError } = await supabase
       .from('orders')
       .update({ status: 'processing' })
@@ -25,11 +23,10 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/orders?error=FailedUpdateOrder', request.url))
     }
 
-    // 2. Perbarui escrow_transactions seolah-olah sudah disetujui (seperti klik Approve di Admin)
     const { error: escrowError } = await supabase
       .from('escrow_transactions')
       .update({
-        status: 'released', // Sesuai dengan logika "Disetujui" admin saat ini
+        status: 'released', 
         payment_method: 'iPaymu',
         paid_at: new Date().toISOString(),
         released_at: new Date().toISOString()
@@ -41,10 +38,8 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/orders?error=FailedUpdateEscrow', request.url))
     }
 
-    // Redirect kembali ke halaman orders dengan pesan sukses
     return NextResponse.redirect(new URL('/orders?success=Pembayaran iPaymu Berhasil!', request.url))
   }
 
-  // Jika dibatalkan atau gagal
   return NextResponse.redirect(new URL('/orders', request.url))
 }
