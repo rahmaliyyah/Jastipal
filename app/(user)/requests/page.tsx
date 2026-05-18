@@ -50,6 +50,7 @@ export default function MyRequestsPage() {
   const [requests, setRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+  const [paymentLoadingId, setPaymentLoadingId] = useState<string | null>(null)
   const [tab, setTab] = useState<'open' | 'matched' | 'paid' | 'selesai' | 'cancelled'>('open')
 
   useEffect(() => { fetchRequests() }, [tab])
@@ -166,6 +167,27 @@ export default function MyRequestsPage() {
     fetchRequests()
   }
 
+  async function handlePay(orderId: string) {
+    setPaymentLoadingId(orderId)
+    try {
+      const res = await fetch('/api/ipaymu/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId })
+      })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        window.location.href = data.url
+      } else {
+        alert(data.error || 'Gagal membuat sesi pembayaran')
+      }
+    } catch (err) {
+      alert('Terjadi kesalahan')
+    } finally {
+      setPaymentLoadingId(null)
+    }
+  }
+
   const tabLabels: Record<string, string> = {
     open: 'Menunggu',
     matched: 'Tagihan',
@@ -175,8 +197,6 @@ export default function MyRequestsPage() {
   }
 
   return (
-    // ✅ FIX: Hapus max-w-3xl di sini — biarkan parent layout yang mengatur lebar.
-    // Gunakan w-full agar card mengisi penuh lebar container yang tersedia.
     <div className="w-full pb-12">
 
       {/* Header */}
@@ -197,7 +217,7 @@ export default function MyRequestsPage() {
         </button>
       </div>
 
-      {/* Tabs — scroll horizontal di mobile */}
+      {/* Tabs */}
       <div className="overflow-x-auto mb-5 -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex items-center gap-0 border-b border-gray-200 min-w-max">
           {(['open', 'matched', 'paid', 'selesai', 'cancelled'] as const).map(t => (
@@ -252,36 +272,23 @@ export default function MyRequestsPage() {
       ) : (
         <div className="space-y-3 sm:space-y-4">
           {requests.map(req => (
-            // ✅ FIX: Card full width, padding lebih kecil di mobile (p-3 → p-4 di sm)
             <div key={req.id} className="w-full bg-white rounded-xl border border-gray-200 p-3 sm:p-5 shadow-sm">
 
               {/* Card Header */}
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="min-w-0 flex-1">
-                  {/* ✅ FIX: Batas teks lebih ketat di mobile, gunakan line-clamp */}
                   <p className="font-bold text-gray-900 mb-1 text-sm sm:text-base line-clamp-2">{req.product_name}</p>
-                  <a
-                    href={req.product_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-gray-400 hover:underline truncate block"
-                  >
+                  <a href={req.product_url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:underline truncate block">
                     {req.product_url}
                   </a>
                 </div>
-                {/* Status Badge — ✅ FIX: teks lebih kecil di mobile */}
                 <span className={`flex-shrink-0 text-[10px] sm:text-xs font-semibold rounded-full px-2 sm:px-3 py-1 border ${
-                  tab === 'open'
-                    ? 'text-orange-400 bg-orange-50 border-orange-200'
-                    : tab === 'matched' && req.payment_proof_url
-                    ? 'text-orange-600 bg-orange-50 border-orange-200'
-                    : tab === 'matched'
-                    ? 'text-blue-500 bg-blue-50 border-blue-200'
-                    : tab === 'paid'
-                    ? 'text-purple-600 bg-purple-50 border-purple-200'
-                    : tab === 'selesai'
-                    ? 'text-green-600 bg-green-50 border-green-200'
-                    : 'text-red-500 bg-red-50 border-red-200'
+                  tab === 'open' ? 'text-orange-400 bg-orange-50 border-orange-200'
+                  : tab === 'matched' && req.payment_proof_url ? 'text-orange-600 bg-orange-50 border-orange-200'
+                  : tab === 'matched' ? 'text-blue-500 bg-blue-50 border-blue-200'
+                  : tab === 'paid' ? 'text-purple-600 bg-purple-50 border-purple-200'
+                  : tab === 'selesai' ? 'text-green-600 bg-green-50 border-green-200'
+                  : 'text-red-500 bg-red-50 border-red-200'
                 }`}>
                   {tab === 'open' ? 'Menunggu'
                     : tab === 'matched' && req.payment_proof_url ? 'Direview'
@@ -292,7 +299,7 @@ export default function MyRequestsPage() {
                 </span>
               </div>
 
-              {/* Detail Grid — ✅ FIX: 2 kolom tetap tapi lebih compact di mobile */}
+              {/* Detail Grid */}
               <div className="grid grid-cols-2 gap-x-3 gap-y-3 bg-gray-50 rounded-lg p-3 mb-3">
                 <div>
                   <p className="text-[11px] text-[#64748B] mb-0.5">Estimasi Diterima</p>
@@ -312,7 +319,7 @@ export default function MyRequestsPage() {
                 </div>
               </div>
 
-              {/* Tab Cancelled: request dibatalkan manual */}
+              {/* Tab Cancelled */}
               {tab === 'cancelled' && req.status === 'cancelled' && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
                   <p className="text-xs sm:text-sm font-medium text-gray-600">Request dibatalkan</p>
@@ -410,10 +417,11 @@ export default function MyRequestsPage() {
                       ) : (
                         <>
                           <button
-                            onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
-                            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-xl py-2.5 text-sm font-semibold transition-all"
+                            onClick={() => req.order_id && handlePay(req.order_id)}
+                            disabled={paymentLoadingId === req.order_id}
+                            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-xl py-2.5 text-sm font-semibold transition-all disabled:opacity-50"
                           >
-                            Bayar Sekarang
+                            {paymentLoadingId === req.order_id ? 'Memproses...' : 'Bayar Sekarang'}
                           </button>
                           <p className="text-[11px] text-gray-400 text-center mt-2">
                             Pesanan dibatalkan otomatis jika waktu pembayaran habis.
@@ -444,7 +452,6 @@ export default function MyRequestsPage() {
                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`shrink-0 ${tab === 'paid' ? 'text-purple-400' : 'text-green-500'}`}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                               </svg>
-                              {/* ✅ FIX: teks lebih pendek di mobile agar tidak wrap buruk */}
                               <span className={`text-[11px] font-medium ${tab === 'paid' ? 'text-purple-600' : 'text-green-600'}`}>
                                 {tab === 'paid' ? 'Memproses pesananmu' : 'Jastiper kamu'}
                               </span>

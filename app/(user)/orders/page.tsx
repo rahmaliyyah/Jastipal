@@ -70,6 +70,7 @@ export default function OrdersPage() {
   const [selected, setSelected] = useState<Order | null>(null)
   const [trackingInput, setTrackingInput] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
+  const [paymentLoadingId, setPaymentLoadingId] = useState<string | null>(null)
   const [success, setSuccess] = useState('')
 
   useEffect(() => {
@@ -235,6 +236,28 @@ export default function OrdersPage() {
     fetchOrders()
   }
 
+  async function handlePay(order: Order) {
+    setPaymentLoadingId(order.id)
+    try {
+      const res = await fetch('/api/ipaymu/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id })
+      })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        window.location.href = data.url
+      } else {
+        alert(data.error || 'Gagal membuat sesi pembayaran')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Terjadi kesalahan')
+    } finally {
+      setPaymentLoadingId(null)
+    }
+  }
+
   function renderActions(order: Order) {
     if (order.status === 'cancelled' || order.status === 'delivered') return null
 
@@ -283,10 +306,11 @@ export default function OrdersPage() {
           // ✅ FIX: stack vertikal di mobile
           <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-3">
             <button
-              onClick={() => router.push(`/orders/${order.id}/pay`)}
-              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-semibold transition-colors"
+              onClick={() => handlePay(order)}
+              disabled={paymentLoadingId === order.id}
+              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
             >
-              Bayar
+              {paymentLoadingId === order.id ? 'Memproses...' : 'Bayar'}
             </button>
             <button
               onClick={() => handleCancel(order)}

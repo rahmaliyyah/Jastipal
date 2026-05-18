@@ -51,7 +51,7 @@ export default function AdminPaymentsPage() {
     const { data: escrowData } = await supabase
       .from('escrow_transactions')
       .select('id, order_id, amount_idr, payment_method, payment_proof_url, paid_at, status, admin_note')
-      .not('payment_proof_url', 'is', null)
+      .not('paid_at', 'is', null)
       .eq('status', tab === 'pending' ? 'held' : tab === 'approved' ? 'released' : 'refunded')
       .order('paid_at', { ascending: false })
 
@@ -215,7 +215,7 @@ export default function AdminPaymentsPage() {
             </div>
 
             {/* Bukti transfer image */}
-            {selected.payment_proof_url && (
+            {selected.payment_proof_url ? (
               <div className="mt-5">
                 <p className="text-sm text-gray-400 mb-2">Bukti Transfer</p>
                 <div
@@ -230,7 +230,18 @@ export default function AdminPaymentsPage() {
                   <p className="text-center text-sm text-gray-500 py-2">Klik untuk Perbesar</p>
                 </div>
               </div>
-            )}
+            ) : selected.payment_method === 'iPaymu' ? (
+              <div className="mt-5">
+                <p className="text-sm text-gray-400 mb-2">Bukti Transfer</p>
+                <div className="rounded-xl border border-gray-200 bg-teal-50 text-teal-700 p-6 flex flex-col items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="font-semibold text-center">Pembayaran Terverifikasi Otomatis via iPaymu</p>
+                  <p className="text-xs mt-1 text-teal-600 text-center">Tidak perlu cek bukti transfer manual.</p>
+                </div>
+              </div>
+            ) : null}
 
             {/* Catatan admin - pending */}
             {tab === 'pending' && (
@@ -356,12 +367,21 @@ export default function AdminPaymentsPage() {
               onClick={() => { setSelected(payment); setAdminNote('') }}
             >
               {/* Thumbnail */}
-              {payment.payment_proof_url && (
+              {payment.payment_proof_url ? (
                 <img
                   src={payment.payment_proof_url}
                   alt="Bukti"
                   className="w-full h-[140px] object-cover"
                 />
+              ) : payment.payment_method === 'iPaymu' ? (
+                <div className="w-full h-[140px] bg-teal-50 flex flex-col items-center justify-center text-teal-600 border-b border-[#E2E8F0]">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-semibold text-sm">Otomatis iPaymu</span>
+                </div>
+              ) : (
+                <div className="w-full h-[140px] bg-gray-100 flex items-center justify-center text-gray-400 border-b border-[#E2E8F0]">Tidak ada bukti</div>
               )}
 
               <div className="p-4">
