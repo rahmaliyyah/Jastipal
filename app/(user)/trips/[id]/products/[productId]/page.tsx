@@ -46,7 +46,6 @@ function IconX() {
     </svg>
   )
 }
-
 function IconBack() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,7 +53,6 @@ function IconBack() {
     </svg>
   )
 }
-
 function IconImage() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-gray-300">
@@ -62,7 +60,6 @@ function IconImage() {
     </svg>
   )
 }
-
 function IconPlane() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
@@ -70,7 +67,6 @@ function IconPlane() {
     </svg>
   )
 }
-
 function IconMapPin() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
@@ -78,7 +74,6 @@ function IconMapPin() {
     </svg>
   )
 }
-
 function IconHome() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
@@ -86,7 +81,6 @@ function IconHome() {
     </svg>
   )
 }
-
 function IconTruck() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
@@ -94,7 +88,6 @@ function IconTruck() {
     </svg>
   )
 }
-
 function IconCheckCircle() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
@@ -102,7 +95,6 @@ function IconCheckCircle() {
     </svg>
   )
 }
-
 function IconWhatsapp() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
@@ -127,6 +119,7 @@ export default function ProductDetailPage() {
   const [showOrder, setShowOrder] = useState(false)
   const [buyerCity, setBuyerCity] = useState('')
   const [shippingAddress, setShippingAddress] = useState('')
+  const [quantity, setQuantity] = useState(1)
   const [orderLoading, setOrderLoading] = useState(false)
   const [orderError, setOrderError] = useState('')
   const [orderSuccess, setOrderSuccess] = useState('')
@@ -191,14 +184,16 @@ export default function ProductDetailPage() {
     if (!product || !trip || !userId) return
     if (!buyerCity.trim()) { setOrderError('Kota pengiriman wajib diisi'); return }
     if (!shippingAddress.trim()) { setOrderError('Alamat pengiriman wajib diisi'); return }
+    if (quantity < 1) { setOrderError('Jumlah minimal 1'); return }
+    if (quantity > product.stock) { setOrderError(`Stok tidak cukup, tersisa ${product.stock}`); return }
 
     setOrderLoading(true)
     setOrderError('')
 
     const isSameCity = buyerCity.trim().toLowerCase() === (trip.arrival_city ?? '').toLowerCase()
     const domesticShipping = isSameCity ? 25000 : 50000
-    const platformFee = Math.round(product.total_price_idr * 0.05)
-    const total = product.total_price_idr + platformFee + domesticShipping
+    const platformFee = Math.round(product.total_price_idr * quantity * 0.05)
+    const total = (product.total_price_idr * quantity) + platformFee + domesticShipping
 
     const { data: orderData, error: orderErr } = await supabase
       .from('orders')
@@ -208,7 +203,7 @@ export default function ProductDetailPage() {
         listing_id: product.id,
         flow_type: 'flow_b',
         product_name: product.product_name,
-        quantity: 1,
+        quantity: quantity,
         delivery_pref: 'courier',
         shipping_address: `${shippingAddress}, ${buyerCity}`,
         status: 'waiting_payment',
@@ -218,11 +213,25 @@ export default function ProductDetailPage() {
 
     if (orderErr) { setOrderError('Gagal membuat order: ' + orderErr.message); setOrderLoading(false); return }
 
+    // kurangi stok dari nilai terbaru DB
+    const { data: latestListing } = await supabase
+      .from('listings')
+      .select('stock')
+      .eq('id', product.id)
+      .single()
+
+    if (latestListing) {
+      await supabase
+        .from('listings')
+        .update({ stock: Math.max(0, latestListing.stock - quantity) })
+        .eq('id', product.id)
+    }
+
     await supabase.from('order_pricing').insert({
       order_id: orderData.id,
-      product_price_idr: product.product_price_idr,
-      service_fee_idr: product.service_fee_idr,
-      shipping_fee_idr: product.shipping_fee_idr + domesticShipping,
+      product_price_idr: product.product_price_idr * quantity,
+      service_fee_idr: product.service_fee_idr * quantity,
+      shipping_fee_idr: product.shipping_fee_idr * quantity + domesticShipping,
       platform_fee_idr: platformFee,
       estimated_customs_idr: 0,
       total_idr: total,
@@ -236,6 +245,7 @@ export default function ProductDetailPage() {
 
     setOrderSuccess(`Order berhasil! Total: ${formatRupiah(total)}`)
     setShowOrder(false)
+    setQuantity(1)
     setOrderLoading(false)
   }
 
@@ -249,26 +259,44 @@ export default function ProductDetailPage() {
 
   const isSameCity = buyerCity.trim().toLowerCase() === (trip.arrival_city ?? '').toLowerCase()
   const domesticShipping = buyerCity ? (isSameCity ? 25000 : 50000) : 0
-  const platformFee = Math.round(product.total_price_idr * 0.05)
-  const total = product.total_price_idr + platformFee + domesticShipping
+  const platformFee = Math.round(product.total_price_idr * quantity * 0.05)
+  const total = (product.total_price_idr * quantity) + platformFee + domesticShipping
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       {/* Order modal */}
       {showOrder && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl border border-gray-200 w-full sm:max-w-md shadow-xl max-h-[92vh] overflow-y-auto">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
               <h2 className="text-base font-bold text-gray-900">Konfirmasi Order</h2>
               <button
-                onClick={() => { setShowOrder(false); setOrderError('') }}
+                onClick={() => { setShowOrder(false); setOrderError(''); setQuantity(1) }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <IconX />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-5 space-y-4">
+
+              {/* Quantity */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Jumlah</label>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center font-medium transition-colors"
+                  >-</button>
+                  <span className="text-sm font-semibold text-gray-900 w-6 text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(q => Math.min(product.stock, q + 1))}
+                    className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center font-medium transition-colors"
+                  >+</button>
+                  <span className="text-xs text-gray-400">Stok: {product.stock}</span>
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1.5 block">
@@ -312,19 +340,19 @@ export default function ProductDetailPage() {
 
               <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>Harga produk</span>
-                  <span>{formatRupiah(product.product_price_idr)}</span>
+                  <span>Harga produk {quantity > 1 ? `(x${quantity})` : ''}</span>
+                  <span>{formatRupiah(product.product_price_idr * quantity)}</span>
                 </div>
                 {product.service_fee_idr > 0 && (
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Service fee</span>
-                    <span>{formatRupiah(product.service_fee_idr)}</span>
+                    <span>{formatRupiah(product.service_fee_idr * quantity)}</span>
                   </div>
                 )}
                 {product.shipping_fee_idr > 0 && (
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Ongkir luar negeri</span>
-                    <span>{formatRupiah(product.shipping_fee_idr)}</span>
+                    <span>{formatRupiah(product.shipping_fee_idr * quantity)}</span>
                   </div>
                 )}
                 {buyerCity && (
@@ -348,9 +376,9 @@ export default function ProductDetailPage() {
 
               {orderError && <p className="text-red-500 text-sm">{orderError}</p>}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pb-1">
                 <button
-                  onClick={() => { setShowOrder(false); setOrderError('') }}
+                  onClick={() => { setShowOrder(false); setOrderError(''); setQuantity(1) }}
                   className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors"
                 >
                   Batal
@@ -393,10 +421,10 @@ export default function ProductDetailPage() {
       {/* Foto produk */}
       {product.image_url ? (
         <img
-  src={product.image_url}
-  className="w-full h-auto max-h-[500px] object-contain rounded-2xl mb-5 bg-gray-100"
-  alt={product.product_name}
-/>
+          src={product.image_url}
+          className="w-full h-auto max-h-[500px] object-contain rounded-2xl mb-5 bg-gray-100"
+          alt={product.product_name}
+        />
       ) : (
         <div className="w-full h-40 bg-gray-100 rounded-2xl mb-5 flex items-center justify-center">
           <IconImage />
@@ -501,7 +529,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* Tombol order */}
-      {activeRole === 'buyer' && product.status === 'open' && !orderSuccess && (
+      {activeRole === 'buyer' && product.status === 'open' && product.stock > 0 && !orderSuccess && (
         <button
           onClick={() => setShowOrder(true)}
           className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-xl py-3 text-sm font-semibold transition-colors"
