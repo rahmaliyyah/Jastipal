@@ -11,8 +11,11 @@ type KycApplicant = {
   whatsapp_number: string | null
   kyc_idcard_url: string | null
   kyc_selfie_url: string | null
+  bank_name: string | null
+bank_account: string | null
   kyc_status: 'pending' | 'approved' | 'rejected'
   kyc_rejection_reason: string | null
+  
   users: {
     full_name: string
     email: string
@@ -136,6 +139,16 @@ export default function AdminDashboard() {
                 <p className="text-[13px] text-[#64748B] mb-1">WhatsApp</p>
                 <input value={selected.whatsapp_number ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white" />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+  <div>
+    <p className="text-[13px] text-[#64748B] mb-1">Nama Bank</p>
+    <input value={(selected as any).bank_name ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white" />
+  </div>
+  <div>
+    <p className="text-[13px] text-[#64748B] mb-1">Nomor Rekening</p>
+    <input value={(selected as any).bank_account ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white" />
+  </div>
+</div>
               <div>
                 <p className="text-[13px] text-[#64748B] mb-1">Bio</p>
                 <textarea rows={2} value={selected.bio ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white resize-none" />
@@ -164,6 +177,7 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+            
 
             {/* Action: pending */}
             {selected.kyc_status === 'pending' && (

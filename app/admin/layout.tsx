@@ -13,6 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [pendingKyc, setPendingKyc] = useState(0)
   const [pendingPayment, setPendingPayment] = useState(0)
   const [pendingDisputes, setPendingDisputes] = useState(0)
+  const [pendingDisbursements, setPendingDisbursements] = useState(0)
   const [showDropdown, setShowDropdown] = useState(false)
 
   useEffect(() => {
@@ -47,6 +48,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         .select('*', { count: 'exact', head: true })
         .eq('status', 'open')
       setPendingDisputes(disputeCount ?? 0)
+
+      const { data: escrowData } = await supabase
+        .from('escrow_transactions')
+        .select('admin_note, orders!inner(status)')
+        .eq('orders.status', 'delivered')
+      
+      const pendingDisbursementCount = escrowData?.filter(e => !(e.admin_note || '').includes('[DISBURSED]')).length || 0
+      setPendingDisbursements(pendingDisbursementCount)
     }
     init()
   }, [pathname])
@@ -81,6 +90,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       href: '/admin/disputes',
       label: 'Pelanggaran',
       badge: pendingDisputes > 0 ? pendingDisputes : null,
+    },
+    {
+      href: '/admin/disbursements',
+      label: 'Pencairan Dana',
+      badge: pendingDisbursements > 0 ? pendingDisbursements : null,
     },
     {
       href: '/admin/users',

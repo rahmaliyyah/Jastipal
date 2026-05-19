@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabaseAdmin
     .from('jastiper_profiles')
-    .select('user_id, bio, service_fee_pct, base_country, whatsapp_number, kyc_idcard_url, kyc_selfie_url, kyc_status, kyc_rejection_reason, users!jastiper_profiles_user_id_fkey(full_name, email, avatar_url)')
+    .select('user_id, bio, service_fee_pct, base_country, whatsapp_number, bank_name, bank_account, kyc_idcard_url, kyc_selfie_url, kyc_status, kyc_rejection_reason, users!jastiper_profiles_user_id_fkey(full_name, email, avatar_url)')
     .eq('kyc_status', status)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
