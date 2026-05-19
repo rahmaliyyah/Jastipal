@@ -335,6 +335,13 @@ export default function BrowseListingsPage() {
 
   return (
     <div className="w-full">
+      <button
+        onClick={() => router.push('/dashboard')}
+        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 mb-4 transition-colors"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali ke Dashboard
+      </button>
 
       {/* Modal order */}
       {selectedProduct && (

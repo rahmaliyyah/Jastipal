@@ -263,6 +263,13 @@ export default function BrowseRequestsPage() {
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-4 sm:py-2">
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#1E293B] mb-4 transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Kembali ke Dashboard
+        </button>
 
         <div className="mb-4 sm:mb-6">
           <h1 className="text-xl font-bold text-[#1E293B]">Cari Permintaan</h1>
